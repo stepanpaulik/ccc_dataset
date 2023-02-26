@@ -1,0 +1,413 @@
+---
+title: 'Europeanisation of National Constitutional Courts Beyond Extremes: A Few Insights
+  from Czechia'
+author: "Štěpán Paulík"
+date: "`r Sys.Date()`"
+output:
+  word_document:
+    reference_docx: word_style.docx
+  pdf_document: default
+  html_document:
+    df_print: paged
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, dpi=300,fig.width=7, message = FALSE, warning = FALSE)
+xfun::pkg_attach2("ggplot2", "tidyverse", "lubridate", "tm", "knitr", "pander")
+matches_joined <- read.csv("data/matches_joined.csv") %>% filter(year_cc > 2003)
+data_metadata <- read.csv("data/decisions_US_metadata.csv")
+```
+
+# Descriptive statistics
+The goal of the descriptive statistics chapter is to build an intuition regarding what theories about the CC's role face to face the ECJ may be plausible and to build a more comprehensive picture. The goal is not to make an inference about whether certain hypotheses hold nor not, nor is it to say that other theories are wrong.
+
+## Data
+The data are result of a connection between two datasets: the Iuropa dataset for ECJ and our own Czech Apex Courts dataset. Both datasets contain complete text corpora as well as various metadata about the decisions. The latter dataset was webscraped by us and it contains all CC decision up until 1.1.2022. For the national part of analysis, both the text corpora and the metadata of the CC decisions were utilized, whereas for the EU part of analysis, only the metadata from Iuropa dataset were utilized.
+
+## Analysis
+In our analysis, we include data only from 2004 and onward. The reason is that there were only 2 CC decisions with an ECJ reference before 2004. We analyse those separately. We analyse our data using quantitative analysis.
+
+Before we delve into the analysis, it is important to clarify one important distinction. We distinguish between a referring decision and a reference A referring decision refers to any case that contains at one or more references to an ECJ decision, whereas a reference is the relationship between the referring case and the cited ECJ case, if there is one or more occurrences in the CC decision. Thus, one referring case can contain multiple references. We do not count multiple references of one particular ECJ decision in one particular CC decision.
+
+### The story of constitutional conflict in the EU
+
+#### The untold story
+National constitutional courts within EU are often painted as defendants of the national constitutionality face to face the competing claim for authority from the ECJ. The conflict between the ECJ and the constitutional courts often takes the spotlight in legal literature. The open backlash of national constitutional courts is conceptualized and analysed [Bobic, Dyevre...]. Other, perhaps more mundane interactions between the ECJ and national constitutional courts is often overlooked. That is why we, in the first place, ask whether this perspective is justified by the overall picture of our case study?
+
+At first blush, it may seem like yes, that is indeed the case because there is nothing to hint in the other direction. We look at two types of cases. Firstly, we analyse whether the CC grants the application or not. Since the proceedings before the CC typically involve an applicant, mostly an individual, on the one side and the state on the other, we can analyse how often does the CC rule against the government. Moreover, the CC is competent to review laws in abstract proceedings, where an applicant can dispute the constitutionality of a legal act in abstract, or in concrete cases with an individual filing a constitutional complaint. We may be able to discern whether the CC often sides with the individuals referring decisions or how often it strikes down laws using ECJ decisions.
+
+[tady někde nebo dřív doplnit to o té europeanizaci]
+
+A quick glance at the overtime development of the ratio between cases that the CC grants to the applicant against the government and cases that the CC rejects seems to show nothing irregular: the ECJ is mostly referred to cases in which the constitution is given precedence.  The ratio between concrete and abstract review is similar - concrete review cases dominate. The data also shows that the usage of the ECJ case law is increasing overtime. It may therefore seem that the theory of europeanization of national legal orders, including national judiciaries, is indeed correct.
+```{r ratios_absolute, echo=FALSE}
+# Total N cases per year
+matches_joined_count_total <- data_metadata %>% 
+  group_by(year_cc) %>% 
+  summarize(count_total = n())
+
+# Data prep for freq/outcome histogram
+matches_joined  %>% 
+  group_by(outcome, year_cc) %>% 
+  summarize(count = n(),
+            count_distinct = n_distinct(doc_id)) %>%
+  {. ->> matches_joined_outcome}
+
+matches_joined_freq_relative <- data_metadata %>% 
+  group_by(outcome, year_cc) %>% 
+  summarize(count_relative = n())
+
+matches_joined_outcome <- left_join(matches_joined_freq_relative, matches_joined_outcome)
+matches_joined_outcome <- left_join(matches_joined_outcome, matches_joined_count_total)
+matches_joined_outcome$count <- matches_joined_outcome$count %>% replace_na(0)
+
+matches_joined_outcome <- matches_joined_outcome %>%
+  group_by(year_cc) %>% 
+  mutate(freq = count/count_relative,
+         freq_total = count/count_total,
+         freq_distinct = count_distinct/count_relative)
+
+ggplot(data = matches_joined_outcome, mapping = aes(x = year_cc, y = count, fill = outcome)) +
+  geom_col() +
+  scale_fill_brewer(palette="Pastel1") +
+  labs(
+    title = "Number of ECJ citations in CC case law by outcome of the CC case",
+    subtitle = "Absolute amount",
+    caption = "Source: Authors",
+    x = "Year of the CC Decision",
+    y = NULL,
+    fill = "Outcome")
+
+
+# Data prep for freq/type of proceedings histogram
+matches_joined  %>% 
+  mutate(type_proceedings = case_when(
+    grepl("stížnostech", type_proceedings) ~ "Concrete",
+    !grepl("stížnostech", type_proceedings) ~ "Abstract"
+  )) %>%
+  group_by(type_proceedings, year_cc) %>% 
+  summarize(count = n(),
+            count_distinct = n_distinct(doc_id)) %>%
+  {. ->> matches_joined_type_proceedings}
+
+matches_joined_type_proceedings_freq_relative <- subset(data_metadata, type_proceedings %in% c("O ústavních stížnostech", "O zrušení zákonů a jiných právních předpisů", "O souladu mezinárodních smluv")) %>% 
+  mutate(type_proceedings = case_when(
+    grepl("stížnostech", type_proceedings) ~ "Concrete",
+    !grepl("stížnostech", type_proceedings) ~ "Abstract"
+  )) %>%
+  group_by(type_proceedings, year_cc) %>% 
+  summarize(count_relative = n())
+
+matches_joined_type_proceedings <- left_join(matches_joined_type_proceedings_freq_relative, matches_joined_type_proceedings)
+matches_joined_type_proceedings <- left_join(matches_joined_type_proceedings, matches_joined_count_total)
+matches_joined_type_proceedings$count <- matches_joined_type_proceedings$count %>% replace_na(0)
+
+
+matches_joined_type_proceedings <- matches_joined_type_proceedings %>%
+  group_by(year_cc) %>% 
+  mutate(freq = count/count_relative,
+         freq_total = count/count_total,
+         freq_distinct = count_distinct/count_relative)
+
+ggplot(data = matches_joined_type_proceedings, mapping = aes(x = year_cc, y = count, fill = type_proceedings)) +
+  geom_col() + 
+  scale_fill_brewer(palette="Pastel1") +
+  labs(
+    title = "Number of ECJ citations in CC case law by type of review",
+    subtitle = "Absolute amount",
+    caption = "Source: Authors",
+    x = "Year of the CC Decision",
+    y = NULL,
+    fill = "Type of review")
+```
+However, such a picture is heavily biased. Firstly, it does not take into account the overtime development of CC's caseload. The number of cases lodged to the CC has steadily grown on yearly basis and the increasing number of references could simply follow the higher caseload. Secondly, the bias also stems from the fact that majority of cases before the CC are rejected in the concrete review procedure. Thus, one would expect to have this ratio between rejected/granted and concrete/abstract reflect also among the cases containing the ECJ citations. Thirdly, the ratio between concrete/abstract and rejected/granted decision also develops overtime.
+
+To remove the bias, the data are transformed so that the number of cases of certain type with a ECJ reference in a given year are divided by the total number of cases of that type of that given year. Moreover, the unit analysed is the number of unique referring cases so that the count in the numerator does not reflect the fact that some cases include multiple citations of an ECJ case and, thus, exist in the long format as multiple observations.
+
+What's noticeable though is the growth of the CC's usage of ECJ case law. The CC is overtime becoming more familiar and europeanized than before. The picture remains stable even if the data are transformed to relative frequency against the total number of cases that the CC decides so that the growth of the "europeanization" doesn't merely reflect the yearly growth of CC's caseload.
+```{r analysis, echo=FALSE}
+ggplot(data = matches_joined_outcome, mapping = aes(x = year_cc, y = freq_distinct, fill = outcome)) +
+  geom_col() +
+  scale_fill_brewer(palette="Pastel1") +
+  labs(
+    title = "Frequency of referring cases relative to the yearly caseload of the CC per outcome",
+    caption = "Source: Authors",
+    x = "Year of the CC decision",
+    y = NULL,
+    fill = "Outcome")
+
+ggplot(data = matches_joined_type_proceedings, mapping = aes(x = year_cc, y = freq_distinct, fill = type_proceedings)) +
+  geom_col() +
+  scale_fill_brewer(palette="Pastel1") +
+  scale_y_continuous(labels = scales::percent) + 
+  labs(
+    title = "Frequency of referring cases relative to the yearly caseload of the CC per type of review",
+    caption = "Source: Authors",
+    x = "Year of the CC Decision",
+    y = NULL,
+    fill = "Type of Review")
+```
+It becomes obvious from the data that the CC disproportionately refers to the ECJ in abstract review cases that it grants against the government. In other words, the CC is disproportionately employing ECJ case law in cases in which it reviews the constitutionality of national legal acts in abstract and it disproportionately rules against the government and declares the law under review unconstitutional, while using ECJ case law. The disproportion is heavy: In 2015, out of all granted decisions that year, the CC referred to the ECJ in 8 % of granted decisions whereas 0.4 % in rejected and in 2018, the CC referred to the ECJ in 20 % of all abstract review cases, whereas 0.7 % in the concrete review cases of that year. Even if we admit that looking only at citations without their context might not capture every single detail, the skew is so large that even our broad-stroke quantitative analysis reveals a substantial trend.
+
+That means that the story of the constitutional courts defending national constitutionality face to face the competing claim for authority of the ECJ may not be wholly accurate. The descriptive statistics show that the CC does not hesitate to employ ECJ case law to protect constitutionality, not via entering into conflict with the ECJ, but via utilizing the authority of ECJ to strike down domestic law. What is more, the data show that the usage of ECJ case law is on a steady rise even when the data are cleared of any potential bias. Thus, the europeanization hypothesis goes in the right direction.
+Reframing the role of national constitutional courts towards the ECJ in this direction opens up plenty of potential research avenues, including potential for inferential or comparative research.
+
+### Comparison of Means
+Unfortunately, the loss of information about the number of citations in any given CC case was the cost of removing the bias during the data transformations. Because in order to get the relative frequency, only the count of referring cases was in the numerator. That is why return to analysis of number of citations per CC cases and compare, whether the difference between average number of citations in granted/rejected cases and abstract/concrete type of proceedings significantly differs. We posit that the CC is more likely to use more references in cases in grants and in case in abstract proceedings.
+
+To this end, the mean and the standard deviation of number of citations per CC decision per type of proceeding/outcome are calculated. The data at first glance show that the means differ quite substantially with our intuition being correct.
+``` {r means comparison}
+# Compare means
+
+matches_joined %>% 
+  group_by(doc_id, outcome) %>%
+  summarize(count = n()) %>%
+  group_by(outcome) %>%
+  summarize(
+    mean = mean(count, na.rm = TRUE),
+      sd = sd(count, na.rm = TRUE)) %>%
+  {.  ->> matches_joined_outcome_mean}
+
+matches_joined_outcome_mean <- matches_joined %>% 
+  group_by(outcome) %>%
+  summarize(
+    count = n()
+  ) %>% 
+  left_join(., matches_joined_outcome_mean)
+
+matches_joined %>%
+  group_by(doc_id, outcome) %>%
+  summarize(count = n()) %>%
+  {.  ->> matches_joined_outcome_mean_analysis}
+
+ggplot(matches_joined_outcome_mean_analysis, mapping = aes(x = outcome, y = count, fill = outcome)) +
+  geom_boxplot() +
+  scale_fill_brewer(palette="Pastel1") +
+  coord_cartesian(ylim = c(0,15)) +
+  theme(legend.position="none") +
+  labs(
+    x="Outcome",
+    y="Number of citations in a CC decision"
+  )
+
+# Difference in means type of proceedings
+matches_joined %>% 
+  mutate(type_proceedings = case_when(
+    grepl("stížnostech", type_proceedings) ~ "Concrete",
+    !grepl("stížnostech", type_proceedings) ~ "Abstract"
+  )) %>%
+  group_by(doc_id, type_proceedings) %>%
+  summarize(count = n()) %>%
+  group_by(type_proceedings) %>%
+  summarize(
+    mean = mean(count, na.rm = TRUE),
+    sd = sd(count, na.rm = TRUE)) %>%
+  {.  ->> matches_joined_type_proceedings_mean}
+
+matches_joined_type_proceedings_mean <- matches_joined %>% 
+  mutate(type_proceedings = case_when(
+    grepl("stížnostech", type_proceedings) ~ "Concrete",
+    !grepl("stížnostech", type_proceedings) ~ "Abstract"
+  )) %>%
+  group_by(type_proceedings) %>%
+  summarize(
+    count = n()
+  ) %>% 
+  left_join(., matches_joined_type_proceedings_mean)
+
+kable(matches_joined_type_proceedings_mean, digits = 1, format = "simple", caption = "Count, mean and SD by type of proceedings")
+kable(matches_joined_outcome_mean, digits = 1, format = "simple", caption = "Count, mean and SD by outcome")
+
+matches_joined %>%
+  group_by(doc_id, type_proceedings) %>%
+  mutate(type_proceedings = case_when(
+    grepl("stížnostech", type_proceedings) ~ "Concrete",
+    !grepl("stížnostech", type_proceedings) ~ "Abstract"
+  )) %>%
+  summarize(count = n()) %>%
+  {.  ->> matches_joined_type_proceedings_mean_analysis}
+
+ggplot(matches_joined_type_proceedings_mean_analysis, mapping = aes(x = type_proceedings, y = count, fill = type_proceedings)) +
+  geom_boxplot() +
+  scale_fill_brewer(palette="Pastel1") +
+  coord_cartesian(ylim = c(0,15)) +
+  theme(legend.position="none") +
+  labs(
+    x="Type of review",
+    y="Number of citations in a CC decision"
+  )
+```
+We then test whether the means differ statistically significantly. To use a unpaired two-samples t-test for comparison of means, the underlying distributions must follow a normal distribution. To test whether the number of citations per case per variable of interest follows a normal distribution, we conducted the Shapiro normality test. The test has as a null hypothesis that the distribution is normal. In all cases, the p-value<0,05, thus the number of citations per the relevant type of CC case does not follow a normal distribution.
+``` {r shapiro-wilk, include=FALSE}
+with(matches_joined_outcome_mean_analysis, shapiro.test(count[outcome == "granted"]))
+with(matches_joined_outcome_mean_analysis, shapiro.test(count[outcome == "rejected"]))
+with(matches_joined_type_proceedings_mean_analysis, shapiro.test(count[type_proceedings == "Abstract"]))
+with(matches_joined_type_proceedings_mean_analysis, shapiro.test(count[type_proceedings == "Concrete"]))
+```
+In such cases, the unpaired two-samples Wilcoxon test is more appropriate. The null hypothesis is that there is no difference between the two groups. Since p-value is less than 0.05 in the case of the outcome distinction, the null hypothesis can be rejected. We can conclude that there is, on average, a difference between the number of citations between the cases that the CC grants/rejects, with the average number of ECJ citations being statistically significantly higher in the granting decisions. That further supports our intuition that the CC turns to ECJ more when it rules against the government, not otherwise.
+And while the mean at first glance differs between the two type of proceedings, because the p-value>0.05, we cannot conclude that they differ statistically significantly. Thus, on average, the CC utilizes ECJ case law more only in the cases it grants.
+```{r wilc}
+pander(wilcox.test(count ~ outcome, data = matches_joined_outcome_mean_analysis))
+pander(wilcox.test(count ~ type_proceedings, data = matches_joined_type_proceedings_mean_analysis))
+```
+
+### Judge rapporteur behavior
+Our second intuition is that it may not be helpful to look at a court as a whole but to also inquire whether individual judges' usage of ECJ case-law differs. At first glance, the usage of ECJ case-law differs across judges even when their yearly caseload is taken into account. Thus, the second plot shows the  yearly frequency of referring decisions per judge relative to their total yearly caseload.
+
+```{r judge_rapporteur}
+cc_third <- c("David Ludvík", "Fenyk Jaroslav", "Fiala Josef", "Filip Jan", "Jirsa Jaromír", "Rychetský Pavel", "Šámal Pavel", "Šimáčková Kateřina", "Šimíček Vojtěch", "Sládeček Vladimír", "Suchánek Radovan", "Tomková Milada", "Uhlíř David", "Zemánek Jiří", "Lichovník Tomáš", "Musil Jan")
+
+matches_joined %>% 
+  group_by(judge_rapporteur.y, year_cc) %>% 
+  summarize(
+    count = n(),
+    count_distinct = n_distinct(doc_id)) %>% 
+  {. ->> matches_joined_judges} # this saves the count data
+
+matches_joined_judges_total <- data_metadata %>% 
+  group_by(judge_rapporteur, year(date_decision)) %>% 
+  summarize(count_total = n()) %>%
+  rename(
+    judge_rapporteur.y = "judge_rapporteur",
+    year_cc = "year(date_decision)")
+
+matches_joined_judges <- left_join(matches_joined_judges, matches_joined_judges_total) %>%
+  mutate(freq = count_distinct / count_total)
+
+ggplot(data = subset(matches_joined_judges, subset = judge_rapporteur.y %in% cc_third & year_cc > 2013), mapping = aes(x = year_cc , y = count)) +
+  geom_line() +
+  facet_wrap(~judge_rapporteur.y, ncol = 4) + 
+  labs(x = NULL, y = NULL,
+                                                   title = "Number of ECJ citations by judge rapporteur",
+                                                   caption = "Source: Authors",
+                                                   subtitle = "Only the 3rd CC between 2014 and 2022 is included in the analysis")
+
+ggplot(data = subset(matches_joined_judges, subset = judge_rapporteur.y %in% cc_third & year_cc > 2013), mapping = aes(x = year_cc , y = freq)) +
+  geom_line() +
+  facet_wrap(~judge_rapporteur.y, ncol = 4) + 
+  labs(x = NULL, y = NULL,
+                                                   title = "Frequency of referring cases by judge rapporteur relative to their yearly caseload",
+                                                   caption = "Source: Authors",
+                                                   subtitle = "Only the 3rd CC between 2014 and 2022 is included in the analysis") + 
+  scale_y_continuous(labels = scales::percent)
+
+```
+We can see that some judges stay well bellow 2 % for their whole tenure, whereas other judges refer in more than double the frequency relative to their caseload. What's more, the development within individual judges is not static either. We, for example, know that the most ECJ friendly justice Kateřina Šimáčková also employs the ECtHR case law the most. She is in general known to be progressive and pro-EU.
+
+There are potential explanations for this that could be further developed into a self-standing research question. The individual judges have a differing background. They studied law during different stages of legal education in Czechia. It may be interesting to see whether, for example, the time or the place where the judges studied law could explain the variance between the extent of their "europeanization". Moreover, the CC judges surround themselves with different teams of assistants. It would be also interesting to research to what extent does the variance in the assistant teams impact the variance of judicial behavior between judges, the usage of ECJ decisions in our study. From our personal experienc, we think that the team plays important role.
+
+## Miscellanious
+We offer additional descriptive statistics that could help shape our intuition regarding potential future inferential research. The inferential research could zero in on whether certain characteristics of the ECJ or CC decisions lead to greater usage. Namely whether, for example, the referring member state of the ECJ case impacts the way a national constitutional court employs the decision, or whether there is an overlap between subject matter of the cited case and the referring case.
+``` {r misc, warning = FALSE}
+# Formation of ECJ
+matches_joined  %>%
+  mutate(formation = case_when(
+    grepl("Chamber" , formation) & !grepl("Grand Chamber", formation) ~ "Chamber",
+    grepl("Grand Chamber", formation) ~ "Grand Chamber",
+    grepl("Plenary Assembly", formation) ~ "Plenary Assembly",
+    grepl("single judge", formation) ~ "Single Judge",
+  )) %>%
+  group_by(formation, year_cc) %>% 
+  summarize(count = n()) %>%
+  ggplot(data = ., mapping = aes(x = year_cc, y = count, fill = formation)) +
+  geom_col() + 
+  scale_fill_brewer(palette="Pastel1") +
+  labs(
+    title = "Number of ECJ citations by ECJ formation",
+    subtitle = "Absolute amount",
+    caption = "Source: Authors",
+    x = "Year of the CC decision",
+    y = NULL,
+    fill = "ECJ formation")
+
+# Most cited decisions
+matches_joined  %>%
+  group_by(case_name) %>% 
+  summarize(count = n()) %>%
+  arrange(desc(count)) %>%
+  top_n(30) %>%
+  ggplot(data = ., mapping = aes(x = reorder(case_name, count), y = count)) +
+  geom_point() +
+  coord_flip() +
+  labs(
+    title = "Top 20 cited ECJ decisions",
+    caption = "Source: Authors",
+    x = NULL,
+    y = NULL)
+
+# Subject matter
+matches_joined  %>%
+  group_by(subject_matter_category) %>% 
+  summarize(count = n()) %>%
+  arrange(desc(count)) %>%
+  top_n(10) %>%
+  ggplot(mapping = aes(x = reorder(subject_matter_category, count), y = count)) +
+  geom_point() +
+  coord_flip() +
+  labs(
+    title = "Top 10 cited ECJ subject matters",
+    caption = "Source: Authors",
+    x = NULL,
+    y = NULL)
+
+# ECJ Judge Rapporteur
+matches_joined  %>%
+  group_by(judge_rapporteur.x) %>% 
+  summarize(count = n()) %>%
+  arrange(desc(count)) %>%
+  top_n(15) %>%
+  ggplot(mapping = aes(x = reorder(judge_rapporteur.x, count), y = count)) +
+  geom_point() +
+  coord_flip() +
+  labs(
+    title = "Top 15 cited ECJ judge rapporteurs",
+    caption = "Source: Authors",
+    x = NULL,
+    y = NULL)
+
+# Referring Member States
+matches_joined  %>%
+  filter(!referring_member_state == "not applicable") %>%
+  group_by(referring_member_state) %>% 
+  summarize(count = n()) %>%
+  arrange(desc(count)) %>%
+  top_n(15) %>%
+  ggplot(mapping = aes(x = reorder(referring_member_state, count), y = count)) +
+  geom_point() +
+  coord_flip() +  labs(
+    title = "Top 15 cited ECJ referring member states",
+    caption = "Source: Authors",
+    x = NULL,
+    y = NULL)
+
+# Type of ECJ Proceedings
+matches_joined  %>%
+  mutate(procedure_abb = case_when(
+    grepl("reference", procedure) ~ "Reference for a Preliminary Ruling",
+    grepl("fulfill", procedure) ~ "Action for Failrure to Fulfill Obligations",
+    grepl("annulment", procedure) ~ "Action for Annulment",
+    TRUE ~ "Other")) %>%
+  group_by(procedure_abb, year_cc) %>% 
+  summarize(count = n()) %>%
+  arrange(desc(count)) %>%
+  top_n(15) %>%
+  ggplot(mapping = aes(x = year_cc, y = count, fill = procedure_abb)) +
+  geom_col() + 
+  scale_fill_brewer(palette="Pastel1") +
+  labs(
+    title = "Number of ECJ citations by ECJ type of procedure",
+    subtitle = "Absolute Amount",
+    caption = "Source: Authors",
+    x = "Year of the CC decision",
+    y = NULL,
+    fill = "ECJ type of trocedure")
+
+ggplot(matches_joined, aes(x = year_cc, y = proceeding_year)) + 
+  geom_bin2d() +
+  labs(x = "Year of the referring CC decision", y = "Year of the cited ECJ decision",
+       title = "Heatmap of the dates of reference",
+       fill = "Count",
+       caption = "Source: Authors")
+
+```
+
+
