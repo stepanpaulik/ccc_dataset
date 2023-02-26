@@ -2,7 +2,7 @@
 set.seed(10)
 
 # Attach Packages
-xfun::pkg_attach2("tidyverse", "kernlab", "e1071", "ISLR", "RColorBrewer", "word2vec", "rapportools", "foreach", "progress")
+xfun::pkg_attach2("tidyverse", "kernlab", "e1071", "ISLR", "RColorBrewer", "word2vec", "rapportools", "foreach", "progress", "doParallel")
 
 # Load data
 load("data/US_texts.RData")
@@ -22,18 +22,19 @@ sample_paragraphs <- data_metadata %>% filter(!is.empty(dissenting_opinion)) %>%
 
 # Split the texts into paragraphs and index them
 paragraphs_split <- function(data_texts) {
-
- 
   
+  # Create temporary object with doc_id + text split up into paragraphs
   data_paragraphs_temp <- data_texts %>% select(doc_id)
   data_paragraphs_temp$paragraphs <- foreach(i = seq(data_texts$doc_id), .combine='c') %do% {
     data_texts$text[i] %>% str_split(., pattern = "\n\n")
   }
   
+  # Set up progress_bar
   pb <- progress_bar$new(
     format = "  extracting paragraphs [:bar] :percent eta: :eta",
     total = length(data_paragraphs_temp), clear = FALSE, width= 60)
   
+  # The meat of the function: nested foreach loop
   data_paragraphs <- foreach(i = seq(data_paragraphs_temp$doc_id), .combine='rbind') %:%
     foreach(j = 1:length(data_paragraphs_temp$paragraphs[[i]]), .combine = 'rbind') %do%
     {
@@ -49,21 +50,67 @@ paragraphs_split <- function(data_texts) {
         "paragraph_end" = as.numeric(location_temp[2])/text_length, 
         "paragraph_length" = str_length(paragraph_temp)/text_length
       )
-      
       pb$tick()
     } %>% as.data.frame(row.names = FALSE)
   return(data_paragraphs)
 }
 
+# Run the function and save the file
 data_paragraphs <- paragraphs_split(data_texts = data_texts)
 save(data_paragraphs, file = "data/US_texts_paragraphs.RData")
+
+# Embeddings
+parts_embeddings <- doc2vec(texts_embeddings, decisions_annotated)
+
+# Paralelization
+  n.cores <- parallel::detectCores() - 1
+  my.cluster <- parallel::makeCluster(
+    n.cores, 
+    type = "FORK"
+  )
   
-  parts_embeddings <- doc2vec(texts_embeddings, decisions_annotated)
+#register it to be used by %dopar%
+doParallel::registerDoParallel(cl = my.cluster)
 
+#check if it is registered (optional)
+foreach::getDoParRegistered()
+foreach::getDoParWorkers()
 
+data_metadata_nss <- read_csv("data/Decisions_metadata_NSS")
   
+# Paralelized function
+  paragraphs_split_par <- function(data_texts) {
+    
+    data_paragraphs_temp <- data_texts %>% select(doc_id)
+    data_paragraphs_temp$paragraphs <- foreach(i = seq(data_texts$doc_id), .combine='c') %do% {
+      data_texts$text[i] %>% str_split(., pattern = "\n\n")
+    }
+    
+    data_paragraphs <- foreach(i = seq(data_paragraphs_temp$doc_id), .combine='rbind') %dopar%
+      {
+      foreach(j = 1:length(data_paragraphs_temp$paragraphs[[i]]), .combine = 'rbind') %do%
+      {
+        paragraph_temp <- data_paragraphs_temp$paragraphs[[i]][j] %>% str_trim(side = "both")
+        location_temp <- str_locate(string = data_texts$text[data_texts$doc_id == data_paragraphs_temp$doc_id[i]], pattern = fixed(data_paragraphs_temp$paragraphs[[i]][j])) %>% as.list()
+        text_length <- str_length(data_texts$text[data_texts$doc_id == data_paragraphs_temp$doc_id[i]])
+        
+        list(
+          "doc_id" = data_paragraphs_temp$doc_id[i], 
+          "paragraph_id" = j, 
+          "paragraph_text" = paragraph_temp, 
+          "paragraph_start" = as.numeric(location_temp[1])/text_length, 
+          "paragraph_end" = as.numeric(location_temp[2])/text_length, 
+          "paragraph_length" = str_length(paragraph_temp)/text_length
+        )
+      }
+        } %>% as.data.frame(row.names = FALSE)
+    return(data_paragraphs)
+  }
+  
+data_paragraphs_par <- paragraphs_split_par(data_texts = data_texts)
+parallel::stopCluster(cl = my.cluster)
 
-location <- str_locate(string = data_texts$text[data_texts$doc_id == ldata_paragraphs$doc_id[1]], pattern = fixed(data_paragraphs$paragraphs[[1]][1])) %>% as.list()
+
 
 
 # 
