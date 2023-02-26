@@ -2,14 +2,14 @@
 set.seed(10)
 
 # Attach Packages
-xfun::pkg_attach2("tidyverse", "kernlab", "e1071", "ISLR", "RColorBrewer", "word2vec", "rapportools", "uchardet")
+xfun::pkg_attach2("tidyverse", "kernlab", "e1071", "ISLR", "RColorBrewer", "word2vec", "rapportools", "foreach", "progress")
 
 # Load data
 load("data/US_texts.RData")
 load("data/US_metadata.RData")
 
 # Load UDModel
-load("models/US_UDmodel.RData")
+# load("models/US_UDmodel.RData")
 
 # Create paragraphs
 data_paragraphs <- data_ud %>% group_by(doc_id, paragraph_id) %>% summarise(paragraph = paste0(token, collapse = " "))
@@ -22,21 +22,26 @@ sample_paragraphs <- data_metadata %>% filter(!is.empty(dissenting_opinion)) %>%
 
 # Split the texts into paragraphs and index them
 paragraphs_split <- function(data_texts) {
+
+ 
   
-  paragraph_temp <- c()
-  location_temp <- c()
   data_paragraphs_temp <- data_texts %>% select(doc_id)
-  data_paragraphs <- data.frame()
+  data_paragraphs_temp$paragraphs <- foreach(i = seq(data_texts$doc_id), .combine='c') %do% {
+    data_texts$text[i] %>% str_split(., pattern = "\n\n")
+  }
   
-  for (i in 1:length(data_paragraphs_temp$doc_id)) {
-    data_paragraphs_temp$paragraphs[i] <- data_texts$text[i] %>% str_split(., pattern = "\n\n")
-    for (j in 1:length(data_paragraphs_temp$paragraphs[[i]])) {
-      browser()
+  pb <- progress_bar$new(
+    format = "  extracting paragraphs [:bar] :percent eta: :eta",
+    total = length(data_paragraphs_temp), clear = FALSE, width= 60)
+  
+  data_paragraphs <- foreach(i = seq(data_paragraphs_temp$doc_id), .combine='rbind') %:%
+    foreach(j = 1:length(data_paragraphs_temp$paragraphs[[i]]), .combine = 'rbind') %do%
+    {
       paragraph_temp <- data_paragraphs_temp$paragraphs[[i]][j] %>% str_trim(side = "both")
       location_temp <- str_locate(string = data_texts$text[data_texts$doc_id == data_paragraphs_temp$doc_id[i]], pattern = fixed(data_paragraphs_temp$paragraphs[[i]][j])) %>% as.list()
       text_length <- str_length(data_texts$text[data_texts$doc_id == data_paragraphs_temp$doc_id[i]])
       
-      list_temp <- list(
+      list(
         "doc_id" = data_paragraphs_temp$doc_id[i], 
         "paragraph_id" = j, 
         "paragraph_text" = paragraph_temp, 
@@ -45,14 +50,13 @@ paragraphs_split <- function(data_texts) {
         "paragraph_length" = str_length(paragraph_temp)/text_length
       )
       
-      data_paragraphs <- rbind(data_paragraphs, list_temp)
-      }
-  print(i)
-  }
+      pb$tick()
+    } %>% as.data.frame(row.names = FALSE)
   return(data_paragraphs)
 }
 
 data_paragraphs <- paragraphs_split(data_texts = data_texts)
+save(data_paragraphs, file = "data/US_texts_paragraphs.RData")
   
   parts_embeddings <- doc2vec(texts_embeddings, decisions_annotated)
 
