@@ -1,12 +1,10 @@
-# set pseudorandom number generator
-set.seed(10)
-
 # Attach Packages
-xfun::pkg_attach2("tidyverse", "kernlab", "e1071", "ISLR", "RColorBrewer", "word2vec", "rapportools", "foreach", "progress", "doParallel")
+xfun::pkg_attach2("tidyverse", "kernlab", "e1071", "ISLR", "RColorBrewer", "word2vec", "rapportools", "foreach", "progress", "doParallel", "word2vec")
 
 # Load data
 load("data/US_texts.RData")
 load("data/US_metadata.RData")
+load("data/US_texts_paragraphs.RData")
 
 # Load UDModel
 # load("models/US_UDmodel.RData")
@@ -15,9 +13,15 @@ load("data/US_metadata.RData")
 data_paragraphs <- data_ud %>% group_by(doc_id, paragraph_id) %>% summarise(paragraph = paste0(token, collapse = " "))
 
 # Create sample for manual tagging
-sample <- data_metadata %>% filter(is.empty(dissenting_opinion)) %>% slice_sample(n = 50)
-sample <- data_metadata %>% filter(!is.empty(dissenting_opinion)) %>% slice_sample(n = 50) %>% rbind(., sample) %>% select(doc_id)
-sample_paragraphs <- data_metadata %>% filter(!is.empty(dissenting_opinion)) %>% slice_sample(n = 50) %>% rbind(., sample) %>% select(doc_id) %>% left_join(sample, ., by = "doc_id")
+sample <- data_metadata %>% 
+  filter(is.empty(dissenting_opinion)) %>% 
+  slice_sample(n = 50)
+sample_paragraphs <- data_metadata %>% 
+  filter(!is.empty(dissenting_opinion)) %>% 
+  slice_sample(n = 50) %>% 
+  rbind(., sample) %>% 
+  select(doc_id) %>% 
+  left_join(sample, ., by = "doc_id")
 
 
 # Split the texts into paragraphs and index them
@@ -63,10 +67,10 @@ save(data_paragraphs, file = "data/US_texts_paragraphs.RData")
 parts_embeddings <- doc2vec(texts_embeddings, decisions_annotated)
 
 # Paralelization
-  n.cores <- parallel::detectCores() - 1
+  n.cores <- parallel::detectCores() - 3
   my.cluster <- parallel::makeCluster(
     n.cores, 
-    type = "FORK"
+    type = "PSOCK"
   )
   
 #register it to be used by %dopar%
@@ -75,20 +79,24 @@ doParallel::registerDoParallel(cl = my.cluster)
 #check if it is registered (optional)
 foreach::getDoParRegistered()
 foreach::getDoParWorkers()
-
-data_metadata_nss <- read_csv("data/Decisions_metadata_NSS")
   
 # Paralelized function
   paragraphs_split_par <- function(data_texts) {
     
     data_paragraphs_temp <- data_texts %>% select(doc_id)
+    pb <- progress_bar$new(
+      format = "  extracting paragraphs [:bar] :percent eta: :eta",
+      total = length(data_paragraphs_temp$doc_id), clear = FALSE, width= 60)
+    
     data_paragraphs_temp$paragraphs <- foreach(i = seq(data_texts$doc_id), .combine='c') %do% {
       data_texts$text[i] %>% str_split(., pattern = "\n\n")
+      pb$tick()
     }
     
-    data_paragraphs <- foreach(i = seq(data_paragraphs_temp$doc_id), .combine='rbind') %dopar%
-      {
-      foreach(j = 1:length(data_paragraphs_temp$paragraphs[[i]]), .combine = 'rbind') %do%
+    print("Texts have been split up into paragraphs")
+    
+    data_paragraphs <- foreach(i = seq(data_paragraphs_temp$doc_id), .combine='rbind', .packages=c("tidyverse", "foreach", "doParallel")) %:%
+      foreach(j = 1:length(data_paragraphs_temp$paragraphs[[i]]), .combine = 'rbind') %dopar%
       {
         paragraph_temp <- data_paragraphs_temp$paragraphs[[i]][j] %>% str_trim(side = "both")
         location_temp <- str_locate(string = data_texts$text[data_texts$doc_id == data_paragraphs_temp$doc_id[i]], pattern = fixed(data_paragraphs_temp$paragraphs[[i]][j])) %>% as.list()
@@ -102,16 +110,34 @@ data_metadata_nss <- read_csv("data/Decisions_metadata_NSS")
           "paragraph_end" = as.numeric(location_temp[2])/text_length, 
           "paragraph_length" = str_length(paragraph_temp)/text_length
         )
-      }
-        } %>% as.data.frame(row.names = FALSE)
+      } %>% 
+      as.data.frame(row.names = FALSE)
     return(data_paragraphs)
-  }
+}
   
+start_time <- Sys.time()
 data_paragraphs_par <- paragraphs_split_par(data_texts = data_texts)
+end_time <- Sys.time()
+
+end_time - start_time
 parallel::stopCluster(cl = my.cluster)
 
+# Word2vec
+# Window parameter:  for skip-gram usually around 10, for cbow around 5
+# Sample: sub-sampling of frequent words: can improve both accuracy and 
+# speed for large data sets (useful values are in range 0.001 to 0.00001)
+# # hs: the training algorithm: hierarchical so􏰂max (better for infrequent
+# words) vs nega􏰁ve sampling (better for frequent words, better with low
+#                              dimensional vectors)
+word2vec_model_CBOW <- word2vec(x = data_texts$text, dim = 300)
+save(word2vec_model_CBOW, file = "models/word2vec_model_CBOW.RData")
 
+word2vec_model_skipgram <- word2vec(x = data_texts$text, dim = 300, type = "skip-gram", window = 10)
+save(word2vec_model_skipgram, file = "models/word2vec_model_CBOW.RData")
 
+embedding <- as.matrix(word2vec_model_CBOW)
+embedding <- predict(word2vec_model_CBOW, c("soud", "stěžovatel"), type = "nearest")
+embedding
 
 # 
 # # Construct sample data set - completely separated
