@@ -14,8 +14,8 @@ output:
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = FALSE, dpi=300,fig.width=7, message = FALSE, warning = FALSE)
 xfun::pkg_attach2("ggplot2", "tidyverse", "lubridate", "tm", "knitr", "pander")
-matches_joined <- read.csv("data/matches_joined.csv") %>% filter(year_cc > 2003)
-data_metadata <- read.csv("data/decisions_US_metadata.csv")
+matches_joined <- read.csv("../data/matches_joined.csv") %>% filter(year_cc > 2003)
+load("../data/US_metadata.RData")
 ```
 
 # Descriptive statistics
@@ -68,7 +68,7 @@ matches_joined_outcome <- matches_joined_outcome %>%
 
 ggplot(data = matches_joined_outcome, mapping = aes(x = year_cc, y = count, fill = outcome)) +
   geom_col() +
-  scale_fill_brewer(palette="Pastel1") +
+  scale_fill_brewer(palette="Greys") +
   labs(
     title = "Number of ECJ citations in CC case law by outcome of the CC case",
     subtitle = "Absolute amount",
@@ -110,7 +110,7 @@ matches_joined_type_proceedings <- matches_joined_type_proceedings %>%
 
 ggplot(data = matches_joined_type_proceedings, mapping = aes(x = year_cc, y = count, fill = type_proceedings)) +
   geom_col() + 
-  scale_fill_brewer(palette="Pastel1") +
+  scale_fill_brewer(palette="Greys") +
   labs(
     title = "Number of ECJ citations in CC case law by type of review",
     subtitle = "Absolute amount",
@@ -127,7 +127,7 @@ What's noticeable though is the growth of the CC's usage of ECJ case law. The CC
 ```{r analysis, echo=FALSE}
 ggplot(data = matches_joined_outcome, mapping = aes(x = year_cc, y = freq_distinct, fill = outcome)) +
   geom_col() +
-  scale_fill_brewer(palette="Pastel1") +
+  scale_fill_brewer(palette="Greys") +
   labs(
     title = "Frequency of referring cases relative to the yearly caseload of the CC per outcome",
     caption = "Source: Authors",
@@ -137,7 +137,7 @@ ggplot(data = matches_joined_outcome, mapping = aes(x = year_cc, y = freq_distin
 
 ggplot(data = matches_joined_type_proceedings, mapping = aes(x = year_cc, y = freq_distinct, fill = type_proceedings)) +
   geom_col() +
-  scale_fill_brewer(palette="Pastel1") +
+  scale_fill_brewer(palette="Greys") +
   scale_y_continuous(labels = scales::percent) + 
   labs(
     title = "Frequency of referring cases relative to the yearly caseload of the CC per type of review",
@@ -181,7 +181,7 @@ matches_joined %>%
 
 ggplot(matches_joined_outcome_mean_analysis, mapping = aes(x = outcome, y = count, fill = outcome)) +
   geom_boxplot() +
-  scale_fill_brewer(palette="Pastel1") +
+  scale_fill_brewer(palette="Greys") +
   coord_cartesian(ylim = c(0,15)) +
   theme(legend.position="none") +
   labs(
@@ -228,7 +228,7 @@ matches_joined %>%
 
 ggplot(matches_joined_type_proceedings_mean_analysis, mapping = aes(x = type_proceedings, y = count, fill = type_proceedings)) +
   geom_boxplot() +
-  scale_fill_brewer(palette="Pastel1") +
+  scale_fill_brewer(palette="Greys") +
   coord_cartesian(ylim = c(0,15)) +
   theme(legend.position="none") +
   labs(
@@ -310,7 +310,7 @@ matches_joined  %>%
   summarize(count = n()) %>%
   ggplot(data = ., mapping = aes(x = year_cc, y = count, fill = formation)) +
   geom_col() + 
-  scale_fill_brewer(palette="Pastel1") +
+  scale_fill_brewer(palette="Greys") +
   labs(
     title = "Number of ECJ citations by ECJ formation",
     subtitle = "Absolute amount",
@@ -392,7 +392,7 @@ matches_joined  %>%
   top_n(15) %>%
   ggplot(mapping = aes(x = year_cc, y = count, fill = procedure_abb)) +
   geom_col() + 
-  scale_fill_brewer(palette="Pastel1") +
+  scale_fill_brewer(palette="Greys") +
   labs(
     title = "Number of ECJ citations by ECJ type of procedure",
     subtitle = "Absolute Amount",
@@ -403,6 +403,7 @@ matches_joined  %>%
 
 ggplot(matches_joined, aes(x = year_cc, y = proceeding_year)) + 
   geom_bin2d() +
+  scale_fill_distiller(palette="Greys") +
   labs(x = "Year of the referring CC decision", y = "Year of the cited ECJ decision",
        title = "Heatmap of the dates of reference",
        fill = "Count",
