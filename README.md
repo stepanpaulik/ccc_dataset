@@ -13,7 +13,4 @@
 |     6| Texts       |
 </details>
 
----
->Tvoje máma smrdí.
-
--Štěpán Paulík
+Welcome to the repository for my PhD project. Here, you can follow the progression of its development. The project concerns quantative analyses of judicial behavior. The data contained herein contain information on the Czech apex courts, they're preserved in tidy format and as a MySQL database. The repository includes numerous data manipulation scripts, quantative text analysis scripts or some basic modelling scripts.
