@@ -1,4 +1,4 @@
-xfun::pkg_attach2("tidyverse", "tidytext", "ggplot2", "quanteda", "quanteda.textmodels", "quanteda.textmodels", "progress", "plm", "lmtest", "tm")
+xfun::pkg_attach2("tidyverse", "tidytext", "ggplot2", "quanteda", "quanteda.textmodels", "quanteda.textmodels", "progress", "plm", "lmtest", "tm", "foreach")
 
 # Load data
 load("data/US_texts.RData")
@@ -9,19 +9,48 @@ save(data_metadata, file = "data/US_metadata.RData")
 save(data_texts, file = "data/US_texts.RData")
 
 
+# Dissent extraction ------------------------------------------------------
+judges_US <- c("Pavel Rychetský", "Milada Tomková", "Jaroslav Fenyk", "Jan Filip", "Vladimír Sládeček", "Ludvík David", "Radovan Suchánek", "Jiří Zemánek", "Vojtěch Šimíček", "Tomáš Lichovník", "David Uhlíř", "Jaromír Jirsa", "Josef Fiala", "Pavel Šámal", "Kateřina Šimáčková", "Jan Musil", "Vladimír Kůrka", "Vlasta Formánková", "Ivana Janů", "Michaela Židlická", "Stanislav Balík", "Jiří Nykodým", "Dagmar Lastovecká", "Pavel Holländer", "Vojen Güttler", "Miloslav Výborný", "Jiří Mucha", "František Duchoň", "Eliška Wagnerová", "Jiří Malenovský", "Pavel Varvařovský", "Eva Zarembová", "Vlastimil Ševčík", "Antonín Procházka", "Vladimír Paul", "Vladimír Klokočka", "Zdeněk Kessler", "Vladimír Jurka", "Miloš Holeček", "Vladimír Čermák", "Vojtěch Cepl", "Iva Brožová") %>% unique()
+judges_US_lemma <- c("Pav(el|la|em) Rychetsk(ý|ého|m)", "Milad(y|a|ou) Tomkov(é|á|ou)", "Jaroslav(|a|em) Fenyk(|a|em)", "Jan(|a|em) Filip(|a|em)", "Vladimír(|a|em) Sládeč(ek|ka|em|ou)", "Ludvík(|a|em) David(|a|em)", "Radovan(|a|em) Suchán(ka|ek|em)", "Jiří(|ho|m) Zemán(ka|ek|kem)", "Vojtěch(|a|em) Šimíč(ka|ek|ou|em)", "Tomáš(|e|em) Lichovník(|a|em)", "David(|a|em) Uhlíř(|e|em)", "Jaromír(|a|em) Jirs(a|y|ou)", "Josef(|a|em) Fial(a|y|ou)", "Pav(el|la|em) Šámal(|a|em)", "Kateřin(a|y|ou) Šimáčkov(é|á|ou)", "Jan(|a|em) Musil(|a|em)", "Vladimír(|a|em) Kůrk(y|a|ou)", "Vlast(y|a|ou) Formánkov(é|á|ou)", "Ivan(y|a|ou) Janů", "Michael(a|y|ou) Židlick(é|á|ou)", "Stanislav(|a|em) Balík(|a|em)", "Jiří(|ho|m) Nykodým(|a|em)", "Dagmar Lastoveck(é|á|ou)", "Pav(la|el|em) Holländer(|a|em)", "Vojen(|a|em) G(ü|ű|u|ú)t(|t)ler(|a|em)", "Miloslav(|a|em) Výborn(ý|ého|m)", "Jiří(|ho|m) Much(a|y|ou)", "Františ(ek|ka|kem) Ducho(ň|ně|něm)", "Elišk(a|y|ou) W(a|á)gner(ová|ové|ou)", "Jiří(|ho|m) Malenovsk(ý|ého|m)", "Pav(el|la|em) Varvařovsk(ý|ého|ým)", "Ev(a|y|ou) Zarembov(á|é|ou)", "Vlastimil(|a|em) Ševčík(|a|em)", "Antonín(|a|em) Procházk(a|y|ou)", "Vladimír(|a|em) Paul(|a|em)", "Vladimír(|a|em) Klokočk(a|y|ou)", "Zde(něk|ňka|ňkem) Kessler(|a|em)", "Vladimír(|a|em) Jur(ek|ky|ka|kou)", "Miloš(|e|em) Holeč(ek|ky|ka|em|ou)", "Vladimír(|a|em) Čermák(|a|em)", "Vojtěch(|a|em) Cepl(|a|em)", "Iv(a|y|ou) Brožov(á|é|ou)") %>% unique()
+data_dissents <- c()
+
+# Switch the name order of judge rapporteur
+judges_US <- foreach(i = 1:length(judges_US), .combine = "c") %do% {
+  paste0(word(judges_US[i], 2), " ", word(judges_US[i], 1))
+}
+
+# Create function for extracting dissents, returns the long format
+get_dissents <- function(data, judges) {
+  pb <- progress_bar$new(
+    format = "  extracting dissents [:bar] :percent eta: :eta",
+    total = length(data$doc_id)*length(judges), clear = FALSE, width= 60)
+  
+  data_dissents <- foreach(i = seq(data$doc_id), .combine = "rbind") %:% 
+    foreach(j = seq(judges), .combine = "rbind") %do% {
+      pb$tick()
+      if (grepl(judges[j], data[i,"dissenting_opinion"], ignore.case = TRUE)) {
+        list("doc_id" = as.character(data$doc_id[i]),
+             "dissenting_judge" = as.character(judges[j]))
+      }
+  } %>% as.data.frame(row.names = FALSE)
+  return(data_dissents)
+}
+
+# Run the function and save the data
+data_dissents <- get_dissents(data_metadata, judges_US)
+save(data_dissents, file = "data/US_dissents.RData")
+load("data/US_dissents.RData")
+
+# REGRESSION
 # Dissent/caseload regression
 data_yearly_caseload <- data_metadata %>% group_by(year_cc, judge_rapporteur) %>% summarize(count = n())
-data_yearly_dissents <- data_dissents %>% pivot_longer(
-  cols = !doc_id,
-  names_to = "judge_rapporteur",
-  values_to = "count"
-)
 
 data_yearly_dissents <- data_metadata %>% 
   select(doc_id, year_cc) %>%
-  left_join(data_yearly_dissents, .) %>%
-  group_by(year_cc, judge_rapporteur) %>%
-  summarize(count_dissents = sum(count))
+  left_join(data_dissents, .) %>%
+  group_by(year_cc, dissenting_judge) %>%
+  summarize(count_dissents = n())
+
 
 for(i in 1:length(data_yearly_caseload$judge_rapporteur)){
   data_yearly_caseload$judge_rapporteur[i] <- paste0(word(data_yearly_caseload$judge_rapporteur[i], 2), "_", word(data_yearly_caseload$judge_rapporteur[i], 1)) %>% tolower()
@@ -31,52 +60,14 @@ data_dissents_caseload <- left_join(data_yearly_caseload, data_yearly_dissents)
 
 
 fe_mod <- plm(count_dissents ~ count, 
-                   data = data_dissents_caseload,
-                   index = c("judge_rapporteur", "year_cc"), 
-                   model = "within")
+              data = data_dissents_caseload,
+              index = c("judge_rapporteur", "year_cc"), 
+              model = "within")
 
 coeftest(fe_mod, vcov. = vcovHC, type = "HC1")
 
 
-
-# Dissent extraction ------------------------------------------------------
-judges_US <- c("Pavel Rychetský", "Milada Tomková", "Jaroslav Fenyk", "Jan Filip", "Vladimír Sládeček", "Ludvík David", "Radovan Suchánek", "Jiří Zemánek", "Vojtěch Šimíček", "Tomáš Lichovník", "David Uhlíř", "Jaromír Jirsa", "Josef Fiala", "Pavel Šámal", "Kateřina Šimáčková", "Jan Musil", "Vladimír Kůrka", "Vlasta Formánková", "Ivana Janů", "Michaela Židlická", "Stanislav Balík", "Jiří Nykodým", "Dagmar Lastovecká", "Pavel Holländer", "Vojen Güttler", "Miloslav Výborný", "Jiří Mucha", "František Duchoň", "Eliška Wagnerová", "Jiří Malenovský", "Pavel Varvařovský", "Eva Zarembová", "Vlastimil Ševčík", "Antonín Procházka", "Vladimír Paul", "Vladimír Klokočka", "Zdeněk Kessler", "Vladimír Jurka", "Miloš Holeček", "Vladimír Čermák", "Vojtěch Cepl", "Iva Brožová") %>% unique()
-judges_US_lemma <- c("Pav(el|la|em) Rychetsk(ý|ého|m)", "Milad(y|a|ou) Tomkov(é|á|ou)", "Jaroslav(|a|em) Fenyk(|a|em)", "Jan(|a|em) Filip(|a|em)", "Vladimír(|a|em) Sládeč(ek|ka|em|ou)", "Ludvík(|a|em) David(|a|em)", "Radovan(|a|em) Suchán(ka|ek|em)", "Jiří(|ho|m) Zemán(ka|ek|kem)", "Vojtěch(|a|em) Šimíč(ka|ek|ou|em)", "Tomáš(|e|em) Lichovník(|a|em)", "David(|a|em) Uhlíř(|e|em)", "Jaromír(|a|em) Jirs(a|y|ou)", "Josef(|a|em) Fial(a|y|ou)", "Pav(el|la|em) Šámal(|a|em)", "Kateřin(a|y|ou) Šimáčkov(é|á|ou)", "Jan(|a|em) Musil(|a|em)", "Vladimír(|a|em) Kůrk(y|a|ou)", "Vlast(y|a|ou) Formánkov(é|á|ou)", "Ivan(y|a|ou) Janů", "Michael(a|y|ou) Židlick(é|á|ou)", "Stanislav(|a|em) Balík(|a|em)", "Jiří(|ho|m) Nykodým(|a|em)", "Dagmar Lastoveck(é|á|ou)", "Pav(la|el|em) Holländer(|a|em)", "Vojen(|a|em) G(ü|ű|u|ú)t(|t)ler(|a|em)", "Miloslav(|a|em) Výborn(ý|ého|m)", "Jiří(|ho|m) Much(a|y|ou)", "Františ(ek|ka|kem) Ducho(ň|ně|něm)", "Elišk(a|y|ou) W(a|á)gner(ová|ové|ou)", "Jiří(|ho|m) Malenovsk(ý|ého|m)", "Pav(el|la|em) Varvařovsk(ý|ého|ým)", "Ev(a|y|ou) Zarembov(á|é|ou)", "Vlastimil(|a|em) Ševčík(|a|em)", "Antonín(|a|em) Procházk(a|y|ou)", "Vladimír(|a|em) Paul(|a|em)", "Vladimír(|a|em) Klokočk(a|y|ou)", "Zde(něk|ňka|ňkem) Kessler(|a|em)", "Vladimír(|a|em) Jur(ek|ky|ka|kou)", "Miloš(|e|em) Holeč(ek|ky|ka|em|ou)", "Vladimír(|a|em) Čermák(|a|em)", "Vojtěch(|a|em) Cepl(|a|em)", "Iv(a|y|ou) Brožov(á|é|ou)") %>% unique()
-data_dissents <- c()
-
-# Switch the name order of judge rapporteur
-for(i in 1:length(judges_US)){
-  judges_US[i] <- paste0(word(judges_US[i], 2), " ", word(judges_US[i], 1))
-}
-
-# Create function for extracting dissents, returns the wide format
-get_dissents <- function(data, judges) {
-  pb <- progress_bar$new(
-    format = "  extracting dissents [:bar] :percent eta: :eta",
-    total = length(data$doc_id), clear = FALSE, width= 60)
-  
-  data_dissents <- data.frame(matrix(0, ncol = length(judges)+1, nrow = length(unique(data$doc_id))))
-  colnames(data_dissents)[2:(length(judges)+1)] <- str_replace(str_to_lower(judges), " ", "_")
-  colnames(data_dissents)[1] <- "doc_id"
-  data_dissents$doc_id <- unique(data$doc_id)
-  for (i in 1:length(data$doc_id)) {
-    for (j in 1:length(judges)) {
-      if (grepl(judges[j], data[i,"dissenting_opinion"], ignore.case = TRUE)) {
-        data_dissents[data_dissents$doc_id == data$doc_id[i], str_replace(str_to_lower(judges[j]), " ", "_")] <- 1
-      } else {
-        data_dissents[data_dissents$doc_id == data$doc_id[i], str_replace(str_to_lower(judges[j]), " ", "_")] <- 0
-      }
-    }
-    pb$tick()
-  }
-  return(data_dissents)
-}
-
-# Run the function and save the data
-data_dissents <- get_dissents(data_metadata, judges_US)
-save(data_dissents, file = "data/US_dissents.RData")
-load("data/US_dissents.RData")
-
+# MODELS
 # Wordfish model ---------------------------------------------------------------
 # Filter relevant decisions
 text_corpus <- data_metadata %>% 

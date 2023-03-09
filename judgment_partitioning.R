@@ -5,6 +5,7 @@ xfun::pkg_attach2("tidyverse", "kernlab", "e1071", "ISLR", "RColorBrewer", "word
 load("data/US_texts.RData")
 load("data/US_metadata.RData")
 load("data/US_texts_paragraphs.RData")
+load("data/US_dissents.RData")
 
 # Load UDModel
 # load("models/US_UDmodel.RData")
@@ -131,6 +132,7 @@ parallel::stopCluster(cl = my.cluster)
 #                              dimensional vectors)
 word2vec_model_CBOW <- word2vec(x = data_texts$text, dim = 300)
 save(word2vec_model_CBOW, file = "models/word2vec_model_CBOW.RData")
+load(file = "models/word2vec_model_CBOW.RData")
 
 word2vec_model_skipgram <- word2vec(x = data_texts$text, dim = 300, type = "skip-gram", window = 10)
 save(word2vec_model_skipgram, file = "models/word2vec_model_CBOW.RData")
@@ -139,7 +141,9 @@ embedding <- as.matrix(word2vec_model_CBOW)
 embedding <- predict(word2vec_model_CBOW, c("soud", "stěžovatel"), type = "nearest")
 embedding
 
-# 
+# SVM
+
+# SVM learning
 # # Construct sample data set - completely separated
 # x <- matrix(rnorm(20*2), ncol = 2)
 # y <- c(rep(-1,10), rep(1,10))
