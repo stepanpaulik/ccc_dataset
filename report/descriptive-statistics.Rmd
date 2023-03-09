@@ -1,5 +1,5 @@
 ---
-title: 'Europeanisation of National Constitutional Courts Beyond Extremes: A Few Insights
+title: '*Europeanisation* of National Constitutional Courts Beyond Extremes: A Few Insights
   from Czechia'
 author: "Štěpán Paulík"
 date: "`r Sys.Date()`"
@@ -18,242 +18,61 @@ matches_joined <- read.csv("../data/matches_joined.csv") %>% filter(year_cc > 20
 load("../data/US_metadata.RData")
 ```
 
-# Descriptive statistics
-The goal of the descriptive statistics chapter is to build an intuition regarding what theories about the CC's role face to face the ECJ may be plausible and to build a more comprehensive picture. The goal is not to make an inference about whether certain hypotheses hold nor not, nor is it to say that other theories are wrong.
+## Results: A More Complex Story Than It Seemed
+In what follows, we present the results of the *macro-level* citation analysis of how does the CC cite the ECJ in its case-law. First, we focus on the scope of the *Europeanisation* of the case-law. Here, we inspect how often the CCC refers to the ECJ’s precedents and how that practice evolves over time. Importantly enough, we look not only on the citations of the constitutional court as such, but we analyse the behaviour of individual justices as well (**4. 3. 1**). Secondly, we focus on the areas of the *Europeanisation*. Here, we inquire in which substantive areas constitutional judges refer to the ECJ’s authority most often. This should allow us to gain some important insights about the of ECJ’s authority within various subject-matters (**4. 3. 2**). In the third part of this section, we zoom-in on the effects of the *Europeanisation*. Here, we inspect in which types of proceedings the CCC refers to the ECJ’s case-law. This part of analysis should provide us with a preliminary picture of how and for which purpose constitutional courts use the ECJ’s case-law most often (**4. 3. 3**). Finally, we inquire about the origins of the *Europeanisation*. Here, we analyse some of the characteristics of the cited ECJ’s case-law in order to gain better understanding about the most influential aspects of its authority (**4. 3. 4**)
 
-## Data
-The data are result of a connection between two datasets: the Iuropa dataset for ECJ and our own Czech Apex Courts dataset. Both datasets contain complete text corpora as well as various metadata about the decisions. The latter dataset was webscraped by us and it contains all CC decision up until 1.1.2022. For the national part of analysis, both the text corpora and the metadata of the CC decisions were utilized, whereas for the EU part of analysis, only the metadata from Iuropa dataset were utilized.
+Before we delve into the analysis of our results, it is important to clarify two important elements of our method.
 
-## Analysis
-In our analysis, we include data only from 2004 and onward. The reason is that there were only 2 CC decisions with an ECJ reference before 2004. We analyse those separately. We analyse our data using quantitative analysis.
+We distinguish between a referring decision and a reference. A referring decision represents any constitutional court’s decision that contains at least one reference to an ECJ’s judgement. A reference, on the other hand, means a citation of a particular ECJ’s judgement which occurs in a referring case. To be sure, this primarily means that one referring case can contain multiple unique references. Moreover, this also means that we do not count multiple references of the same ECJ’s precedent in one CCC’ referring decision.
 
-Before we delve into the analysis, it is important to clarify one important distinction. We distinguish between a referring decision and a reference A referring decision refers to any case that contains at one or more references to an ECJ decision, whereas a reference is the relationship between the referring case and the cited ECJ case, if there is one or more occurrences in the CC decision. Thus, one referring case can contain multiple references. We do not count multiple references of one particular ECJ decision in one particular CC decision.
+As for the second clarification, we employ the term caseload to represent the number of cases that the CC decided in any given year. Traditionally, caseload refers to the yearly amount of cases lodged to a court. However, such an information is not publicly available, thus, we use the yearly number of decided cases by the CC as a proxy and we employ the term caseload nonetheless.
 
-### The story of constitutional conflict in the EU
+### The Scope: *Europeanisation* Increases
 
-#### The untold story
-National constitutional courts within EU are often painted as defendants of the national constitutionality face to face the competing claim for authority from the ECJ. The conflict between the ECJ and the constitutional courts often takes the spotlight in legal literature. The open backlash of national constitutional courts is conceptualized and analysed [Bobic, Dyevre...]. Other, perhaps more mundane interactions between the ECJ and national constitutional courts is often overlooked. That is why we, in the first place, ask whether this perspective is justified by the overall picture of our case study?
+Let us start with rather descriptive findings about the frequency of CCC’s references to the ECJ’s case-law. Overall, the CCC referred to at least one ECJ precedent in 433 out of  715270 decisions decided between 1.1.2004 and 1.11.2022. As can be seen from Figure No. 1, there is a clear increasing tendency of the proportion of referring cases against yearly caseload  of the CCC.
 
-At first blush, it may seem like yes, that is indeed the case because there is nothing to hint in the other direction. We look at two types of cases. Firstly, we analyse whether the CC grants the application or not. Since the proceedings before the CC typically involve an applicant, mostly an individual, on the one side and the state on the other, we can analyse how often does the CC rule against the government. Moreover, the CC is competent to review laws in abstract proceedings, where an applicant can dispute the constitutionality of a legal act in abstract, or in concrete cases with an individual filing a constitutional complaint. We may be able to discern whether the CC often sides with the individuals referring decisions or how often it strikes down laws using ECJ decisions.
-
-[tady někde nebo dřív doplnit to o té europeanizaci]
-
-A quick glance at the overtime development of the ratio between cases that the CC grants to the applicant against the government and cases that the CC rejects seems to show nothing irregular: the ECJ is mostly referred to cases in which the constitution is given precedence.  The ratio between concrete and abstract review is similar - concrete review cases dominate. The data also shows that the usage of the ECJ case law is increasing overtime. It may therefore seem that the theory of europeanization of national legal orders, including national judiciaries, is indeed correct.
-```{r ratios_absolute, echo=FALSE}
+```{r absolute_values}
 # Total N cases per year
 matches_joined_count_total <- data_metadata %>% 
   group_by(year_cc) %>% 
   summarize(count_total = n())
 
-# Data prep for freq/outcome histogram
 matches_joined  %>% 
-  group_by(outcome, year_cc) %>% 
-  summarize(count = n(),
-            count_distinct = n_distinct(doc_id)) %>%
-  {. ->> matches_joined_outcome}
-
-matches_joined_freq_relative <- data_metadata %>% 
-  group_by(outcome, year_cc) %>% 
-  summarize(count_relative = n())
-
-matches_joined_outcome <- left_join(matches_joined_freq_relative, matches_joined_outcome)
-matches_joined_outcome <- left_join(matches_joined_outcome, matches_joined_count_total)
-matches_joined_outcome$count <- matches_joined_outcome$count %>% replace_na(0)
-
-matches_joined_outcome <- matches_joined_outcome %>%
   group_by(year_cc) %>% 
-  mutate(freq = count/count_relative,
-         freq_total = count/count_total,
-         freq_distinct = count_distinct/count_relative)
+  summarize(count = n_distinct(doc_id)) %>%
+  {. ->> matches_joined_count}
 
-ggplot(data = matches_joined_outcome, mapping = aes(x = year_cc, y = count, fill = outcome)) +
-  geom_col() +
-  scale_fill_brewer(palette="Greys") +
-  labs(
-    title = "Number of ECJ citations in CC case law by outcome of the CC case",
-    subtitle = "Absolute amount",
-    caption = "Source: Authors",
-    x = "Year of the CC Decision",
-    y = NULL,
-    fill = "Outcome")
+matches_joined_count <- left_join(matches_joined_count, matches_joined_count_total)
+matches_joined_count$count <- matches_joined_count$count %>% replace_na(0)
 
-
-# Data prep for freq/type of proceedings histogram
-matches_joined  %>% 
-  mutate(type_proceedings = case_when(
-    grepl("stížnostech", type_proceedings) ~ "Concrete",
-    !grepl("stížnostech", type_proceedings) ~ "Abstract"
-  )) %>%
-  group_by(type_proceedings, year_cc) %>% 
-  summarize(count = n(),
-            count_distinct = n_distinct(doc_id)) %>%
-  {. ->> matches_joined_type_proceedings}
-
-matches_joined_type_proceedings_freq_relative <- subset(data_metadata, type_proceedings %in% c("O ústavních stížnostech", "O zrušení zákonů a jiných právních předpisů", "O souladu mezinárodních smluv")) %>% 
-  mutate(type_proceedings = case_when(
-    grepl("stížnostech", type_proceedings) ~ "Concrete",
-    !grepl("stížnostech", type_proceedings) ~ "Abstract"
-  )) %>%
-  group_by(type_proceedings, year_cc) %>% 
-  summarize(count_relative = n())
-
-matches_joined_type_proceedings <- left_join(matches_joined_type_proceedings_freq_relative, matches_joined_type_proceedings)
-matches_joined_type_proceedings <- left_join(matches_joined_type_proceedings, matches_joined_count_total)
-matches_joined_type_proceedings$count <- matches_joined_type_proceedings$count %>% replace_na(0)
-
-
-matches_joined_type_proceedings <- matches_joined_type_proceedings %>%
+matches_joined_count <- matches_joined_count %>%
   group_by(year_cc) %>% 
-  mutate(freq = count/count_relative,
-         freq_total = count/count_total,
-         freq_distinct = count_distinct/count_relative)
+  mutate(freq = count/count_total)
 
-ggplot(data = matches_joined_type_proceedings, mapping = aes(x = year_cc, y = count, fill = type_proceedings)) +
-  geom_col() + 
-  scale_fill_brewer(palette="Greys") +
-  labs(
-    title = "Number of ECJ citations in CC case law by type of review",
-    subtitle = "Absolute amount",
-    caption = "Source: Authors",
-    x = "Year of the CC Decision",
-    y = NULL,
-    fill = "Type of review")
-```
-However, such a picture is heavily biased. Firstly, it does not take into account the overtime development of CC's caseload. The number of cases lodged to the CC has steadily grown on yearly basis and the increasing number of references could simply follow the higher caseload. Secondly, the bias also stems from the fact that majority of cases before the CC are rejected in the concrete review procedure. Thus, one would expect to have this ratio between rejected/granted and concrete/abstract reflect also among the cases containing the ECJ citations. Thirdly, the ratio between concrete/abstract and rejected/granted decision also develops overtime.
-
-To remove the bias, the data are transformed so that the number of cases of certain type with a ECJ reference in a given year are divided by the total number of cases of that type of that given year. Moreover, the unit analysed is the number of unique referring cases so that the count in the numerator does not reflect the fact that some cases include multiple citations of an ECJ case and, thus, exist in the long format as multiple observations.
-
-What's noticeable though is the growth of the CC's usage of ECJ case law. The CC is overtime becoming more familiar and europeanized than before. The picture remains stable even if the data are transformed to relative frequency against the total number of cases that the CC decides so that the growth of the "europeanization" doesn't merely reflect the yearly growth of CC's caseload.
-```{r analysis, echo=FALSE}
-ggplot(data = matches_joined_outcome, mapping = aes(x = year_cc, y = freq_distinct, fill = outcome)) +
+ggplot(data = matches_joined_count, mapping = aes(x = year_cc, y = freq)) +
   geom_col() +
-  scale_fill_brewer(palette="Greys") +
-  labs(
-    title = "Frequency of referring cases relative to the yearly caseload of the CC per outcome",
-    caption = "Source: Authors",
-    x = "Year of the CC decision",
-    y = NULL,
-    fill = "Outcome")
-
-ggplot(data = matches_joined_type_proceedings, mapping = aes(x = year_cc, y = freq_distinct, fill = type_proceedings)) +
-  geom_col() +
-  scale_fill_brewer(palette="Greys") +
+  scale_color_brewer(palette = "Pastel1") +
   scale_y_continuous(labels = scales::percent) + 
+  scale_x_continuous(breaks=seq(2004, 2022, 2)) +
   labs(
-    title = "Frequency of referring cases relative to the yearly caseload of the CC per type of review",
+    title = "Frequency of referring cases against yearly caseload of the CC",
     caption = "Source: Authors",
     x = "Year of the CC Decision",
-    y = NULL,
-    fill = "Type of Review")
-```
-It becomes obvious from the data that the CC disproportionately refers to the ECJ in abstract review cases that it grants against the government. In other words, the CC is disproportionately employing ECJ case law in cases in which it reviews the constitutionality of national legal acts in abstract and it disproportionately rules against the government and declares the law under review unconstitutional, while using ECJ case law. The disproportion is heavy: In 2015, out of all granted decisions that year, the CC referred to the ECJ in 8 % of granted decisions whereas 0.4 % in rejected and in 2018, the CC referred to the ECJ in 20 % of all abstract review cases, whereas 0.7 % in the concrete review cases of that year. Even if we admit that looking only at citations without their context might not capture every single detail, the skew is so large that even our broad-stroke quantitative analysis reveals a substantial trend.
-
-That means that the story of the constitutional courts defending national constitutionality face to face the competing claim for authority of the ECJ may not be wholly accurate. The descriptive statistics show that the CC does not hesitate to employ ECJ case law to protect constitutionality, not via entering into conflict with the ECJ, but via utilizing the authority of ECJ to strike down domestic law. What is more, the data show that the usage of ECJ case law is on a steady rise even when the data are cleared of any potential bias. Thus, the europeanization hypothesis goes in the right direction.
-Reframing the role of national constitutional courts towards the ECJ in this direction opens up plenty of potential research avenues, including potential for inferential or comparative research.
-
-### Comparison of Means
-Unfortunately, the loss of information about the number of citations in any given CC case was the cost of removing the bias during the data transformations. Because in order to get the relative frequency, only the count of referring cases was in the numerator. That is why return to analysis of number of citations per CC cases and compare, whether the difference between average number of citations in granted/rejected cases and abstract/concrete type of proceedings significantly differs. We posit that the CC is more likely to use more references in cases in grants and in case in abstract proceedings.
-
-To this end, the mean and the standard deviation of number of citations per CC decision per type of proceeding/outcome are calculated. The data at first glance show that the means differ quite substantially with our intuition being correct.
-``` {r means comparison}
-# Compare means
-
-matches_joined %>% 
-  group_by(doc_id, outcome) %>%
-  summarize(count = n()) %>%
-  group_by(outcome) %>%
-  summarize(
-    mean = mean(count, na.rm = TRUE),
-      sd = sd(count, na.rm = TRUE)) %>%
-  {.  ->> matches_joined_outcome_mean}
-
-matches_joined_outcome_mean <- matches_joined %>% 
-  group_by(outcome) %>%
-  summarize(
-    count = n()
-  ) %>% 
-  left_join(., matches_joined_outcome_mean)
-
-matches_joined %>%
-  group_by(doc_id, outcome) %>%
-  summarize(count = n()) %>%
-  {.  ->> matches_joined_outcome_mean_analysis}
-
-ggplot(matches_joined_outcome_mean_analysis, mapping = aes(x = outcome, y = count, fill = outcome)) +
-  geom_boxplot() +
-  scale_fill_brewer(palette="Greys") +
-  coord_cartesian(ylim = c(0,15)) +
-  theme(legend.position="none") +
-  labs(
-    x="Outcome",
-    y="Number of citations in a CC decision"
-  )
-
-# Difference in means type of proceedings
-matches_joined %>% 
-  mutate(type_proceedings = case_when(
-    grepl("stížnostech", type_proceedings) ~ "Concrete",
-    !grepl("stížnostech", type_proceedings) ~ "Abstract"
-  )) %>%
-  group_by(doc_id, type_proceedings) %>%
-  summarize(count = n()) %>%
-  group_by(type_proceedings) %>%
-  summarize(
-    mean = mean(count, na.rm = TRUE),
-    sd = sd(count, na.rm = TRUE)) %>%
-  {.  ->> matches_joined_type_proceedings_mean}
-
-matches_joined_type_proceedings_mean <- matches_joined %>% 
-  mutate(type_proceedings = case_when(
-    grepl("stížnostech", type_proceedings) ~ "Concrete",
-    !grepl("stížnostech", type_proceedings) ~ "Abstract"
-  )) %>%
-  group_by(type_proceedings) %>%
-  summarize(
-    count = n()
-  ) %>% 
-  left_join(., matches_joined_type_proceedings_mean)
-
-kable(matches_joined_type_proceedings_mean, digits = 1, format = "simple", caption = "Count, mean and SD by type of proceedings")
-kable(matches_joined_outcome_mean, digits = 1, format = "simple", caption = "Count, mean and SD by outcome")
-
-matches_joined %>%
-  group_by(doc_id, type_proceedings) %>%
-  mutate(type_proceedings = case_when(
-    grepl("stížnostech", type_proceedings) ~ "Concrete",
-    !grepl("stížnostech", type_proceedings) ~ "Abstract"
-  )) %>%
-  summarize(count = n()) %>%
-  {.  ->> matches_joined_type_proceedings_mean_analysis}
-
-ggplot(matches_joined_type_proceedings_mean_analysis, mapping = aes(x = type_proceedings, y = count, fill = type_proceedings)) +
-  geom_boxplot() +
-  scale_fill_brewer(palette="Greys") +
-  coord_cartesian(ylim = c(0,15)) +
-  theme(legend.position="none") +
-  labs(
-    x="Type of review",
-    y="Number of citations in a CC decision"
-  )
-```
-We then test whether the means differ statistically significantly. To use a unpaired two-samples t-test for comparison of means, the underlying distributions must follow a normal distribution. To test whether the number of citations per case per variable of interest follows a normal distribution, we conducted the Shapiro normality test. The test has as a null hypothesis that the distribution is normal. In all cases, the p-value<0,05, thus the number of citations per the relevant type of CC case does not follow a normal distribution.
-``` {r shapiro-wilk, include=FALSE}
-with(matches_joined_outcome_mean_analysis, shapiro.test(count[outcome == "granted"]))
-with(matches_joined_outcome_mean_analysis, shapiro.test(count[outcome == "rejected"]))
-with(matches_joined_type_proceedings_mean_analysis, shapiro.test(count[type_proceedings == "Abstract"]))
-with(matches_joined_type_proceedings_mean_analysis, shapiro.test(count[type_proceedings == "Concrete"]))
-```
-In such cases, the unpaired two-samples Wilcoxon test is more appropriate. The null hypothesis is that there is no difference between the two groups. Since p-value is less than 0.05 in the case of the outcome distinction, the null hypothesis can be rejected. We can conclude that there is, on average, a difference between the number of citations between the cases that the CC grants/rejects, with the average number of ECJ citations being statistically significantly higher in the granting decisions. That further supports our intuition that the CC turns to ECJ more when it rules against the government, not otherwise.
-And while the mean at first glance differs between the two type of proceedings, because the p-value>0.05, we cannot conclude that they differ statistically significantly. Thus, on average, the CC utilizes ECJ case law more only in the cases it grants.
-```{r wilc}
-pander(wilcox.test(count ~ outcome, data = matches_joined_outcome_mean_analysis))
-pander(wilcox.test(count ~ type_proceedings, data = matches_joined_type_proceedings_mean_analysis))
+    y = NULL)
 ```
 
-### Judge rapporteur behavior
-Our second intuition is that it may not be helpful to look at a court as a whole but to also inquire whether individual judges' usage of ECJ case-law differs. At first glance, the usage of ECJ case-law differs across judges even when their yearly caseload is taken into account. Thus, the second plot shows the  yearly frequency of referring decisions per judge relative to their total yearly caseload.
+It is perhaps not surprising that in the early years after the accession to the EU, the Constitutional Court did not refer to the Luxembourg case-law very often. After all, it takes some time before the EU law cases even reach the docket of the constitutional court and before litigants begin to invoke the case-law in their submissions. Nevertheless, it is more interesting to see in the proportion of referring cases in the more recent jurisprudence. Indeed, in the last years, the ECJ’s case-law occurs in more than 1 % of all cases decided by the Constitutional Court each year.
+
+Even though the portion of cases in which the CCC reasons with at least one ECJ’s precedent seems very low at first sight, this should not be bluntly accepted as evidence that the process of *Europeanisation* is in reality not taking place in the CCC’s adjudication. Firstly, as we will argue below, the absolute numbers need to put into closer context because vast majority of cases (more than 90 %) are represented by quasi-procedural decisions which are rather short and simple and thus, less likely to contain substantive citations to ‘foreign’ case-law. Moreover, since even older and modest studies have already shown that the proportion of national legal rules affected by the EU law oscillates at least around ten per cent of all national norms, the overall low number of referring cases shows – more than anything else – that the CCC might often come across EU law issues without evoking the ECJ’s precedents **[Štěpánův komentář: or it ignores the European aspect of national law altogether]**. This seems to confirm Lisa Conant’s claim that ‘[n]ational judges who do invoke European provisions in their  decisions are likely to interpret [them] without any explicit reliance on ECJ case-law.’  In any case, the key finding regarding the scope of *Europeanisation* is clear – Czech Constitutional Court refers to the ECJ’s case-law on a more frequent basis than it used to.
+
+As much as the overall statistics provide as with a rough picture of how the Czech Constitutional Court approaches the ECJ’s precedents in general, let us now zoom-in and inspect how the citation practises of individual justices change in time. This is crucial for several reasons. First, the overall statistics do not reveal anything about the distribution of the citations among individual judges. Thus, it could be the case that some judges would refer to the ECJ’s case-law disproportionately more than others. To put it plainly – individual personalities matter in decision-making.  Secondly, Czech constitutional judges’ mandate lasts ten years. This is a reasonably long period of time which allows us to identify any signs of development of individual approaches in time.
+
+What is then the story of Czech constitutional judges? As we can see in Figures No. 2 and 3, there are noticeable differences between various approaches of individual members of the bench. Some judges remain rather passive and have not cited more than 10 unique ECJ’s judgements per year during the course of their whole tenure (Lichovník, Sládeček, Uhlíř, Tomková). Others, on the other hand, steadily refer to the ECJ’s authority on a more frequent basis (Šimáčková, Filip). Such findings are not surprising especially in the latter case as for instance Kateřina Šimáčková has the reputation of pro-active and internationally focused judge.
+
+What is intriguing, however, is that during the tenure of many of the judges (Fenyk, Jirsa, David, Rzchetský), an ‘outlier’ year occurred where they referenced the ECJ in noticeably more cases than in other years. This might be caused by various factors ranging from the need to solve hard EU law questions, to the more subtle influences such as hiring a new law clerk who specialises in EU law.  In any cases, these instances represent apt candidates for further contextual research.
 
 ```{r judge_rapporteur}
+# Total
 cc_third <- c("David Ludvík", "Fenyk Jaroslav", "Fiala Josef", "Filip Jan", "Jirsa Jaromír", "Rychetský Pavel", "Šámal Pavel", "Šimáčková Kateřina", "Šimíček Vojtěch", "Sládeček Vladimír", "Suchánek Radovan", "Tomková Milada", "Uhlíř David", "Zemánek Jiří", "Lichovník Tomáš", "Musil Jan")
 
 matches_joined %>% 
@@ -289,36 +108,40 @@ ggplot(data = subset(matches_joined_judges, subset = judge_rapporteur.y %in% cc_
                                                    caption = "Source: Authors",
                                                    subtitle = "Only the 3rd CC between 2014 and 2022 is included in the analysis") + 
   scale_y_continuous(labels = scales::percent)
-
 ```
-We can see that some judges stay well bellow 2 % for their whole tenure, whereas other judges refer in more than double the frequency relative to their caseload. What's more, the development within individual judges is not static either. We, for example, know that the most ECJ friendly justice Kateřina Šimáčková also employs the ECtHR case law the most. She is in general known to be progressive and pro-EU.
 
-There are potential explanations for this that could be further developed into a self-standing research question. The individual judges have a differing background. They studied law during different stages of legal education in Czechia. It may be interesting to see whether, for example, the time or the place where the judges studied law could explain the variance between the extent of their "europeanization". Moreover, the CC judges surround themselves with different teams of assistants. It would be also interesting to research to what extent does the variance in the assistant teams impact the variance of judicial behavior between judges, the usage of ECJ decisions in our study. From our personal experienc, we think that the team plays important role.
+To conclude this section about the scope of the *Europeanisation* of the Czech Constitutional Court, so far we have seen that the number of referring cases increase by every year. Importantly enough, the approaches of individual judges differ significantly and thus, one may wonder whether the level of *Europeanisation* depends mostly on the individual characteristics of the judges. Be it as it may, the first set of descriptive statistics provide us with valuable insights about the relationship between national constitutional adjudication and EU law. 
 
-## Miscellanious
-We offer additional descriptive statistics that could help shape our intuition regarding potential future inferential research. The inferential research could zero in on whether certain characteristics of the ECJ or CC decisions lead to greater usage. Namely whether, for example, the referring member state of the ECJ case impacts the way a national constitutional court employs the decision, or whether there is an overlap between subject matter of the cited case and the referring case.
-``` {r misc, warning = FALSE}
-# Formation of ECJ
+### The *Europeanised* Areas of Constitutional Adjudication
+
+Now, it is useful not only to deepen our understanding about the scope of the process of CCC’s *Europeanisation* of the Czech Constitutional Court, but also the areas in which the ECJ’s jurisprudence enjoys the widest effects.
+As Figure No. 4 reveals, the most cited subject-matters are threefold: taxation, area of freedom, security and justice, and provisions governing the institutions . At a first glance, this seems surprising as the taxation cases does not represent any major part of the Czech Constitutional Court’s docket, perhaps on the contrary. The second category, on the other hand, can be better explained as it might include criminal cases in which the Constitutional Court reviews the constitutionality of the European Arrest Warrants, or decisions regarding asylum and EU residency permits.
+
+As to other categories worth pointing out, it is intriguing that the topic of consumer protection made it to the list. This due to the fact that the Czech Charter on the Fundamental Human Rights do not recognise the principle of consumer protection explicitly which has long caused number of doctrinal difficulties.  The high number of references might support the intuition that the ECJ’s case-law influenced the development of the constitutional protection in that area significantly.
+
+``` {r subject_matters, echo=FALSE}
+# Subject matter
 matches_joined  %>%
-  mutate(formation = case_when(
-    grepl("Chamber" , formation) & !grepl("Grand Chamber", formation) ~ "Chamber",
-    grepl("Grand Chamber", formation) ~ "Grand Chamber",
-    grepl("Plenary Assembly", formation) ~ "Plenary Assembly",
-    grepl("single judge", formation) ~ "Single Judge",
-  )) %>%
-  group_by(formation, year_cc) %>% 
+  group_by(subject_matter_category) %>% 
   summarize(count = n()) %>%
-  ggplot(data = ., mapping = aes(x = year_cc, y = count, fill = formation)) +
-  geom_col() + 
-  scale_fill_brewer(palette="Greys") +
+  arrange(desc(count)) %>%
+  top_n(10) %>%
+  ggplot(mapping = aes(x = reorder(subject_matter_category, count), y = count)) +
+  geom_point() +
+  scale_y_continuous(breaks = seq(20, 100, 5)) +
+  coord_flip() +
   labs(
-    title = "Number of ECJ citations by ECJ formation",
-    subtitle = "Absolute amount",
+    title = "Top 10 cited ECJ subject matters",
     caption = "Source: Authors",
-    x = "Year of the CC decision",
-    y = NULL,
-    fill = "ECJ formation")
+    x = NULL,
+    y = NULL)
+```
 
+The somewhat rough picture about the most Europeanised areas of the Czech Constitutional Court’s practice may be well complemented by the inspection of the most cited ECJ’s precedents. As it can be seen in Figure No. 5, taxation cases – and the VAT frauds cases in particular – occupy the leading places (*Kittel , Mahagében  and Optigen*).
+
+Furthermore, what is striking is the extremely high number of references to *CILFIT*.  Considering the fact that the Czech Constitutional Court has never submitted a preliminary reference according to Article 267 TFEU and does not consider the *CILFIT* criteria with regards to itself, it is safe to claim that in those approximately 70 cases, the CCC reviewed whether ordinary courts of last instance dealt with their obligation to submit the question in accordance with the applicant’s right to a fair processes.  This brings valuable empirical evidence about the yet theoretical claims about the growing tendency of constitutional review of this kind taking place.  Consequently, although formally avoiding the interaction with the ECJ, the Czech Constitutional Court may play a significant role of a ‘watchdog’ who guarantees that ordinary courts fulfill their obligations to supply preliminary references to the ECJ.
+
+```{r cited_decisions}
 # Most cited decisions
 matches_joined  %>%
   group_by(case_name) %>% 
@@ -328,57 +151,219 @@ matches_joined  %>%
   ggplot(data = ., mapping = aes(x = reorder(case_name, count), y = count)) +
   geom_point() +
   coord_flip() +
+  scale_y_continuous(breaks = seq(5, 100, 5)) +
   labs(
     title = "Top 20 cited ECJ decisions",
     caption = "Source: Authors",
     x = NULL,
     y = NULL)
+```
 
-# Subject matter
-matches_joined  %>%
-  group_by(subject_matter_category) %>% 
-  summarize(count = n()) %>%
-  arrange(desc(count)) %>%
-  top_n(10) %>%
-  ggplot(mapping = aes(x = reorder(subject_matter_category, count), y = count)) +
-  geom_point() +
-  coord_flip() +
+To conclude this section up, the descriptive statistics about the subject-matter of the cited ECJ’s precedents provided us with promising preliminary insights about the areas in which the Luxembourg jurisprudence might influence the Czech Constitutional Court’s adjudication the most. Even though taxation cases stand out in the overall picture, the analysis uncovered subtler influence in the yet hidden areas such as consumer protection or constitutional review of the fulfillment of the ordinary courts’ obligation to submit preliminary references to the ECJ.
+
+### The effects of *Europeanisation*: Preliminary Suggestions 
+
+So far, we have examined the results of our citation analysis regarding the *scope* and the *area* of *Europeanisation*. Those does not tell us much about the nature of the cases in which the CCC make use of the ECJ’s precedents. To put it plainly, we also aim to get a closer context of the way ECJ’s precedents influence the run-of-the-mill jurisprudence of constitutional courts.
+
+For such purposes, Figure 5 depicts the frequency of the CCC’s referring decisions relative to the overall caseload while also categorising the referring decisions per their outcome. The data reveals quite an intriguing and yet unknown findings. Czech constitutional judges refer to the ECJ’s precedents disproportionately more frequently in cases where they declare the act under review unconstitutional. The disproportion is heavy. For instance, in 2015, out of all decisions that year, the CCC referred to the ECJ’s precedents in 8 % of the granted applications whereas the precedents were used only in 0.4 % out of the rejected ones.
+
+```{r outcome, echo=FALSE}
+
+# Data prep for freq/outcome histogram
+matches_joined  %>% 
+  group_by(outcome, year_cc) %>% 
+  summarize(count = n(),
+            count_distinct = n_distinct(doc_id)) %>%
+  {. ->> matches_joined_outcome}
+
+matches_joined_freq_relative <- data_metadata %>% 
+  group_by(outcome, year_cc) %>% 
+  summarize(count_relative = n())
+
+matches_joined_outcome <- left_join(matches_joined_freq_relative, matches_joined_outcome)
+matches_joined_outcome <- left_join(matches_joined_outcome, matches_joined_count_total)
+matches_joined_outcome$count <- matches_joined_outcome$count %>% replace_na(0)
+
+matches_joined_outcome <- matches_joined_outcome %>%
+  group_by(year_cc) %>% 
+  mutate(freq = count/count_relative,
+         freq_total = count/count_total,
+         freq_distinct = count_distinct/count_relative)
+
+ggplot(data = matches_joined_outcome, mapping = aes(x = year_cc, y = freq_distinct, fill = outcome)) +
+  geom_col() +
+  scale_fill_brewer(palette="Pastel1") +
+  scale_x_continuous(breaks=seq(2004, 2022, 2)) +
+  scale_y_continuous(labels = scales::percent) + 
   labs(
-    title = "Top 10 cited ECJ subject matters",
+    title = "Frequency of referring cases relative to the yearly caseload of the CC \nper outcome",
     caption = "Source: Authors",
-    x = NULL,
-    y = NULL)
+    x = "Year of the CC decision",
+    y = NULL,
+    fill = "Outcome")
 
-# ECJ Judge Rapporteur
-matches_joined  %>%
-  group_by(judge_rapporteur.x) %>% 
-  summarize(count = n()) %>%
-  arrange(desc(count)) %>%
-  top_n(15) %>%
-  ggplot(mapping = aes(x = reorder(judge_rapporteur.x, count), y = count)) +
-  geom_point() +
-  coord_flip() +
+```
+
+Undoubtedly, one cannot infer too broad conclusions from these statistics as the *macro-level* analysis does not tell us anything about the specific way in which the ECJ’s precedents were utilized in the CC's argumentation. Thus, although cited, the precedent might play only an ornamental role, or might be even distinguished from the case at hand and thus not applied substantively.  Nonetheless, the skew is so significant that even our broad-stroke quantitative analysis reveals a substantial trend.
+
+Considering the fact that in all types of proceedings, the Constitutional Courts essentially decides about constitutionality of acts of other political actors, the presented numbers support the narrative according to which the CCC makes use of the ECJ’s precedents against other political actors. In short, it seems that Czech constitutional judges use the ECJ’ authority as a ‘sword’ rather than a ‘shield’. Following this line of logic, it does not seem that probable that the CCC would ‘cover’ the non-compliance regarding the ECJ’s case-law on the side of other state actors by means of rejecting the applications.
+
+Once again, such broad assumptions need to be cautiously inspected further in a qualitative way in order to reveal the substantive influence of the Luxembourg’s opinions. It is also important to highlight that the majority of non-compliance might be taking in decision where the ECJ’s precedent is not invoked at all. Nonetheless, we are confident to claim that the descriptive statistics show that the CCC does not hesitate to employ ECJ case law to protect constitutionality, not via entering into conflict with the ECJ, but via utilizing its authority to strike down legal acts of other domestic political actors.
+
+Turning to Figure 6, we subsequently explore in which type of proceedings the ECJ’s precedents get invoked the most. Assessing the type of proceedings conducted in the referring cases in relation to the overall caseload of such proceedings allows us to conclude that the ECJ’s jurisprudence is mostly used in the abstract constitutional review.
+
+``` {r type_proceedings, echo = FALSE}
+# Data prep for freq/type of proceedings histogram
+matches_joined  %>% 
+  mutate(type_proceedings = case_when(
+    grepl("stížnostech", type_proceedings) ~ "Concrete",
+    !grepl("stížnostech", type_proceedings) ~ "Abstract"
+  )) %>%
+  group_by(type_proceedings, year_cc) %>% 
+  summarize(count = n(),
+            count_distinct = n_distinct(doc_id)) %>%
+  {. ->> matches_joined_type_proceedings}
+
+matches_joined_type_proceedings_freq_relative <- subset(data_metadata, type_proceedings %in% c("O ústavních stížnostech", "O zrušení zákonů a jiných právních předpisů", "O souladu mezinárodních smluv")) %>% 
+  mutate(type_proceedings = case_when(
+    grepl("stížnostech", type_proceedings) ~ "Concrete",
+    !grepl("stížnostech", type_proceedings) ~ "Abstract"
+  )) %>%
+  group_by(type_proceedings, year_cc) %>% 
+  summarize(count_relative = n())
+
+matches_joined_type_proceedings <- left_join(matches_joined_type_proceedings_freq_relative, matches_joined_type_proceedings)
+matches_joined_type_proceedings <- left_join(matches_joined_type_proceedings, matches_joined_count_total)
+matches_joined_type_proceedings$count <- matches_joined_type_proceedings$count %>% replace_na(0)
+
+
+matches_joined_type_proceedings <- matches_joined_type_proceedings %>%
+  group_by(year_cc) %>% 
+  mutate(freq = count/count_relative,
+         freq_total = count/count_total,
+         freq_distinct = count_distinct/count_relative)
+
+ggplot(data = matches_joined_type_proceedings, mapping = aes(x = year_cc, y = freq_distinct, fill = type_proceedings)) +
+  geom_col() +
+  scale_fill_brewer(palette="Pastel1") +
+  scale_y_continuous(labels = scales::percent) + 
+  scale_x_continuous(breaks=seq(2004, 2022, 2)) +
   labs(
-    title = "Top 15 cited ECJ judge rapporteurs",
+    title = "Frequency of referring cases relative to the yearly caseload of the CC \nper type of review",
     caption = "Source: Authors",
-    x = NULL,
-    y = NULL)
+    x = "Year of the CC Decision",
+    y = NULL,
+    fill = "Type of Review")
+```
 
-# Referring Member States
-matches_joined  %>%
-  filter(!referring_member_state == "not applicable") %>%
-  group_by(referring_member_state) %>% 
+The data shows that the disproportion is once more significant. For instance, in 2018, the CCC referred to the ECJ in 20 % of all abstract review cases, whereas in 0.7 % in the concrete review cases of that year. Accordingly, we may conclude that constitutional judges make more use of ECJ’s case-law in cases where they review the constitutionality of legislative and government’s outputs. When matched with the previous results, this might suggest that ECJ’s authority might affect national policies more substantively than usually imagined. Put together, the CCC refers to the ECJ disproportionately more when it strikes down national law rather than in concrete proceedings or in cases that it rejects.
+
+In this section, based on our analysis, we speculated about the effects of *Europeanisation* of the Czech Constitutional Court. Our findings show that the CCC have referred to the ECJ’s case-law disproportionately in cases where it granted the applications and in abstract proceedings. This allows us to advance some theoretical assumptions about the purpose for which domestic courts use the ECJ’s jurisprudence in their day-to-day-adjudication.
+
+### Comparison of Means
+Unfortunately, removing the bias during the data transformations via comparing the relative frequency of referring cases comes at the expense of the information about the number of citations in any given CC case. That is why return to analysis of number of citations per CC cases and compare, whether the difference between average number of citations in granted/rejected cases and abstract/concrete type of proceedings significantly differs. We posit that the CC is more likely to use more references in cases in grants and in case in abstract proceedings. The means at first glance show that the means differ quite substantially with our intuition being correct.
+
+``` {r means comparison}
+# Compare means
+
+matches_joined %>% 
+  group_by(doc_id, outcome) %>%
   summarize(count = n()) %>%
-  arrange(desc(count)) %>%
-  top_n(15) %>%
-  ggplot(mapping = aes(x = reorder(referring_member_state, count), y = count)) +
-  geom_point() +
-  coord_flip() +  labs(
-    title = "Top 15 cited ECJ referring member states",
-    caption = "Source: Authors",
-    x = NULL,
-    y = NULL)
+  group_by(outcome) %>%
+  summarize(
+    mean = mean(count, na.rm = TRUE),
+      sd = sd(count, na.rm = TRUE)) %>%
+  {.  ->> matches_joined_outcome_mean}
 
+matches_joined_outcome_mean <- matches_joined %>% 
+  group_by(outcome) %>%
+  summarize(
+    count = n()
+  ) %>% 
+  left_join(., matches_joined_outcome_mean)
+
+matches_joined %>%
+  group_by(doc_id, outcome) %>%
+  summarize(count = n()) %>%
+  {.  ->> matches_joined_outcome_mean_analysis}
+
+ggplot(matches_joined_outcome_mean_analysis, mapping = aes(x = outcome, y = count, fill = outcome)) +
+  geom_boxplot() +
+  scale_fill_brewer(palette="Pastel1") +
+  coord_cartesian(ylim = c(0,15)) +
+  theme(legend.position="none") +
+  labs(
+    x="Outcome",
+    y="Number of citations in a CC decision"
+  )
+
+# Difference in means type of proceedings
+matches_joined %>% 
+  mutate(type_proceedings = case_when(
+    grepl("stížnostech", type_proceedings) ~ "Concrete",
+    !grepl("stížnostech", type_proceedings) ~ "Abstract"
+  )) %>%
+  group_by(doc_id, type_proceedings) %>%
+  summarize(count = n()) %>%
+  group_by(type_proceedings) %>%
+  summarize(
+    mean = mean(count, na.rm = TRUE),
+    sd = sd(count, na.rm = TRUE)) %>%
+  {.  ->> matches_joined_type_proceedings_mean}
+
+matches_joined_type_proceedings_mean <- matches_joined %>% 
+  mutate(type_proceedings = case_when(
+    grepl("stížnostech", type_proceedings) ~ "Concrete",
+    !grepl("stížnostech", type_proceedings) ~ "Abstract"
+  )) %>%
+  group_by(type_proceedings) %>%
+  summarize(
+    count = n()
+  ) %>% 
+  left_join(., matches_joined_type_proceedings_mean)
+
+# kable(matches_joined_type_proceedings_mean, digits = 1, format = "simple", caption = "Count, mean and SD by type of proceedings")
+# kable(matches_joined_outcome_mean, digits = 1, format = "simple", caption = "Count, mean and SD by outcome")
+
+matches_joined %>%
+  group_by(doc_id, type_proceedings) %>%
+  mutate(type_proceedings = case_when(
+    grepl("stížnostech", type_proceedings) ~ "Concrete",
+    !grepl("stížnostech", type_proceedings) ~ "Abstract"
+  )) %>%
+  summarize(count = n()) %>%
+  {.  ->> matches_joined_type_proceedings_mean_analysis}
+
+ggplot(matches_joined_type_proceedings_mean_analysis, mapping = aes(x = type_proceedings, y = count, fill = type_proceedings)) +
+  geom_boxplot() +
+  scale_fill_brewer(palette="Pastel1") +
+  coord_cartesian(ylim = c(0,15)) +
+  theme(legend.position="none") +
+  labs(
+    x="Type of review",
+    y="Number of citations in a CC decision"
+  )
+```
+We then test whether the means, the average amount of citations in the referring cases, differ statistically significantly. We can conclude that there is, on average, a difference between the average number of citations between the cases that the CC grants/rejects, with the average number of ECJ citations being  higher in the granting decisions. That further supports our intuition that the CC turns to ECJ more when it rules against the government, not otherwise.
+``` {r shapiro-wilk, include=FALSE}
+with(matches_joined_outcome_mean_analysis, shapiro.test(count[outcome == "granted"]))
+with(matches_joined_outcome_mean_analysis, shapiro.test(count[outcome == "rejected"]))
+with(matches_joined_type_proceedings_mean_analysis, shapiro.test(count[type_proceedings == "Abstract"]))
+with(matches_joined_type_proceedings_mean_analysis, shapiro.test(count[type_proceedings == "Concrete"]))
+```
+
+```{r wilc}
+pander(wilcox.test(count ~ outcome, data = matches_joined_outcome_mean_analysis))
+pander(wilcox.test(count ~ type_proceedings, data = matches_joined_type_proceedings_mean_analysis))
+```
+
+### The Origins of *Europeanisation*: Luxembourg’s Side of the Story
+
+Let us finally offer some of the descriptive statistics regarding the characteristics of the ECJ’s precedents that Czech constitutional judges refer to. Exploring such features allows us to speculate about factors which might influence the citation of particular kinds of cases by the CCC. We reiterate that we are not offering any conclusive evidence of such influcence. We're only revealing some broad-stroke trends that may direct us towards inferential quantitative or qualitative research.
+
+First, it seems useful to explore thy type of proceedings from which the ECJ’s precedents originate. As Figure 7 shows, majority of the cited ECJ’s precedents originate form the preliminary reference procedure. This is by no means surprising as this type of proceedings also represents an overwhelming majority of ECJ’s docket. Nevertheless, the data also reveal that the CCC does make use of judgments issued in other types of proceedings as well. This trend seems to confirm the ECJ’s doctrine according to which domestic courts are bound by previous decisions irrespective of the nature of the proceedings as mentioned in the theoretical part.
+
+``` {r procedure, echo=FALSE}
 # Type of ECJ Proceedings
 matches_joined  %>%
   mutate(procedure_abb = case_when(
@@ -392,23 +377,108 @@ matches_joined  %>%
   top_n(15) %>%
   ggplot(mapping = aes(x = year_cc, y = count, fill = procedure_abb)) +
   geom_col() + 
-  scale_fill_brewer(palette="Greys") +
+  scale_fill_brewer(palette="Pastel1") +
+  scale_x_continuous(breaks=seq(2004, 2022, 2)) +
   labs(
     title = "Number of ECJ citations by ECJ type of procedure",
     subtitle = "Absolute Amount",
     caption = "Source: Authors",
     x = "Year of the CC decision",
     y = NULL,
-    fill = "ECJ type of trocedure")
-
-ggplot(matches_joined, aes(x = year_cc, y = proceeding_year)) + 
-  geom_bin2d() +
-  scale_fill_distiller(palette="Greys") +
-  labs(x = "Year of the referring CC decision", y = "Year of the cited ECJ decision",
-       title = "Heatmap of the dates of reference",
-       fill = "Count",
-       caption = "Source: Authors")
-
+    fill = "ECJ type of procedure")
 ```
+
+We also look at the prevailing composition in which the ECJ decided the cited cases. Since 2004, the Grand Chamber of the ECJ is expected to decide where the difficulty or importance of the cases or particular circumstances require so. Some authors have further speculated that the Grand Chamber’s existence might be legitimised not only by the need to to decide cases of great importance, but also by the need to ensure unity and coherence of the case-law. It is particularly the former function which might, in turn, be of great concern for national judges who need to identify clear and coherent guidance in the ‘avalanches of technical cases’.  In other words, one might expect that constitutional judges interact with decisions of Grand Chamber more often as they should represent clear and coherent signals of high legitimacy. Similar role might be played by the Plenary Assembly.
+
+Data which can be seen in Figure 8 seem to suggest these theoretical assumptions. Indeed, citations of cases decided by the Grand Chamber and Plenary Assembly represent a fairly high portion of overall citations considering that the Grand Chamber decides merely around 11 % of all cases.  Nevertheless, the exact influence of the Court’s composition on the domestic court’s citation practice is to be explored more thoroughly in the future research.
+
+``` {r formation}
+# Formation of ECJ
+matches_joined  %>%
+  mutate(formation = case_when(
+    grepl("Chamber" , formation) & !grepl("Grand Chamber", formation) ~ "Chamber",
+    grepl("Grand Chamber", formation) ~ "Grand Chamber",
+    grepl("Plenary Assembly", formation) ~ "Plenary Assembly",
+    grepl("single judge", formation) ~ "Single Judge",
+  )) %>%
+  group_by(formation, year_cc) %>% 
+  summarize(count = n()) %>%
+  ggplot(data = ., mapping = aes(x = year_cc, y = count, fill = formation)) +
+  geom_col() + 
+  scale_fill_brewer(palette="Pastel1") +
+  scale_x_continuous(breaks=seq(2004, 2022, 2)) +
+  labs(
+    title = "Number of ECJ citations by ECJ formation",
+    subtitle = "Absolute amount",
+    caption = "Source: Authors",
+    x = "Year of the CC decision",
+    y = NULL,
+    fill = "ECJ formation")
+```
+
+Now, additional data regarding judge rapporteurs and referring Member States reveal another potentially fruitful insight regarding the origin of the cited cases. Figure 9 shows that the ECJ’s precedents originating from the preliminary procedure initiated by Czech courts are the sixth most cited precedents overall. Considering that Czech courts have so far submitted only around 120 preliminary references, it seems that Czech constitutional judges might pay more attention to and subsequently use the doctrines which the ECJ stipulated vis-à-vis the Czech context.
+
+``` {r member_states}
+# Referring Member States
+matches_joined  %>%
+  filter(!referring_member_state == "not applicable") %>%
+  group_by(referring_member_state) %>% 
+  summarize(count = n()) %>%
+  arrange(desc(count)) %>%
+  top_n(15) %>%
+  ggplot(mapping = aes(x = reorder(referring_member_state, count), y = count)) +
+  geom_point() +
+  scale_y_continuous(breaks = seq(15, 150, 5)) +
+  coord_flip() +  labs(
+    title = "Top 15 cited ECJ referring member states",
+    caption = "Source: Authors",
+    x = NULL,
+    y = NULL)
+```
+
+On the same note, it is striking – as Figure 11 shows – that Jiří Malenovský who was a Czech judge in Luxembourg is the second most cited judge rapporteur overall. Taking into account that judge Malenovský used to on the bench of the Czech Constitutional Court before he moved up to Luxembourg, one might wonder whether the precedents of the former colleague of constitutional judges enjoys special treatment for one reason or another. 
+
+``` {r judge_rapporteur_ECJ}
+# ECJ Judge Rapporteur
+matches_joined  %>%
+  group_by(judge_rapporteur.x) %>% 
+  summarize(count = n()) %>%
+  arrange(desc(count)) %>%
+  top_n(15) %>%
+  ggplot(mapping = aes(x = reorder(judge_rapporteur.x, count), y = count)) +
+  geom_point() +
+  coord_flip() +
+  scale_y_continuous(breaks = seq(20, 70, 5)) +
+  labs(
+    title = "Top 15 cited ECJ judge rapporteurs",
+    caption = "Source: Authors",
+    x = NULL,
+    y = NULL)
+```
+
+To conclude this section, the examination of some of the characteristics of the ECJ’s precedents allowed us to explore the origins of the process of Czech Constitutional Court’s *Europeanisation*. This provided us with some preliminary evidence about the most influential factors which might affect the probability of the citations in the day-to-day constitutional adjudication.
+
+
+### Judge rapporteur behavior
+Our second intuition is that it may not be helpful to look at a court as a whole but to also inquire whether individual judges' usage of ECJ case-law differs. At first glance, the usage of ECJ case-law differs across judges even when their yearly caseload is taken into account. Thus, the second plot shows the  yearly frequency of referring decisions per judge relative to their total yearly caseload.
+
+
+We can see that some judges stay well bellow 2 % for their whole tenure, whereas other judges refer in more than double the frequency relative to their caseload. What's more, the development within individual judges is not static either. We, for example, know that the most ECJ friendly justice Kateřina Šimáčková also employs the ECtHR case law the most. She is in general known to be progressive and pro-EU.
+
+There are potential explanations for this that could be further developed into an inferential research question. The individual judges have a differing background. They studied law during different stages of legal education in Czechia. It may be interesting to see whether, for example, the time or the place where the judges studied law could explain the variance between the extent of their *europeanisatio*. Moreover, the CC judges surround themselves with different teams of assistants. It would be also interesting to research to what extent does the variance in the assistant teams impact the variance of judicial behavior between judges, the usage of ECJ decisions in our study. From our personal experienc, we think that the team plays important role.
+
+<!-- ## Miscellanious -->
+<!-- We offer additional descriptive statistics that could help shape our intuition regarding potential future inferential research. The inferential research could zero in on whether certain characteristics of the ECJ or CC decisions lead to greater usage. Namely whether, for example, the referring member state of the ECJ case impacts the way a national constitutional court employs the decision, or whether there is an overlap between subject matter of the cited case and the referring case. -->
+<!-- ``` {r misc, warning = FALSE} -->j
+
+<!-- ggplot(matches_joined, aes(x = year_cc, y = proceeding_year)) +  -->
+<!--   geom_bin2d() + -->
+<!--   scale_fill_distiller(palette="Pastel1") + -->
+<!--   labs(x = "Year of the referring CC decision", y = "Year of the cited ECJ decision", -->
+<!--        title = "Heatmap of the dates of reference", -->
+<!--        fill = "Count", -->
+<!--        caption = "Source: Authors") -->
+
+<!-- ``` -->
 
 
