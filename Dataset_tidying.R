@@ -9,8 +9,7 @@ save(data_metadata, file = "data/US_metadata.RData")
 save(data_texts, file = "data/US_texts.RData")
 save(data_ud, file = "models/US_UDmodel.RData")
 
-
-
+distinct <- data_metadata %>% filter(year_cc > 2003) %>% n_distinct()
 
 # Clean useless columns and rename
 # data_metadata <- data_metadata %>% subset(select = -c(2,4,5,8,10,24)) %>% rename(

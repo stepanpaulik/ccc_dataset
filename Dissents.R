@@ -51,12 +51,7 @@ data_yearly_dissents <- data_metadata %>%
   group_by(year_cc, dissenting_judge) %>%
   summarize(count_dissents = n())
 
-
-for(i in 1:length(data_yearly_caseload$judge_rapporteur)){
-  data_yearly_caseload$judge_rapporteur[i] <- paste0(word(data_yearly_caseload$judge_rapporteur[i], 2), "_", word(data_yearly_caseload$judge_rapporteur[i], 1)) %>% tolower()
-}
-
-data_dissents_caseload <- left_join(data_yearly_caseload, data_yearly_dissents)
+data_dissents_caseload <- left_join(data_yearly_caseload, data_yearly_dissents, by = c("year_cc", "judge_rapporteur" = "dissenting_judge")) %>% mutate_all(~replace(., is.na(.), 0)) %>% filter(year_cc>2013)
 
 
 fe_mod <- plm(count_dissents ~ count, 
