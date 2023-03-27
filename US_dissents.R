@@ -3,60 +3,56 @@ xfun::pkg_attach2("tidyverse", "tidytext", "ggplot2", "quanteda", "quanteda.text
 # Load data
 load("data/US_texts.RData")
 load("data/US_metadata.RData")
+load("data/US_dissents.RData")
+source("supporting_functions.R")
 
 # Save data
-save(data_metadata, file = "data/US_metadata.RData")
-save(data_texts, file = "data/US_texts.RData")
-
-
-# Dissent extraction ------------------------------------------------------
-judges_US <- c("Pavel Rychetský", "Milada Tomková", "Jaroslav Fenyk", "Jan Filip", "Vladimír Sládeček", "Ludvík David", "Radovan Suchánek", "Jiří Zemánek", "Vojtěch Šimíček", "Tomáš Lichovník", "David Uhlíř", "Jaromír Jirsa", "Josef Fiala", "Pavel Šámal", "Kateřina Šimáčková", "Jan Musil", "Vladimír Kůrka", "Vlasta Formánková", "Ivana Janů", "Michaela Židlická", "Stanislav Balík", "Jiří Nykodým", "Dagmar Lastovecká", "Pavel Holländer", "Vojen Güttler", "Miloslav Výborný", "Jiří Mucha", "František Duchoň", "Eliška Wagnerová", "Jiří Malenovský", "Pavel Varvařovský", "Eva Zarembová", "Vlastimil Ševčík", "Antonín Procházka", "Vladimír Paul", "Vladimír Klokočka", "Zdeněk Kessler", "Vladimír Jurka", "Miloš Holeček", "Vladimír Čermák", "Vojtěch Cepl", "Iva Brožová") %>% unique()
-judges_US_lemma <- c("Pav(el|la|em) Rychetsk(ý|ého|m)", "Milad(y|a|ou) Tomkov(é|á|ou)", "Jaroslav(|a|em) Fenyk(|a|em)", "Jan(|a|em) Filip(|a|em)", "Vladimír(|a|em) Sládeč(ek|ka|em|ou)", "Ludvík(|a|em) David(|a|em)", "Radovan(|a|em) Suchán(ka|ek|em)", "Jiří(|ho|m) Zemán(ka|ek|kem)", "Vojtěch(|a|em) Šimíč(ka|ek|ou|em)", "Tomáš(|e|em) Lichovník(|a|em)", "David(|a|em) Uhlíř(|e|em)", "Jaromír(|a|em) Jirs(a|y|ou)", "Josef(|a|em) Fial(a|y|ou)", "Pav(el|la|em) Šámal(|a|em)", "Kateřin(a|y|ou) Šimáčkov(é|á|ou)", "Jan(|a|em) Musil(|a|em)", "Vladimír(|a|em) Kůrk(y|a|ou)", "Vlast(y|a|ou) Formánkov(é|á|ou)", "Ivan(y|a|ou) Janů", "Michael(a|y|ou) Židlick(é|á|ou)", "Stanislav(|a|em) Balík(|a|em)", "Jiří(|ho|m) Nykodým(|a|em)", "Dagmar Lastoveck(é|á|ou)", "Pav(la|el|em) Holländer(|a|em)", "Vojen(|a|em) G(ü|ű|u|ú)t(|t)ler(|a|em)", "Miloslav(|a|em) Výborn(ý|ého|m)", "Jiří(|ho|m) Much(a|y|ou)", "Františ(ek|ka|kem) Ducho(ň|ně|něm)", "Elišk(a|y|ou) W(a|á)gner(ová|ové|ou)", "Jiří(|ho|m) Malenovsk(ý|ého|m)", "Pav(el|la|em) Varvařovsk(ý|ého|ým)", "Ev(a|y|ou) Zarembov(á|é|ou)", "Vlastimil(|a|em) Ševčík(|a|em)", "Antonín(|a|em) Procházk(a|y|ou)", "Vladimír(|a|em) Paul(|a|em)", "Vladimír(|a|em) Klokočk(a|y|ou)", "Zde(něk|ňka|ňkem) Kessler(|a|em)", "Vladimír(|a|em) Jur(ek|ky|ka|kou)", "Miloš(|e|em) Holeč(ek|ky|ka|em|ou)", "Vladimír(|a|em) Čermák(|a|em)", "Vojtěch(|a|em) Cepl(|a|em)", "Iv(a|y|ou) Brožov(á|é|ou)") %>% unique()
-data_dissents <- c()
-
-# Switch the name order of judge rapporteur
-judges_US <- foreach(i = 1:length(judges_US), .combine = "c") %do% {
-  paste0(word(judges_US[i], 2), " ", word(judges_US[i], 1))
-}
+# save(data_metadata, file = "data/US_metadata.RData")
+# save(data_texts, file = "data/US_texts.RData")
 
 # Create function for extracting dissents, returns the long format
-get_dissents <- function(data, judges) {
+get_dissents <- function(data, judges_names, judges_id) {
   pb <- progress_bar$new(
     format = "  extracting dissents [:bar] :percent eta: :eta",
-    total = length(data$doc_id)*length(judges), clear = FALSE, width= 60)
+    total = length(data$doc_id)*length(judges_names), clear = FALSE, width = 60)
+  
+  judges_switched <- switch_names(judges = judges_names)
   
   data_dissents <- foreach(i = seq(data$doc_id), .combine = "rbind") %:% 
-    foreach(j = seq(judges), .combine = "rbind") %do% {
+    foreach(j = seq(judges_switched), .combine = "rbind") %do% {
       pb$tick()
-      if (grepl(judges[j], data[i,"dissenting_opinion"], ignore.case = TRUE)) {
-        list("doc_id" = as.character(data$doc_id[i]),
-             "dissenting_judge" = as.character(judges[j]))
+      if (grepl(judges_switched[j], data[i,"dissenting_opinion"], ignore.case = TRUE)) {
+        output <- list("doc_id" = as.character(data$doc_id[i]),
+             "dissenting_judge" = as.character(judges_names[j]),
+              "judge_id" = as.character(judges_id[j]))
+        return(output)
       }
   } %>% as.data.frame(row.names = FALSE)
   return(data_dissents)
 }
 
 # Run the function and save the data
-data_dissents <- get_dissents(data_metadata, judges_US)
-save(data_dissents, file = "data/US_dissents.RData")
+US_dissents <- get_dissents(US_metadata, judges_names = US_judges$judge_name, judges_id = US_judges$judge_id)
+save(US_dissents, file = "data/US_dissents.RData")
 load("data/US_dissents.RData")
 
 # REGRESSION
 # Dissent/caseload regression
-data_yearly_caseload <- data_metadata %>% group_by(year_cc, judge_rapporteur) %>% summarize(count = n())
+US_yearly_caseload <- US_metadata %>% group_by(year_cc, judge_rapporteur) %>% summarize(count = n())
 
-data_yearly_dissents <- data_metadata %>% 
-  select(doc_id, year_cc) %>%
-  left_join(data_dissents, .) %>%
+US_yearly_dissents <- US_metadata %>% 
+  select(doc_id, year_cc, formation) %>%
+  left_join(US_dissents, .) %>%
   group_by(year_cc, dissenting_judge) %>%
-  summarize(count_dissents = n())
+  summarize(count_dissents = n()) 
 
-data_dissents_caseload <- left_join(data_yearly_caseload, data_yearly_dissents, by = c("year_cc", "judge_rapporteur" = "dissenting_judge")) %>% mutate_all(~replace(., is.na(.), 0)) %>% filter(year_cc>2013)
+
+US_dissents_caseload <- left_join(US_yearly_caseload, US_yearly_dissents, by = c("year_cc", "judge_rapporteur" = "dissenting_judge")) %>% mutate_all(~replace(., is.na(.), 0)) %>% filter(year_cc>2013)
 
 
 fe_mod <- plm(count_dissents ~ count, 
-              data = data_dissents_caseload,
-              index = c("judge_rapporteur", "year_cc"), 
+              data = US_dissents_caseload,
+              index = c("year_cc"), 
               model = "within")
 
 coeftest(fe_mod, vcov. = vcovHC, type = "HC1")
@@ -65,13 +61,13 @@ coeftest(fe_mod, vcov. = vcovHC, type = "HC1")
 # MODELS
 # Wordfish model ---------------------------------------------------------------
 # Filter relevant decisions
-text_corpus <- data_metadata %>% 
+text_corpus <- US_metadata %>% 
   filter(year_cc > 2013 & grepl("Plenum", .$formation)) %>% 
   select(doc_id, judge_rapporteur) %>%
-  left_join(.,data_texts)
+  left_join(.,US_texts)
   
 # Remove data to free up RAM
-remove(data_metadata, data_texts)
+remove(US_metadata, US_texts)
 
 # Create tidy text corpus
 tidy_text_corpus <- text_corpus %>%
@@ -144,8 +140,8 @@ dim(dfm_trimmed)
 
 # Estimate model
 wordfish_model <- textmodel_wordfish(dfm_trimmed)
-save(wordfish_model, file = "data/wordfish_model.RData")
-load("data/wordfish_model.RData")
+save(wordfish_model, file = "models/wordfish_model.RData")
+load("models/wordfish_model.RData")
 
 # There are 4 parameters
 # theta = estimated document positions
@@ -219,7 +215,7 @@ document_estimates <- tibble(
 # Merge in judge rapporteur
 document_estimates <- document_estimates %>%
   left_join(
-    data_metadata %>%
+    US_metadata %>%
       select(
         doc_id, judge_rapporteur
       ),

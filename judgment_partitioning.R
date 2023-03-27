@@ -1,17 +1,16 @@
-# Attach Packages
-xfun::pkg_attach2("tidyverse", "kernlab", "e1071", "ISLR", "RColorBrewer", "word2vec", "rapportools", "foreach", "progress", "doParallel", "word2vec")
+xfun::pkg_attach2("tidyverse", "tidytext", "ggplot2", "progress", "tm", "foreach", "jsonlite", "rapport")
 
-# Load data
+ save(data_paragraphs, file = "data/US_texts_paragraphs.RData")
+
+#Load data
 load("data/US_texts.RData")
 load("data/US_metadata.RData")
 load("data/US_texts_paragraphs.RData")
 load("data/US_dissents.RData")
+load("data/US_judges.RData")
 
 # Load UDModel
 # load("models/US_UDmodel.RData")
-
-# Create paragraphs
-data_paragraphs <- data_ud %>% group_by(doc_id, paragraph_id) %>% summarise(paragraph = paste0(token, collapse = " "))
 
 # Create sample for manual tagging
 sample <- data_metadata %>% 
@@ -22,32 +21,24 @@ sample_paragraphs <- data_metadata %>%
   slice_sample(n = 50) %>% 
   rbind(., sample) %>% 
   select(doc_id) %>% 
-  left_join(sample, ., by = "doc_id")
+  left_join(., data_texts)
+write_csv(sample_paragraphs, file = "data/US_sample_annotate.csv")
 
 
+
+# DATA PREP
 # Split the texts into paragraphs and index them
 paragraphs_split <- function(data_texts) {
-  
-  # Create temporary object with doc_id + text split up into paragraphs
-  data_paragraphs_temp <- data_texts %>% select(doc_id)
-  data_paragraphs_temp$paragraphs <- foreach(i = seq(data_texts$doc_id), .combine='c') %do% {
-    data_texts$text[i] %>% str_split(., pattern = "\n\n")
-  }
-  
-  # Set up progress_bar
-  pb <- progress_bar$new(
-    format = "  extracting paragraphs [:bar] :percent eta: :eta",
-    total = length(data_paragraphs_temp), clear = FALSE, width= 60)
+    # Create temporary object with doc_id + text split up into paragraphs
+  data_paragraphs_temp <- data_texts %>% group_by(doc_id) %>% summarise(paragraphs = str_split(text, pattern = "\n\n"))
   
   # The meat of the function: nested foreach loop
   data_paragraphs <- foreach(i = seq(data_paragraphs_temp$doc_id), .combine='rbind') %:%
-    foreach(j = 1:length(data_paragraphs_temp$paragraphs[[i]]), .combine = 'rbind') %do%
-    {
+    foreach(j = 1:length(data_paragraphs_temp$paragraphs[[i]]), .combine = 'rbind') %do% {
       paragraph_temp <- data_paragraphs_temp$paragraphs[[i]][j] %>% str_trim(side = "both")
       location_temp <- str_locate(string = data_texts$text[data_texts$doc_id == data_paragraphs_temp$doc_id[i]], pattern = fixed(data_paragraphs_temp$paragraphs[[i]][j])) %>% as.list()
       text_length <- str_length(data_texts$text[data_texts$doc_id == data_paragraphs_temp$doc_id[i]])
-      
-      list(
+      output <- list(
         "doc_id" = data_paragraphs_temp$doc_id[i], 
         "paragraph_id" = j, 
         "paragraph_text" = paragraph_temp, 
@@ -55,14 +46,27 @@ paragraphs_split <- function(data_texts) {
         "paragraph_end" = as.numeric(location_temp[2])/text_length, 
         "paragraph_length" = str_length(paragraph_temp)/text_length
       )
-      pb$tick()
-    } %>% as.data.frame(row.names = FALSE)
+      return(output)
+    } %>% as.data.frame(row.names = FALSE) 
+  
+  # Change to correct type
+  data_paragraphs$paragraph_id <- data_paragraphs$paragraph_id %>% unlist() %>% as.numeric() 
+  data_paragraphs$paragraph_start <- data_paragraphs$paragraph_start %>% unlist() %>% as.numeric()
+  data_paragraphs$paragraph_end <- data_paragraphs$paragraph_end %>% unlist() %>% as.numeric() 
+  data_paragraphs$paragraph_length <- data_paragraphs$paragraph_length %>% unlist() %>% as.numeric()
+  data_paragraphs$paragraph_text <- data_paragraphs$paragraph_text %>% unlist() %>% as.character()
+  data_paragraphs$doc_id <- data_paragraphs$doc_id  %>% unlist() %>% as.character()
+  
+  # Drop NA values
+  data_paragraphs <- data_paragraphs  
+  
   return(data_paragraphs)
 }
 
 # Run the function and save the file
 data_paragraphs <- paragraphs_split(data_texts = data_texts)
 save(data_paragraphs, file = "data/US_texts_paragraphs.RData")
+
 
 # Embeddings
 parts_embeddings <- doc2vec(texts_embeddings, decisions_annotated)
@@ -83,27 +87,16 @@ foreach::getDoParWorkers()
   
 # Paralelized function
   paragraphs_split_par <- function(data_texts) {
+    # Create temporary object with doc_id + text split up into paragraphs
+    data_paragraphs_temp <- data_texts %>% group_by(doc_id) %>% summarise(paragraphs = str_split(text, pattern = "\n\n"))
     
-    data_paragraphs_temp <- data_texts %>% select(doc_id)
-    pb <- progress_bar$new(
-      format = "  extracting paragraphs [:bar] :percent eta: :eta",
-      total = length(data_paragraphs_temp$doc_id), clear = FALSE, width= 60)
-    
-    data_paragraphs_temp$paragraphs <- foreach(i = seq(data_texts$doc_id), .combine='c') %do% {
-      data_texts$text[i] %>% str_split(., pattern = "\n\n")
-      pb$tick()
-    }
-    
-    print("Texts have been split up into paragraphs")
-    
-    data_paragraphs <- foreach(i = seq(data_paragraphs_temp$doc_id), .combine='rbind', .packages=c("tidyverse", "foreach", "doParallel")) %:%
-      foreach(j = 1:length(data_paragraphs_temp$paragraphs[[i]]), .combine = 'rbind') %dopar%
-      {
+    # The meat of the function: nested foreach loop
+    data_paragraphs <- foreach(i = seq(data_paragraphs_temp$doc_id), .combine='rbind') %:%
+      foreach(j = 1:length(data_paragraphs_temp$paragraphs[[i]]), .combine = 'rbind') %dopar% {
         paragraph_temp <- data_paragraphs_temp$paragraphs[[i]][j] %>% str_trim(side = "both")
         location_temp <- str_locate(string = data_texts$text[data_texts$doc_id == data_paragraphs_temp$doc_id[i]], pattern = fixed(data_paragraphs_temp$paragraphs[[i]][j])) %>% as.list()
         text_length <- str_length(data_texts$text[data_texts$doc_id == data_paragraphs_temp$doc_id[i]])
-        
-        list(
+        output <- list(
           "doc_id" = data_paragraphs_temp$doc_id[i], 
           "paragraph_id" = j, 
           "paragraph_text" = paragraph_temp, 
@@ -111,10 +104,22 @@ foreach::getDoParWorkers()
           "paragraph_end" = as.numeric(location_temp[2])/text_length, 
           "paragraph_length" = str_length(paragraph_temp)/text_length
         )
-      } %>% 
-      as.data.frame(row.names = FALSE)
+        return(output)
+      } %>% as.data.frame(row.names = FALSE) 
+    
+    # Change to correct type
+    data_paragraphs$paragraph_id <- data_paragraphs$paragraph_id %>% unlist() %>% as.numeric() 
+    data_paragraphs$paragraph_start <- data_paragraphs$paragraph_start %>% unlist() %>% as.numeric()
+    data_paragraphs$paragraph_end <- data_paragraphs$paragraph_end %>% unlist() %>% as.numeric() 
+    data_paragraphs$paragraph_length <- data_paragraphs$paragraph_length %>% unlist() %>% as.numeric()
+    data_paragraphs$paragraph_text <- data_paragraphs$paragraph_text %>% unlist() %>% as.character()
+    data_paragraphs$doc_id <- data_paragraphs$doc_id  %>% unlist() %>% as.character()
+    
+    # Drop NA values
+    data_paragraphs <- data_paragraphs %>% drop_na()
+    
     return(data_paragraphs)
-}
+  }
   
 start_time <- Sys.time()
 data_paragraphs_par <- paragraphs_split_par(data_texts = data_texts)
@@ -141,7 +146,22 @@ embedding <- as.matrix(word2vec_model_CBOW)
 embedding <- predict(word2vec_model_CBOW, c("soud", "stěžovatel"), type = "nearest")
 embedding
 
-# SVM
+# SVM training
+
+judgments_annotated <- jsonlite::fromJSON(txt = "data/US_judgments_annotated.json")
+judgments_annotations <- judgments_annotated$examples %>% as.data.frame()
+
+df <- foreach(i = seq(judgments_annotations[[6]]), .combine = "rbind") %:%
+  foreach (j = seq(judgments_annotations[[6]][[i]]), .combine = "rbind") %do% {
+    output <- list(
+      "doc_id" = judgments_annotations$metadata$doc_id[i],
+      "value" = judgments_annotations[[6]][[i]][j,4],
+      "tag" = judgments_annotations[[6]][[i]][j,2],
+      "start" = judgments_annotations[[6]][[i]][j,3],
+      "end" = judgments_annotations[[6]][[i]][j,1]
+    )
+    return(output)
+  } %>% as.data.frame(row.names = FALSE)
 
 # SVM learning
 # # Construct sample data set - completely separated

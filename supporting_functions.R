@@ -5,4 +5,7 @@ switch_names <- function(judges) {
   return(judges)
 }
 
-remove_procedural <- function(){}
+remove_procedural <- function(data, data_metadata){
+  data <- data_metadata %>% select(doc_id, type_verdict) %>% filter(!grepl(pattern = "procesní", x = .$type_verdict)) %>% left_join(data, .)
+}
+
