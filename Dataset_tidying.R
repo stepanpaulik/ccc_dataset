@@ -5,14 +5,14 @@ load("data/US_metadata.RData")
 load("models/US_UDmodel.RData")
 
 # Save data
-save(data_metadata, file = "data/US_metadata.RData")
-save(data_texts, file = "data/US_texts.RData")
+save(US_metadata, file = "data/US_metadata.RData")
+save(US_texts, file = "data/US_texts.RData")
 save(data_ud, file = "models/US_UDmodel.RData")
 
-distinct <- data_metadata %>% filter(year_cc > 2003) %>% n_distinct()
+distinct <- US_metadata %>% filter(year_cc > 2003) %>% n_distinct()
 
 # Clean useless columns and rename
-# data_metadata <- data_metadata %>% subset(select = -c(2,4,5,8,10,24)) %>% rename(
+# US_metadata <- US_metadata %>% subset(select = -c(2,4,5,8,10,24)) %>% rename(
 #   doc_id = identifikator_evropske_judikatury,
 #   case_id = spisova_znacka,
 #   popular_name = popularni_nazev,
@@ -36,38 +36,38 @@ distinct <- data_metadata %>% filter(year_cc > 2003) %>% n_distinct()
 # )
 
 # Clean doc_id
-data_metadata$doc_id <- str_replace_all(data_metadata$doc_id ,"\\.", ":")
-data_texts$doc_id <- str_replace_all(data_texts$doc_id ,"\\.", ":")
-join <- left_join(data_metadata, data_texts)
+US_metadata$doc_id <- str_replace_all(US_metadata$doc_id ,"\\.", ":")
+US_texts$doc_id <- str_replace_all(US_texts$doc_id ,"\\.", ":")
+join <- left_join(US_metadata, US_texts)
 
 # Split into texts and metadata
-data_texts <- data_metadata %>% subset(select = c(doc_id, decisions_texts))
-data_metadata <- data_metadata %>% subset(select = -c(decisions_texts))
-data_texts <- data_texts %>% rename(
+US_texts <- US_metadata %>% subset(select = c(doc_id, decisions_texts))
+US_metadata <- US_metadata %>% subset(select = -c(decisions_texts))
+US_texts <- US_texts %>% rename(
   texts = decisions_texts
 )
 
 # Lubridate the dates -- DON'T MAKE THE SAME MISTAKE WITH y/Y! --
-data_metadata$date_decision <- as.Date(data_metadata$date_decision, format = "%d. %m. %Y")
-data_metadata$date_submission <- as.Date(data_metadata$date_submission, format = "%d. %m. %Y")
-data_metadata$length_proceedings <- interval(data_metadata$date_submission, data_metadata$date_decision) %>% as.numeric('days')
+US_metadata$date_decision <- as.Date(US_metadata$date_decision, format = "%d. %m. %Y")
+US_metadata$date_submission <- as.Date(US_metadata$date_submission, format = "%d. %m. %Y")
+US_metadata$length_proceedings <- interval(US_metadata$date_submission, US_metadata$date_decision) %>% as.numeric('days')
 
 # Text normalization
-data_texts$texts <- data_texts$texts %>% utf8_normalize(map_quote = TRUE)
+US_texts$texts <- US_texts$texts %>% utf8_normalize(map_quote = TRUE)
 
 # Add outcome as binary variable
-add_outcome <- function(data_metadata, outcome = "vyhověno") {
-  data_metadata$outcome <- ifelse(grepl(outcome, data_metadata$type_verdict), "granted", "rejected")
-  return(data_metadata)
+add_outcome <- function(US_metadata, outcome = "vyhověno") {
+  US_metadata$outcome <- ifelse(grepl(outcome, US_metadata$type_verdict), "granted", "rejected")
+  return(US_metadata)
 }
 
 # Fix and check duplicates
-data_texts$doc_id <- make.names(data_texts$doc_id, unique = TRUE)
-data_metadata$doc_id <- make.names(data_metadata$doc_id, unique = TRUE)
-data_duplicates <- data_texts %>% group_by(doc_id) %>% filter(n()>1)
+US_texts$doc_id <- make.names(US_texts$doc_id, unique = TRUE)
+US_metadata$doc_id <- make.names(US_metadata$doc_id, unique = TRUE)
+data_duplicates <- US_texts %>% group_by(doc_id) %>% filter(n()>1)
 
 # Add formation
-data_metadata <- data_metadata %>%
+US_metadata <- US_metadata %>%
   mutate(formation = case_when(
     grepl(":Pl:" , doc_id) ~ "Plenum",
     grepl(":1:US:", doc_id) ~ "First Chamber",
@@ -89,7 +89,7 @@ conn <- dbConnect(
 dbWriteTable(
   conn,
   "metadata",
-  data_metadata,
+  US_metadata,
   overwrite = TRUE,
   row.names = FALSE
 )
@@ -97,19 +97,19 @@ dbWriteTable(
 dbWriteTable(
   conn,
   "texts",
-  data_texts,
+  US_texts,
   overwrite = TRUE,
   row.names = FALSE
 )
 
-data_texts <- dbReadTable(
+US_texts <- dbReadTable(
   con,
   "texts"
 )
 
 # Create sample for tagging
-# sample <- data_texts %>% left_join(., data_metadata) %>% filter(!is.empty(.$dissenting_opinion)) %>% slice_sample(n = 50) %>% select(doc_id, texts)
-# sample2 <- data_texts %>% left_join(., data_metadata) %>% filter() %>% filter(is.empty(.$dissenting_opinion)) %>% slice_sample(n = 50) %>% select(doc_id, texts)
+# sample <- US_texts %>% left_join(., US_metadata) %>% filter(!is.empty(.$dissenting_opinion)) %>% slice_sample(n = 50) %>% select(doc_id, texts)
+# sample2 <- US_texts %>% left_join(., US_metadata) %>% filter() %>% filter(is.empty(.$dissenting_opinion)) %>% slice_sample(n = 50) %>% select(doc_id, texts)
 # sample <- rbind(sample, sample2)
 # write_csv(sample, "data/sample.csv")
 
