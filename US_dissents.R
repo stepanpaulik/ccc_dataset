@@ -7,8 +7,9 @@ load("data/US_dissents.RData")
 source("supporting_functions.R")
 
 # Save data
-# save(data_metadata, file = "data/US_metadata.RData")
-# save(data_texts, file = "data/US_texts.RData")
+# save(US_metadata, file = "data/US_metadata.RData")
+# save(US_texts, file = "data/US_texts.RData")
+save(US_dissents, file = "data/US_dissents.RData")
 
 # Create function for extracting dissents, returns the long format
 get_dissents <- function(data, judges_names, judges_id) {
@@ -22,12 +23,12 @@ get_dissents <- function(data, judges_names, judges_id) {
     foreach(j = seq(judges_switched), .combine = "rbind") %do% {
       pb$tick()
       if (grepl(judges_switched[j], data[i,"dissenting_opinion"], ignore.case = TRUE)) {
-        output <- list("doc_id" = as.character(data$doc_id[i]),
+        output <- tibble("doc_id" = as.character(data$doc_id[i]),
              "dissenting_judge" = as.character(judges_names[j]),
               "judge_id" = as.character(judges_id[j]))
         return(output)
       }
-  } %>% as.data.frame(row.names = FALSE)
+  }
   return(data_dissents)
 }
 

@@ -1,16 +1,12 @@
-xfun::pkg_attach2("tidyverse", "tidytext", "ggplot2", "progress", "tm", "foreach", "jsonlite", "rapport")
-
- save(data_paragraphs, file = "data/US_texts_paragraphs.RData")
+xfun::pkg_attach2("tidyverse", "ggplot2", "progress", "foreach", "jsonlite",  "word2vec", "e1071")
 
 #Load data
+source("supporting_functions.R")
 load("data/US_texts.RData")
 load("data/US_metadata.RData")
 load("data/US_texts_paragraphs.RData")
 load("data/US_dissents.RData")
 load("data/US_judges.RData")
-
-# Load UDModel
-# load("models/US_UDmodel.RData")
 
 # Create sample for manual tagging
 sample <- data_metadata %>% 
@@ -21,23 +17,22 @@ sample_paragraphs <- data_metadata %>%
   slice_sample(n = 50) %>% 
   rbind(., sample) %>% 
   select(doc_id) %>% 
-  left_join(., data_texts)
+  left_join(., US_texts)
 write_csv(sample_paragraphs, file = "data/US_sample_annotate.csv")
-
 
 
 # DATA PREP
 # Split the texts into paragraphs and index them
-paragraphs_split <- function(data_texts) {
+paragraphs_split <- function(US_texts) {
     # Create temporary object with doc_id + text split up into paragraphs
-  data_paragraphs_temp <- data_texts %>% group_by(doc_id) %>% summarise(paragraphs = str_split(text, pattern = "\n\n"))
+  data_paragraphs_temp <- US_texts %>% group_by(doc_id) %>% summarise(paragraphs = str_split(text, pattern = "\n\n"))
   
   # The meat of the function: nested foreach loop
   data_paragraphs <- foreach(i = seq(data_paragraphs_temp$doc_id), .combine='rbind') %:%
     foreach(j = 1:length(data_paragraphs_temp$paragraphs[[i]]), .combine = 'rbind') %do% {
       paragraph_temp <- data_paragraphs_temp$paragraphs[[i]][j] %>% str_trim(side = "both")
-      location_temp <- str_locate(string = data_texts$text[data_texts$doc_id == data_paragraphs_temp$doc_id[i]], pattern = fixed(data_paragraphs_temp$paragraphs[[i]][j])) %>% as.list()
-      text_length <- str_length(data_texts$text[data_texts$doc_id == data_paragraphs_temp$doc_id[i]])
+      location_temp <- str_locate(string = US_texts$text[US_texts$doc_id == data_paragraphs_temp$doc_id[i]], pattern = fixed(data_paragraphs_temp$paragraphs[[i]][j])) %>% as.list()
+      text_length <- str_length(US_texts$text[US_texts$doc_id == data_paragraphs_temp$doc_id[i]])
       output <- list(
         "doc_id" = data_paragraphs_temp$doc_id[i], 
         "paragraph_id" = j, 
@@ -64,69 +59,9 @@ paragraphs_split <- function(data_texts) {
 }
 
 # Run the function and save the file
-data_paragraphs <- paragraphs_split(data_texts = data_texts)
+data_paragraphs <- paragraphs_split(US_texts = US_texts)
 save(data_paragraphs, file = "data/US_texts_paragraphs.RData")
 
-
-# Embeddings
-parts_embeddings <- doc2vec(texts_embeddings, decisions_annotated)
-
-# Paralelization
-  n.cores <- parallel::detectCores() - 3
-  my.cluster <- parallel::makeCluster(
-    n.cores, 
-    type = "PSOCK"
-  )
-  
-#register it to be used by %dopar%
-doParallel::registerDoParallel(cl = my.cluster)
-
-#check if it is registered (optional)
-foreach::getDoParRegistered()
-foreach::getDoParWorkers()
-  
-# Paralelized function
-  paragraphs_split_par <- function(data_texts) {
-    # Create temporary object with doc_id + text split up into paragraphs
-    data_paragraphs_temp <- data_texts %>% group_by(doc_id) %>% summarise(paragraphs = str_split(text, pattern = "\n\n"))
-    
-    # The meat of the function: nested foreach loop
-    data_paragraphs <- foreach(i = seq(data_paragraphs_temp$doc_id), .combine='rbind') %:%
-      foreach(j = 1:length(data_paragraphs_temp$paragraphs[[i]]), .combine = 'rbind') %dopar% {
-        paragraph_temp <- data_paragraphs_temp$paragraphs[[i]][j] %>% str_trim(side = "both")
-        location_temp <- str_locate(string = data_texts$text[data_texts$doc_id == data_paragraphs_temp$doc_id[i]], pattern = fixed(data_paragraphs_temp$paragraphs[[i]][j])) %>% as.list()
-        text_length <- str_length(data_texts$text[data_texts$doc_id == data_paragraphs_temp$doc_id[i]])
-        output <- list(
-          "doc_id" = data_paragraphs_temp$doc_id[i], 
-          "paragraph_id" = j, 
-          "paragraph_text" = paragraph_temp, 
-          "paragraph_start" = as.numeric(location_temp[1])/text_length, 
-          "paragraph_end" = as.numeric(location_temp[2])/text_length, 
-          "paragraph_length" = str_length(paragraph_temp)/text_length
-        )
-        return(output)
-      } %>% as.data.frame(row.names = FALSE) 
-    
-    # Change to correct type
-    data_paragraphs$paragraph_id <- data_paragraphs$paragraph_id %>% unlist() %>% as.numeric() 
-    data_paragraphs$paragraph_start <- data_paragraphs$paragraph_start %>% unlist() %>% as.numeric()
-    data_paragraphs$paragraph_end <- data_paragraphs$paragraph_end %>% unlist() %>% as.numeric() 
-    data_paragraphs$paragraph_length <- data_paragraphs$paragraph_length %>% unlist() %>% as.numeric()
-    data_paragraphs$paragraph_text <- data_paragraphs$paragraph_text %>% unlist() %>% as.character()
-    data_paragraphs$doc_id <- data_paragraphs$doc_id  %>% unlist() %>% as.character()
-    
-    # Drop NA values
-    data_paragraphs <- data_paragraphs %>% drop_na()
-    
-    return(data_paragraphs)
-  }
-  
-start_time <- Sys.time()
-data_paragraphs_par <- paragraphs_split_par(data_texts = data_texts)
-end_time <- Sys.time()
-
-end_time - start_time
-parallel::stopCluster(cl = my.cluster)
 
 # Word2vec
 # Window parameter:  for skip-gram usually around 10, for cbow around 5
@@ -135,12 +70,12 @@ parallel::stopCluster(cl = my.cluster)
 # # hs: the training algorithm: hierarchical so􏰂max (better for infrequent
 # words) vs nega􏰁ve sampling (better for frequent words, better with low
 #                              dimensional vectors)
-word2vec_model_CBOW <- word2vec(x = data_texts$text, dim = 300)
-save(word2vec_model_CBOW, file = "models/word2vec_model_CBOW.RData")
-load(file = "models/word2vec_model_CBOW.RData")
+word2vec_model_CBOW <- word2vec(x = US_texts$text, dim = 300)
+write.word2vec(word2vec_model_CBOW, file = "models/word2vec_model_CBOW.bin")
+read.word2vec(file = "models/word2vec_model_CBOW.bin")
 
-word2vec_model_skipgram <- word2vec(x = data_texts$text, dim = 300, type = "skip-gram", window = 10)
-save(word2vec_model_skipgram, file = "models/word2vec_model_CBOW.RData")
+word2vec_model_skipgram <- word2vec(x = US_texts$text, dim = 300, type = "skip-gram", window = 10)
+save(word2vec_model_skipgram, file = "models/word2vec_model_CBOW.bin")
 
 embedding <- as.matrix(word2vec_model_CBOW)
 embedding <- predict(word2vec_model_CBOW, c("soud", "stěžovatel"), type = "nearest")
@@ -161,120 +96,50 @@ df <- foreach(i = seq(judgments_annotations[[6]]), .combine = "rbind") %:%
       "end" = judgments_annotations[[6]][[i]][j,1]
     )
     return(output)
-  } %>% as.data.frame(row.names = FALSE)
+  } %>% as.data.frame(row.names = FALSE) %>% df_unlist() %>% drop_na() %>% as_tibble()
+
+df$doc_id <- df$doc_id %>% make.unique()
+
+df_doc <- df %>% select(doc_id, value) %>% rename(text = value)
+
+
+
+doc2vec_model <- doc2vec(word2vec_model_CBOW, newdata = df_doc, type = "embedding") %>% as.data.frame() %>% rownames_to_column(var = "doc_id")
+
+
+dat <- df %>% select(-value) %>% left_join(doc2vec_model, .) %>% column_to_rownames(var ="doc_id")
+dat$tag <- dat$tag %>% as.factor()
+
 
 # SVM learning
-# # Construct sample data set - completely separated
-# x <- matrix(rnorm(20*2), ncol = 2)
-# y <- c(rep(-1,10), rep(1,10))
-# x[y==1,] <- x[y==1,] + 3/2
-# dat <- data.frame(x=x, y=as.factor(y))
-# 
-# # Plot data
-# ggplot(data = dat, aes(x = x.2, y = x.1, color = y, shape = y)) + 
-#   geom_point(size = 2) +
-#   scale_color_manual(values=c("#000000", "#FF0000")) +
-#   theme(legend.position = "none")
-# 
-# # Fit Support Vector Machine model to data set with e1071
-# svmfit <- svm(y~., data = dat, kernel = "linear", scale = FALSE)
-# # Plot Results
-# plot(svmfit, dat)
-# 
-# # fit model and produce plot with kernlab
-# kernfit <- ksvm(x, y, data = dat, type = "C-svc", kernel = 'vanilladot')
-# plot(kernfit, data = x)
-# 
-# # Construct sample data set - not completely separated
-# x <- matrix(rnorm(20*2), ncol = 2)
-# y <- c(rep(-1,10), rep(1,10))
-# x[y==1,] <- x[y==1,] + 1
-# dat <- data.frame(x=x, y=as.factor(y))
-# 
-# # Plot data set
-# ggplot(data = dat, aes(x = x.2, y = x.1, color = y, shape = y)) + 
-#   geom_point(size = 2) +
-#   scale_color_manual(values=c("#000000", "#FF0000")) +
-#   theme(legend.position = "none")
-# 
-# # Fit Support Vector Machine model to data set
-# svmfit <- svm(y~., data = dat, kernel = "linear", cost = 100)
-# # Plot Results
-# plot(svmfit, dat)
-# 
-# # Fit Support Vector Machine model to data set
-# kernfit <- ksvm(x,y, data = dat, type = "C-svc", kernel = 'vanilladot', C = 100)
-# # Plot results
-# plot(kernfit, data = x)
-# 
-# # find optimal cost of misclassification
-# tune.out <- tune(svm, y~., data = dat, kernel = "linear",
-#                  ranges = list(cost = c(0.001, 0.01, 0.1, 1, 5, 10, 100)))
-# # extract the best model
-# (bestmod <- tune.out$best.model)
-# 
-# # Create a table of misclassified observations
-# ypred <- predict(bestmod, dat)
-# (misclass <- table(predict = ypred, truth = dat$y))
-# 
-# # construct larger random data set
-# x <- matrix(rnorm(200*2), ncol = 2)
-# x[1:100,] <- x[1:100,] + 2.5
-# x[101:150,] <- x[101:150,] - 2.5
-# y <- c(rep(1,150), rep(2,50))
-# dat <- data.frame(x=x,y=as.factor(y))
-# 
-# # Plot data
-# ggplot(data = dat, aes(x = x.2, y = x.1, color = y, shape = y)) + 
-#   geom_point(size = 2) +
-#   scale_color_manual(values=c("#000000", "#FF0000")) +
-#   theme(legend.position = "none")
-# 
-# # sample training data and fit model
-# train <- base::sample(200,100, replace = FALSE)
-# svmfit <- svm(y~., data = dat[train,], kernel = "radial", gamma = 1, cost = 10)
-# # plot classifier
-# plot(svmfit, dat)
-# 
-# # Fit radial-based SVM in kernlab
-# kernfit <- ksvm(x[train,],y[train], type = "C-svc", kernel = 'rbfdot', C = 10, scaled = c())
-# # Plot training data
-# plot(kernfit, data = x[train,])
-# 
-# # find optimal cost of misclassification
-# tune.out <- tune(svm, y~., data = dat[train,], kernel = "radial",
-#                  ranges = list(cost = c(0.1,1,10,100,1000),
-#                                gamma = c(0.5,1,2,3,4)))
-# # extract the best model
-# (bestmod <- tune.out$best.model)
-# (valid <- table(true = dat[-train,"y"], pred = predict(tune.out$best.model,
-#                                                        newx = dat[-train,])))
-# 
-# # Multiclass SVM
-# x <- rbind(x, matrix(rnorm(50*2), ncol = 2))
-# y <- c(y, rep(0,50))
-# x[y==0,2] <- x[y==0,2] + 2.5
-# dat <- data.frame(x=x, y=as.factor(y))
-# # plot data set
-# ggplot(data = dat, aes(x = x.2, y = x.1, color = y, shape = y)) + 
-#   geom_point(size = 2) +
-#   scale_color_manual(values=c("#000000","#FF0000","#00BA00")) +
-#   theme(legend.position = "none")
-# 
-# # fit model
-# svmfit <- svm(y~., data = dat, kernel = "radial", cost = 10, gamma = 1)
-# # plot results
-# plot(svmfit, dat)
-# 
-# 
-# 
-# # fit model
-# dat <- data.frame(x = Khan$xtrain, y=as.factor(Khan$ytrain))
-# (out <- svm(y~., data = dat, kernel = "linear", cost=10))
-# 
-# table(out$fitted, dat$y)
-# 
-# dat.te <- data.frame(x=Khan$xtest, y=as.factor(Khan$ytest))
-# pred.te <- predict(out, newdata=dat.te)
-# table(pred.te, dat.te$y)
-# j
+# Fit Support Vector Machine model to data set with e1071
+svmfit <- svm(tag~., data = dat, kernel = "linear", scale = FALSE, cost = 0.01)
+print(svmfit)
+
+# find optimal cost of misclassification
+tune.out <- tune(svm, tag~., data = dat, kernel = "linear",
+                 ranges = list(cost = c(0.001, 0.01, 0.1, 1, 5, 10, 100)))
+# extract the best model
+(bestmod <- tune.out$best.model)
+
+# Create a table of misclassified observations
+ypred <- predict(svmfit, dat)
+(misclass <- table(predict = ypred, truth = dat$tag))
+
+# sample training data and fit model
+train <- base::sample(200,100, replace = FALSE)
+svmfit <- svm(y~., data = dat[train,], kernel = "radial", gamma = 1, cost = 10)
+# plot classifier
+plot(svmfit, dat)
+
+# extract the best model
+(bestmod <- tune.out$best.model)
+(valid <- table(true = dat[-train,"y"], pred = predict(tune.out$best.model,
+                                                       newx = dat[-train,])))
+
+
+table(out$fitted, dat$y)
+
+dat.te <- data.frame(x=Khan$xtest, y=as.factor(Khan$ytest))
+pred.te <- predict(out, newdata=dat.te)
+table(pred.te, dat.te$y)

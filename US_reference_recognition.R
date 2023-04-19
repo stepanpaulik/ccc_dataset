@@ -1,6 +1,10 @@
 # Load packages and data
 xfun::pkg_attach2("tidyverse", "foreach", "progress", "doParallel", "jsonlite")
 
+# Load data
+source("supporting_functions.R")
+load("data/NSS_metadata.RData")
+load("data/NSS_texts.RData")
 load("data/US_texts.RData")
 load("data/US_metadata.RData")
 load("data/US_citations.RData")
@@ -16,13 +20,13 @@ find_citations <- function(texts, doc_id) {
   
   matches <- foreach(i = seq(texts), .combine = "rbind") %do% {
     matches <- str_extract_all(string = texts[i], pattern = citation)
-    output <- list(
+    output <- tibble(
       "doc_id" = doc_id[i],
       "matches" = matches
     )
     pb$tick()
     return(output)
-  } %>% as.data.frame(row.names = FALSE)
+  }
   
   print("Done with the first loop, proceeding onto the second one.")
   
@@ -34,19 +38,20 @@ find_citations <- function(texts, doc_id) {
     pb$tick()
     foreach(j = seq(matches$matches[[i]][[1]]), .combine = "rbind") %do%
     {
-      output <- list(
+      output <- tibble(
         "doc_id" = as.character(doc_id[i]),
         "matched_case_id" = as.character(matches$matches[[i]][[1]][j]) %>% str_remove(., "sp.\\szn.\\s")
       )
       return(output)
     } 
-  } %>% as.data.frame(row.names = FALSE)
+  }
 return(US_citations)
 }
 
 
 # Run the function (on the CC)
 US_citations <- find_citations(texts = US_texts$text, doc_id = US_texts$doc_id)
+NSS_citations <- find_citations(texts = NSS_texts$text, doc_id = NSS_texts$doc_id)
 US_citations <- US_metadata %>% select(doc_id) %>% left_join(., US_citations)
 
 # Save the file 

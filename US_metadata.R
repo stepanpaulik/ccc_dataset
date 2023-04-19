@@ -1,8 +1,10 @@
 xfun::pkg_attach2("udpipe","tidyverse", "RMySQL", "lubridate", "utf8", "uchardet")
 # Load data
+load("data/US_compositions.RData")
 load("data/US_texts.RData")
 load("data/US_metadata.RData")
-load("models/US_UDmodel.RData")
+load("data/US_judges.RData")
+load("data/US_dissents.RData")
 
 # Save data
 save(US_metadata, file = "data/US_metadata.RData")
@@ -35,6 +37,8 @@ distinct <- US_metadata %>% filter(year_cc > 2003) %>% n_distinct()
 #   url_adress = url_adresa
 # )
 
+US_metadata <- US_metadata %>% rename(year_decision = year_cc)
+
 # Clean doc_id
 US_metadata$doc_id <- str_replace_all(US_metadata$doc_id ,"\\.", ":")
 US_texts$doc_id <- str_replace_all(US_texts$doc_id ,"\\.", ":")
@@ -53,7 +57,7 @@ US_metadata$date_submission <- as.Date(US_metadata$date_submission, format = "%d
 US_metadata$length_proceedings <- interval(US_metadata$date_submission, US_metadata$date_decision) %>% as.numeric('days')
 
 # Text normalization
-US_texts$texts <- US_texts$texts %>% utf8_normalize(map_quote = TRUE)
+US_texts$text <- US_texts$text %>% utf8_normalize(map_quote = TRUE)
 
 # Add outcome as binary variable
 add_outcome <- function(US_metadata, outcome = "vyhověno") {
@@ -76,42 +80,9 @@ US_metadata <- US_metadata %>%
     grepl(":4:US:", doc_id) ~ "Fourth Chamber"
   ))
 
-# SQL commmunication
-conn <- dbConnect(
-  RMySQL::MySQL(),
-  dbname = "dataset_apexcourts",
-  username = "root",
-  password = "4E5ad7d!",
-  host = "localhost",
-  port = 3306
-)
 
-dbWriteTable(
-  conn,
-  "metadata",
-  US_metadata,
-  overwrite = TRUE,
-  row.names = FALSE
-)
 
-dbWriteTable(
-  conn,
-  "texts",
-  US_texts,
-  overwrite = TRUE,
-  row.names = FALSE
-)
 
-US_texts <- dbReadTable(
-  con,
-  "texts"
-)
-
-# Create sample for tagging
-# sample <- US_texts %>% left_join(., US_metadata) %>% filter(!is.empty(.$dissenting_opinion)) %>% slice_sample(n = 50) %>% select(doc_id, texts)
-# sample2 <- US_texts %>% left_join(., US_metadata) %>% filter() %>% filter(is.empty(.$dissenting_opinion)) %>% slice_sample(n = 50) %>% select(doc_id, texts)
-# sample <- rbind(sample, sample2)
-# write_csv(sample, "data/sample.csv")
 
 
 

@@ -20,8 +20,8 @@ judges_US_lemma <- c("Pav(el|la|em) Rychetsk(ý|ého|m)", "Milad(y|a|ou) Tomkov(
 # The mean function
 get_compositions <- function(texts, judges_grepl, judges_names, judges_id) {
   pb <- progress_bar$new(
-    format = "  creating chamber compositions [:bar] :percent eta: :eta",
-    total = length(texts$doc_id)*length(judges_grepl), clear = FALSE, width= 60)
+    format = "  creating chamber compositions [:bar] :current/:total :percent eta: :eta",
+    total = length(texts$doc_id)*length(judges_grepl), clear = FALSE, width = 80)
   
   data_compositions <- foreach(i = seq(texts$doc_id), .combine = "rbind") %:% 
     foreach(j = seq(judges_grepl), .combine = "rbind") %do% {
@@ -37,7 +37,6 @@ get_compositions <- function(texts, judges_grepl, judges_names, judges_id) {
 }
 
 #Functions call
-remove(data_compositions)
 US_compositions <- get_compositions(texts = US_texts, judges_grepl = US_judges$name_lemmatized, judges_names = US_judges$judge_name, judges_id = US_judges$judge_id)
 US_compositions <- remove_procedural(data = compositions, data_metadata = US_metadata)
 
@@ -57,47 +56,3 @@ sample$four <- data_compositions_check %>% filter(count == 4) %>% slice_sample(n
 sample$one <- data_compositions_check %>% filter(count == 1) %>% slice_sample(n = 10) %>% left_join(., data_texts, by = "doc_id")
 sample$five <- data_compositions_check %>% filter(count == 5) %>% slice_sample(n = 10) %>% left_join(., data_texts, by = "doc_id")
 sample$zero <- data_compositions_check %>% filter(count == 0) %>% slice_sample(n = 10) %>% left_join(., data_texts, by = "doc_id")
-
-# SQL commmunication
-conn <- dbConnect(
-  RMySQL::MySQL(),
-  dbname = "dataset_apexcourts",
-  username = "root",
-  password = "4E5ad7d!",
-  host = "localhost",
-  port = 3306
-)
-
-query <- paste0("CREATE TABLE compositions (
-    doc_id VARCHAR(40) PRIMARY KEY,
-                ",
-    paste0(colnames(data_compositions[2:length(data_compositions)])," INT,
-           ", collapse=""), 
-    "
-    FOREIGN KEY (doc_id) REFERENCES metadata(doc_id));"
-)
-query
-
-dbSendQuery(conn, query)
-
-dbWriteTable(
-  conn,
-  "compositions",
-  data_compositions,
-  overwrite = TRUE,
-  row.names = FALSE
-)
-
-dbWriteTable(
-  conn,
-  "metadata",
-  data_metadata,
-  overwrite = TRUE,
-  row.names = FALSE
-)
-
-data_data_compositions <- dbReadTable(
-  conn,
-  "compositions"
-)
-
