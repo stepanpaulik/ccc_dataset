@@ -26,7 +26,8 @@ quanteda_corpus <- text_corpus %>% corpus(
   unique_docnames = FALSE
 )
 
-tokens_US <- tokens(quanteda_corpus, remove_punct = TRUE, remove_symbols = TRUE, remove_numbers = TRUE) %>% tokens_select(pattern = to_remove, valuetype = "regex", selection = "remove", min_nchar=2L)
+tokens_US <- tokens(quanteda_corpus, remove_punct = TRUE, remove_symbols = TRUE, remove_numbers = TRUE) %>% 
+  tokens_select(pattern = to_remove, valuetype = "regex", selection = "remove", min_nchar=2L)
 US_dfm <- dfm(tokens_US) %>% dfm_trim(min_termfreq = 5)
 
 # The tidy text way

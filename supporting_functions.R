@@ -29,10 +29,8 @@ column_as_Date <- function(data, format = NA) {
   return(data)
 }
 
-df_unlist <- function(data) {
-  for(i in seq(data)) {
-    data[[i]] <- data[[i]] %>% unlist()
-    }
+unlist2 <- function(data) {
+  data <- data %>% modify(.f = unlist)
   return(data)
 }
 
