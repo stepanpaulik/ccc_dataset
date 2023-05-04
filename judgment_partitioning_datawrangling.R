@@ -1,13 +1,10 @@
-xfun::pkg_attach2("tidyverse", "ggplot2", "progress", "foreach", "jsonlite",  "word2vec", "e1071", "caret", "tidymodels", "skimr")
-
+xfun::pkg_attach2("tidyverse", "ggplot2", "progress", "foreach", "jsonlite",  "word2vec")
 
 #Load data
 source("supporting_functions.R")
 load("data/US_texts.RData")
 load("data/US_metadata.RData")
 load("data/US_texts_paragraphs.RData")
-load("data/US_dissents.RData")
-load("data/US_judges.RData")
 
 # Create sample for manual tagging
 sample <- data_metadata %>% 
@@ -20,7 +17,6 @@ sample_paragraphs <- data_metadata %>%
   select(doc_id) %>% 
   left_join(., US_texts)
 write_csv(sample_paragraphs, file = "data/US_sample_annotate.csv")
-
 
 # DATA PREP
 # Split the texts into paragraphs and index them
@@ -70,19 +66,14 @@ read.word2vec(file = "models/word2vec_model_CBOW.bin")
 word2vec_model_skipgram <- word2vec(x = US_texts$text, dim = 300, type = "skip-gram", window = 10)
 save(word2vec_model_skipgram, file = "models/word2vec_model_skipgram.bin")
 
-embedding <- as.matrix(word2vec_model_CBOW)
-embedding <- predict(word2vec_model_CBOW, c("soud", "stěžovatel"), type = "nearest")
-embedding
-
-
-# Load annotated data and create it into tibble of tag-level observations
+# Load annotated data and create it into tibble of tag-level observations, including creating paragraph IDs within group
 judgments_annotated <- jsonlite::fromJSON(txt = "data/US_judgments_annotated.json")
 judgments_annotations <- judgments_annotated$examples %>% as.data.frame()
 
 judgments_annotations_parts <- foreach(i = seq(judgments_annotations$annotations), .combine = "rbind") %:%
   foreach (j = seq(judgments_annotations$annotations[[i]]), .combine = "rbind") %do% {
     text_length <- str_length(judgments_annotations$content[[i]])
-    output <- list(
+    output <- tibble(
       "doc_id" = judgments_annotations$metadata$doc_id[i],
       "value" = judgments_annotations$annotations[[i]][j,4],
       "tag" = judgments_annotations$annotations[[i]][j,2],
@@ -91,7 +82,7 @@ judgments_annotations_parts <- foreach(i = seq(judgments_annotations$annotations
       "length" = str_length(judgments_annotations$annotations[[i]][j,4])/text_length
     )
     return(output)
-  } %>% as_tibble() %>% df_unlist() %>% drop_na()
+  } %>% drop_na()
 
 judgments_annotations_paragraphs <- foreach(i = seq(nrow(judgments_annotations_parts)), .combine = "rbind") %do% {
   # Create the temporary vector of paragraph texts
@@ -106,7 +97,7 @@ judgments_annotations_paragraphs <- foreach(i = seq(nrow(judgments_annotations_p
   output <- foreach(j = seq(judgments_annotations_paragraphs_temp), .combine = "rbind") %do% {
     location_temp <- str_locate(string = text_temp, pattern = fixed(judgments_annotations_paragraphs_temp[j])) %>% as.list()
     text_length <- str_length(text_temp)
-    output <- list(
+    output <- tibble(
       "doc_id" = judgments_annotations_parts$doc_id[i],
       "value" = judgments_annotations_paragraphs_temp[j],
       "tag" = judgments_annotations_parts$tag[i],
@@ -115,11 +106,15 @@ judgments_annotations_paragraphs <- foreach(i = seq(nrow(judgments_annotations_p
       "length" = str_length(judgments_annotations_paragraphs_temp[j])/text_length
     )
     return(output)
-  } %>% as_tibble()
-}
+  }
+} 
 
+# %>% 
+#   group_by(doc_id) %>% 
+#   mutate(paragraph_id = as.integer(gl(n(), 1, n()))) %>%
+#   ungroup()
 
-# SVM training
+# Creating doc2vec model for the final preparation
 
 # Load the word2vec model for doc2vec use
 word2vec_model_CBOW <- read.word2vec(file = "models/word2vec_model_CBOW.bin")
@@ -140,59 +135,16 @@ doc2vec_df <- judgments_annotations_paragraphs %>%
   select(-value) %>% 
   left_join(doc2vec_df, .)
 
+doc2vec_df$doc_id <- modify(doc2vec_df$doc_id, .f = str_remove, pattern = "\\.\\d+")
+
+
+# Create a binary variable for the presence of dissent in the decision
+doc2vec_df <- US_metadata %>% 
+  select(doc_id, dissenting_opinion) %>% 
+  left_join(doc2vec_df, ., by = "doc_id") %>% 
+  mutate(dissenting_opinion = if_else(dissenting_opinion == "", 0, 1))
+
+doc2vec_df <- doc2vec_df %>% modify(.f = unlist) %>% as_tibble()
+
 save(data = doc2vec_df, file = "data/doc2vec_df.RData")
-
-
-# SVM learning
-# Fit Support Vector Machine model to data set with e1071
-svm_fit <- svm(factor(tag)~., data = data_analysis, kernel = "linear", scale = FALSE, cost = 0.01)
-print(svm_fit)
-
-# find optimal cost of misclassification
-tune.out <- tune(svm, factor(tag)~., data = data_analysis, kernel = "linear",
-                 ranges = list(cost = c(0.001, 0.01, 0.1, 1, 5, 10, 100)))
-# extract the best model
-(bestmod <- tune.out$best.model)
-
-# k-fold cross validation of the model with parameter tuning of the parameter C
-set.seed(100)
-trctrl <- trainControl(method = "cv", number = 6, savePredictions=TRUE)
-Cgrid <- data.frame(C = 0.01)
-svm_fit <- train(factor(tag)~., data = data_analysis, method = "svmLinear", trControl=trctrl, tuneLength = 0, tuneGrid = Cgrid)
-svm_fit
-
-pred <- svm_fit$pred
-pred$equal <- ifelse(pred$pred == pred$obs, 1,0)
-eachfold <- pred %>%                                        
-  group_by(Resample) %>%                         
-  summarise_at(vars(equal),                     
-               list(Accuracy = mean))              
-eachfold
-
-ggplot(data=eachfold, aes(x=Resample, y=Accuracy, group=1)) +
-  geom_boxplot(color="maroon") +
-  geom_point() +
-  theme_minimal()
-
-
-# Create a table of misclassified observations
-ypred <- predict(svm_fit, data_analysis)
-(misclass <- table(predict = ypred, truth = data_analysis$tag))
-
-# sample training data and fit model
-train <- base::sample(200,100, replace = FALSE)
-svm_fit <- svm(y~., data = dat[train,], kernel = "radial", gamma = 1, cost = 10)
-# plot classifier
-plot(svm_fit, dat)
-
-# extract the best model
-(bestmod <- tune.out$best.model)
-(valid <- table(true = dat[-train,"y"], pred = predict(tune.out$best.model,
-                                                       newx = dat[-train,])))
-
-
-table(out$fitted, dat$y)
-
-dat.te <- data.frame(x=Khan$xtest, y=as.factor(Khan$ytest))
-pred.te <- predict(out, newdata=dat.te)
-table(pred.te, dat.te$y)
+load(file = "data/doc2vec_df.RData")
