@@ -1,8 +1,8 @@
-xfun::pkg_attach2("tidyverse", "lubridate")
+library(tidyverse)
 
 #Save and load data
-US_judges = readRDS("data/US_judges.rds")
-saveRDS(US_judges, file = "data/US_judges.rds")
+US_judges = readRDS("../data/US_judges.rds")
+saveRDS(US_judges, file = "../data/US_judges.rds")
 
 US_judges = list()
 

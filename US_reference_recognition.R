@@ -3,12 +3,12 @@ xfun::pkg_attach2("tidyverse", "foreach", "progress", "doParallel", "jsonlite")
 
 # Load data
 source("supporting_functions.R")
-US_metadata = readRDS("data/US_metadata.rds")
-US_texts = readRDS("data/US_texts.rds")
-US_citations = readRDS("data/US_citations.rds")
+US_metadata = readRDS("../data/US_metadata.rds")
+US_texts = readRDS("../data/US_texts.rds")
+US_citations = readRDS("../data/US_citations.rds")
 
 # Save data
-saveRDS(US_citations, "data/US_citations.rds")
+saveRDS(US_citations, "../data/US_citations.rds")
 
 # The function that finds all references to US caselaw by the case ID (not popular name) and saves it in a matcheable format with the metadata file
 find_citations = function(texts, doc_id) {

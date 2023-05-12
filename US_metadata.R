@@ -1,19 +1,19 @@
-xfun::pkg_attach2("udpipe","tidyverse", "RMySQL", "lubridate", "utf8", "uchardet")
+xfun::pkg_attach2("udpipe","tidyverse", "utf8", "uchardet")
 
 # Load data
-US_metadata = readRDS("data/US_metadata.rds")
-US_texts = readRDS("data/US_texts.rds")
-US_compositions = readRDS("data/US_compositions.rds")
-US_judges = readRDS("data/US_judges.rds")
-US_dissents = readRDS("data/US_dissents.rds")
+US_metadata = readRDS("../data/US_metadata.rds")
+US_texts = readRDS("../data/US_texts.rds")
+US_compositions = readRDS("../data/US_compositions.rds")
+US_judges = readRDS("../data/US_judges.rds")
+US_dissents = readRDS("../data/US_dissents.rds")
 
 
 # Save data
-saveRDS(US_metadata, file = "data/US_metadata.rds")
-saveRDS(US_texts, file = "data/US_texts.rds")
-saveRDS(US_compositions, file = "data/US_compositions.rds")
-saveRDS(US_judges, file = "data/US_judges.rds")
-saveRDS(US_dissents, file = "data/US_dissents.rds")
+saveRDS(US_metadata, file = "../data/US_metadata.rds")
+saveRDS(US_texts, file = "../data/US_texts.rds")
+saveRDS(US_compositions, file = "../data/US_compositions.rds")
+saveRDS(US_judges, file = "../data/US_judges.rds")
+saveRDS(US_dissents, file = "../data/US_dissents.rds")
 
 
 
@@ -88,6 +88,12 @@ US_metadata = US_metadata %>%
 
 US_metadata = US_metadata %>% mutate_all(~replace(., . == "", NA))
 
+# Insert commas instead of non-existing spaces
+US_metadata$applicant %<>% modify(.x = ., ~ str_replace_all(string = .x, pattern = "POSTĚŽOVATEL", replacement = "PO, STĚŽOVATEL")) %>% str_trim()
+US_metadata$applicant %<>% modify(.x = ., ~ str_replace_all(string = .x, pattern = "FOSTĚŽOVATEL", replacement = "FO, STĚŽOVATEL")) %>% str_trim()
+US_metadata$applicant %<>% modify(.x = ., ~ str_replace_all(string = .x, pattern = "STRANAPOLITICKÁ", replacement = "STRANA, POLITICKÁ")) %>% str_trim()
+US_metadata$applicant %<>% modify_if(.x = ., .p = grepl(pattern = "[A-Za-z]STĚŽOVATEL", x = .x), ~ str_replace_all(string = .x, pattern = "STĚŽOVATEL", replacement = ", STĚŽOVATEL")) %>% str_trim()
+unique(US_metadata$applicant)
 
 
 

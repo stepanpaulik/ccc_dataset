@@ -1,15 +1,15 @@
 xfun::pkg_attach2("tidyverse", "campfin", "foreach", "doParallel", "ggplot2", "progress", "RMySQL", "rapportools", "foreach")
 
 # Load data
-load("data/US_compositions.RData")
-load("data/US_texts.RData")
-load("data/US_metadata.RData")
-load("data/US_judges.RData")
-load("data/US_dissents.RData")
+load("../data/US_compositions.RData")
+load("../data/US_texts.RData")
+load("../data/US_metadata.RData")
+load("../data/US_judges.RData")
+load("../data/US_dissents.RData")
 source("supporting_functions.R")
 
 # Save data
-save(US_compositions, file = "data/US_compositions.RData")
+save(US_compositions, file = "../data/US_compositions.RData")
 
 
 

@@ -1,13 +1,21 @@
-xfun::pkg_attach2("tidyverse", "tidytext", "ggplot2", "quanteda", "quanteda.textmodels", "quanteda.textmodels", "progress", "plm", "lmtest", "tm", "foreach")
+install.packages("tidyverse", "tidytext", "quanteda", "quanteda.textmodels", "progress", "plm", "lmtest", "tm", "foreach")
+
+library(tidyverse)
+library(tidytext)
+library(quanteda)
+library(quanteda.textmodels)
+library(progress)
+library(foreach)
+
 
 # Load data
-US_texts = readRDS("data/US_texts.rds")
-US_metadata = readRDS("data/US_metadata.rds")
-US_dissents = readRDS("data/US_dissents.rds")
+US_texts = readRDS("../data/US_texts.rds")
+US_metadata = readRDS("../data/US_metadata.rds")
+US_dissents = readRDS("../data/US_dissents.rds")
 
 
 # Save data
-saveRDS(US_dissents, file = "data/US_dissents.rds")
+saveRDS(US_dissents, file = "../data/US_dissents.rds")
 source("supporting_functions.R")
 
 # Create function for extracting dissents, returns the long format
@@ -33,8 +41,8 @@ get_dissents = function(data, judges_names, judges_id) {
 
 # Run the function and save the data
 US_dissents = get_dissents(US_metadata, judges_names = US_judges$judge_name, judges_id = US_judges$judge_id)
-save(US_dissents, file = "data/US_dissents.RData")
-load("data/US_dissents.RData")
+save(US_dissents, file = "../data/US_dissents.RData")
+load("../data/US_dissents.RData")
 
 # REGRESSION
 # Dissent/caseload regression

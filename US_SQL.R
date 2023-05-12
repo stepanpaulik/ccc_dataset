@@ -1,9 +1,4 @@
-xfun::pkg_attach2("tidyverse", "RMariaDB", "foreach", "lubridate")
-
-# Load data
-source("supporting_functions.R")
-US_metadata <- dbReadTable(conn, "US_metadata") %>% column_as_Date(data = .)
-US_texts <- dbReadTable(conn, "US_texts") %>% column_as_Date(data = .)
+xfun::pkg_attach2("tidyverse", "RMariaDB", "foreach")
 
 
 
@@ -18,9 +13,26 @@ conn <- dbConnect(
   port = 3306
 )
 
+
+
 dbExecute(conn, "SET NAMES 'utf8'")
 dbListTables(conn)
 
+US_metadata = tbl(conn, "US_metadata")
+
+query = US_metadata %>% 
+  group_by(judge_rapporteur, year_decision) %>%
+  summarise(count = n()) %>%
+  compute(temporary = FALSE, name = "US_metadata", overwrite = TRUE)
+query <- query[2:length(query)] %>% str_remove_all(pattern = "`")
+
+tmp <- tempfile()
+writeLines(query, tmp)
+
+dbSendQuery(conn, query)
+
+
+# Create a new table function
 writeNewDb <- function(data, table) {
   dbWriteTable(
   conn,
@@ -32,9 +44,9 @@ writeNewDb <- function(data, table) {
 }
 
 # Write the dataframes as tables in MySQL database
-US_metadata %>% df_unlist() %>% column_as_Date(data = .) %>% writeNewDb(data = ., table = "US_metadata")
-US_compositions %>% df_unlist() %>% writeNewDb(data = ., table = "US_compositions")
-US_dissents %>% df_unlist() %>% writeNewDb(data = ., table = "US_dissents")
+US_metadata %>% writeNewDb(data = ., table = "US_metadata")
+US_compositions %>% writeNewDb(data = ., table = "US_compositions")
+US_dissents %>% writeNewDb(data = ., table = "US_dissents")
 
 # rs <- RMariaDB::dbGetQuery(
 #   conn,
