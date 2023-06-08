@@ -96,6 +96,38 @@ US_metadata$applicant %<>% modify_if(.x = ., .p = grepl(pattern = "[A-Za-z]STÄšÅ
 unique(US_metadata$applicant)
 
 
+# DATA PREP
+# Split the texts into paragraphs and index them
+# paragraphs_split = function(US_texts) {
+#     # Create temporary object with doc_id + text split up into paragraphs
+#   judgments_annotated_paragraphs_temp = US_texts %>% group_by(doc_id) %>% summarise(paragraphs = str_split(text, pattern = "\n\n"))
+#   
+#   # The meat of the function: nested foreach loop
+#   judgments_annotated_paragraphs = foreach(i = seq(judgments_annotated_paragraphs_temp$doc_id), .combine='rbind') %:%
+#     foreach(j = 1:length(judgments_annotated_paragraphs_temp$paragraphs[[i]]), .combine = 'rbind') %do% {
+#       paragraph_temp = judgments_annotated_paragraphs_temp$paragraphs[[i]][j] %>% str_trim(side = "both")
+#       location_temp = str_locate(string = US_texts$text[US_texts$doc_id == judgments_annotated_paragraphs_temp$doc_id[i]], pattern = fixed(judgments_annotated_paragraphs_temp$paragraphs[[i]][j])) %>% as.list()
+#       text_length = str_length(US_texts$text[US_texts$doc_id == judgments_annotated_paragraphs_temp$doc_id[i]])
+#       output = list(
+#         "doc_id" = judgments_annotated_paragraphs_temp$doc_id[i], 
+#         "paragraph_id" = j, 
+#         "paragraph_text" = paragraph_temp, 
+#         "paragraph_start" = as.numeric(location_temp[1])/text_length, 
+#         "paragraph_end" = as.numeric(location_temp[2])/text_length, 
+#         "paragraph_length" = str_length(paragraph_temp)/text_length
+#       )
+#       return(output)
+#     } %>% as_tibble() %>% df_unlist()
+# 
+#   # Drop NA values
+#   judgments_annotated_paragraphs = judgments_annotated_paragraphs  
+#   
+#   return(judgments_annotated_paragraphs)
+# }
+# 
+# # Run the function and save the file
+# judgments_annotated_paragraphs = paragraphs_split(US_texts = US_texts)
+# save(judgments_annotated_paragraphs, file = "data/US_texts_paragraphs.RData")
 
 
 
