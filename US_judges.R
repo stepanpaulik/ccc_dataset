@@ -525,3 +525,8 @@ US_judges[[43]] = list(
 )
 
 US_judges$name_lemmatized = c("Pav[a-ž]*\\s*Rychetsk[a-ž]*", "Milad[a-ž]*\\s*Tomkov[a-ž]*", "Jaroslav[a-ž]*\\s*Fenyk[a-ž]*", "Jan[a-ž]*\\s* Filip[a-ž]*", "Vladimír[a-ž]*\\s*Sládeč[a-ž]*", "Ludvík[a-ž]*\\s*David[a-ž]*", "Radovan[a-ž]*\\s*Suchán[a-ž]*", "Jiří[a-ž]*\\s*Zemán[a-ž]*", "Vojtěch[a-ž]*\\s*Šimíč[a-ž]*", "Tomáš[a-ž]*\\s*Lichovník[a-ž]*", "David[a-ž]*\\s*Uhlíř[a-ž]*", "Jaromír[a-ž]*\\s*Jirs[a-ž]*", "Josef[a-ž]*\\s*Fial[a-ž]*", "Pav[a-ž]*\\s*Šámal[a-ž]*", "Kateřin[a-ž]*\\s*Šimáčkov[a-ž]*", "Jan[a-ž]*\\s*Musil[a-ž]*", "Vladimír[a-ž]*\\s*Kůrk[a-ž]*", "Vlast[a-ž]*\\s*Formánkov[a-ž]*", "Ivan[a-ž]*\\s*Janů", "Michael[a-ž]*\\s*Židlick[a-ž]*", "Stanislav[a-ž]*\\s*Balík[a-ž]*", "Jiří[a-ž]*\\s*Nykodým[a-ž]*", "Dagmar Lastoveck[a-ž]*", "Pav[a-ž]*\\s*Holländer[a-ž]*", "Vojen[a-ž]*\\s*G(ü|ű|u|ú)t(|t)ler[a-ž]*", "Miloslav[a-ž]*\\s*Výborn[a-ž]*", "Jiří[a-ž]*\\s*Much[a-ž]*", "Františ[a-ž]*\\s*Ducho[a-ž]*", "Elišk[a-ž]*\\s*W(a|á)gner[a-ž]*", "Jiří[a-ž]*\\s*Malenovsk[a-ž]*", "Pav[a-ž]*\\s*Varvařovsk[a-ž]*", "Ev[a-ž]*\\s*Zarembov[a-ž]*", "Vlastimil[a-ž]*\\s*Ševčík[a-ž]*", "Antonín[a-ž]*\\s*Procházk[a-ž]*", "Vladimír[a-ž]*\\s*Paul[a-ž]*", "Vladimír[a-ž]*\\s*Klokočk[a-ž]*", "Zde[a-ž]*\\s*Kessler[a-ž]*", "Vladimír[a-ž]*\\s*Jur[a-ž]*", "Miloš[a-ž]*\\s*Holeč[a-ž]*", "Vladimír[a-ž]*\\s*Čermák[a-ž]*", "Vojtěch[a-ž]*\\s*Cepl[a-ž]*", "Iv[a-ž]*\\s*Brožov[a-ž]*", "Jan[a-ž]*\\s*Svatoň[a-ž]*") %>% as.character()
+
+reelected_judges = c("Pavel Rychetský", "Jiří Nykodým", "Ivana Janů", "Jan Musil", "Pavel Holländer", "Vojen Güttler", "Miloslav Výborný")
+
+US_judges = US_judges %>%
+  mutate(reelection = if_else(judge_name %in% reelected_judges,1,0))

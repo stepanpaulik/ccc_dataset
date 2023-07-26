@@ -6,9 +6,9 @@ xfun::pkg_attach2("tidyverse", "RMariaDB", "foreach")
 # Connect to the DB
 conn <- dbConnect(
   RMariaDB::MariaDB(),
-  dbname = "dataset_apexcourts",
+  dbname = "apex_courts_database",
   username = "root",
-  password = "4E5ad7d!",
+  password = "4E5ad7d!!",
   host = "localhost",
   port = 3306
 )
@@ -42,6 +42,8 @@ writeNewDb <- function(data, table) {
   row.names = FALSE
   )
 }
+
+US_metadata = readRDS(file = "../data/US_metadata.rds")
 
 # Write the dataframes as tables in MySQL database
 US_metadata %>% writeNewDb(data = ., table = "US_metadata")

@@ -1,18 +1,25 @@
-xfun::pkg_attach2("tidyverse","udpipe")
+xfun::pkg_attach2("tidyverse","udpipe", "foreach", "doParallel", "furrr")
 # #UDPipe model creation for the whole text corpus
-ud_model <- udpipe_download_model(language = "czech")
-ud_model <- udpipe_load_model(ud_model$file_model)
-data_ud <- data.frame()
+# ud_model = udpipe_download_model(language = "czech")
+ud_model = udpipe_load_model(file = "czech-pdt-ud-2.5-191206.udpipe")
 
-for(i in 1:8) {
-  data_ud_temp <- udpipe_annotate(ud_model, x = data_texts$text[(i*10000-9999):(i*10000)], doc_id = data_texts$doc_id[(i*10000-9999):(i*10000)]) %>% as.data.frame()
-  data_ud_temp <- subset(data_ud_temp, select = -c(4,9:13))
-  data_ud <- rbind(data_ud, data_ud_temp)
-  print(i)
-}
-data_ud_temp <- udpipe_annotate(ud_model, x = data_texts$text[80001:length(data_texts$doc_id)], doc_id = data_texts$doc_id[80001:length(data_texts$doc_id)]) %>% as.data.frame()
-data_ud_temp <- subset(data_ud_temp, select = -c(4,9:13))
-data_ud <- rbind(data_ud, data_ud_temp)
+# Get the number of cores and leave two free for other processes
+n.cores = parallel::detectCores() - 2 
 
+# Split the data frame into a list of smaller data.frames
+US_texts = readRDS("../data/US_texts.rds") %>% 
+  split(., factor(sort(rank(row.names(.))%%(n.cores*3))))
 
-save(data_ud, file = "models/US_UDmodel.RData")
+# Run UDPipe in parallel
+start = Sys.time()
+plan(multisession, workers = n.cores)
+data_ud = future_map_dfr(.x = US_texts, ~ udpipe(x = .x, object = "czech"), model_dir = getwd(), .options = furrr_options(seed = 123)) %>%
+  as_tibble() %>%
+  select(doc_id, paragraph_id, start, end, lemma, upos)
+end = Sys.time()
+
+# Time benchmark
+end - start
+
+# Save the output
+saveRDS(data_ud, file = "models/US_UDmodel.rds")

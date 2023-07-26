@@ -87,3 +87,5 @@ save(data_metadata, file = "data/US_metadata.RData")
 
 data_texts <- data_metadata %>% select(doc_id, decisions_texts) %>% rename(text = decisions_texts)
 save(data_texts, file = "data/US_texts.RData")
+
+url = "https://nalus.usoud.cz/dialogs/PopupCiselnikTree.aspx?control=ctl00_MainContent_klicove_slovo&type=klicove_slovo&targetInfo=ctl00_MainContent_klicove_slovo_searchmethod"

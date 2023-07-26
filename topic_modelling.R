@@ -19,6 +19,8 @@ to_remove <- c(
 
 # Creating a dtm/dfm multiple ways---
 
+cjeu_topic_model = textmodel_lda(CJEU_dfm, K)
+
 # Quanteda
 quanteda_corpus <- text_corpus %>% corpus(
   docid_field = "doc_id",
