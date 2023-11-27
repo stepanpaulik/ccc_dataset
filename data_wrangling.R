@@ -22,7 +22,7 @@ US_metadata %>% writeNewDb(data = ., table = "US_metadata")
 US_judges %>% writeNewDb(data = ., table = "US_judges")
 
 
-
+US_metadata$field_register = paste0(US_metadata$field_register)
 
 
 dbReadTable(con, "US_metadata")
