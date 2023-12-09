@@ -70,8 +70,8 @@ get_metadata = function(decision_addresses){
   metadata = foreach(i = seq_along(decision_addresses), .combine = "bind_rows", .errorhandling = "remove") %do% {
     remDr$navigate(decision_addresses[i] %>% 
       str_extract("id=[0-9]+") %>% 
-      paste0("https://nalus.usoud.cz/Search/Karta.aspx?", .))
-    html = remDr$getPageSource()[[1]]  %>% 
+      paste0("https://nalus.usoud.cz/Search/ResultDetail.aspx?", .))
+    html = remDr$getPageSource()[[1]] %>% 
       read_html()
     html_metadata = html %>% 
       html_nodes(".recordCardTable") %>% 
@@ -80,44 +80,71 @@ get_metadata = function(decision_addresses){
     output = html_metadata[[1]]$X2 %>% t() %>% as_tibble()
     colnames(output) = html_metadata[[1]]$X1
     
+    case_id = html %>%
+      html_elements(xpath = "/html/body/form/div[3]/table/tbody/tr[1]/td/table/tbody/tr[6]/td/table/tbody/tr[2]/td/table/tbody/tr[2]/td[2]") %>%
+      html_text2()
+    
     dissenting_judges = html %>%
-      html_elements(xpath = "/html/body/form/div[3]/table/tbody/tr[8]/td/table/tbody/tr[21]/td[2]") %>%
+      html_elements(xpath = "/html/body/form/div[3]/table/tbody/tr[3]/td/div/table/tbody/tr[21]/td[2]") %>%
       html_text2() %>%
       str_split(pattern = "\n") %>%
       map(~na_if(.," ")) %>%
       map(.x = ., function(x) paste(word(x, 2), paste(word(x, 1), sep = "\\s")))
     
     applicant = html %>%
-      html_elements(xpath = "/html/body/form/div[3]/table/tbody/tr[8]/td/table/tbody/tr[14]/td[2]") %>%
+      html_elements(xpath = "/html/body/form/div[3]/table/tbody/tr[3]/td/div/table/tbody/tr[14]/td[2]") %>%
       html_text2() %>%
       str_split(pattern = "\n") %>%
       map(~na_if(.," "))
     
     concerned_body = html %>%
-      html_elements(xpath = "/html/body/form/div[3]/table/tbody/tr[8]/td/table/tbody/tr[15]/td[2]") %>%
+      html_elements(xpath = "/html/body/form/div[3]/table/tbody/tr[3]/td/div/table/tbody/tr[15]/td[2]") %>%
       html_text2() %>%
       str_split(pattern = "\n") %>%
       map(~na_if(.," "))
     
     field_register = html %>%
-      html_elements(xpath = "/html/body/form/div[3]/table/tbody/tr[8]/td/table/tbody/tr[23]/td[2]") %>%
+      html_elements(xpath = "/html/body/form/div[3]/table/tbody/tr[3]/td/div/table/tbody/tr[23]/td[2]") %>%
       html_text2() %>%
       str_split(pattern = "\n") %>%
       map(~na_if(.," "))
     
     subject_proceedings = html %>%
-      html_elements(xpath = "/html/body/form/div[3]/table/tbody/tr[8]/td/table/tbody/tr[22]/td[2]") %>%
+      html_elements(xpath = "/html/body/form/div[3]/table/tbody/tr[3]/td/div/table/tbody/tr[22]/td[2]") %>%
       html_text2() %>%
       str_split(pattern = "\n") %>%
       map(~na_if(.," "))
     
+    concerned_constitutional_acts = html %>%
+      html_elements(xpath = "/html/body/form/div[3]/table/tbody/tr[3]/td/div/table/tbody/tr[19]/td[2]/ul") %>%
+      html_text2() %>%
+      str_split(pattern = "\n") %>%
+      map(~na_if(.," "))
+    if(is_empty(concerned_constitutional_acts)) concerned_constitutional_acts = list(NA)
+
+    concerned_acts = html %>%
+      html_elements(xpath = "/html/body/form/div[3]/table/tbody/tr[3]/td/div/table/tbody/tr[20]/td[2]/ul") %>%
+      html_text2() %>%
+      str_split(pattern = "\n") %>%
+      map(~na_if(.," "))
+    if(is_empty(concerned_acts)) concerned_acts = list(NA)
+    
+    disputed_act = html %>%
+      html_elements(xpath = "/html/body/form/div[3]/table/tbody/tr[3]/td/div/table/tbody/tr[17]/td[2]") %>%
+      html_text2() %>%
+      str_split(pattern = "\n") %>%
+      map(~na_if(.," "))
+    
+    output$`Spisová značka` = case_id
     output$`Odlišné stanovisko` = dissenting_judges
     output$Navrhovatel = applicant
     output$`Dotčený orgán` = concerned_body
     output$`Věcný rejstřík` = field_register
     output$`Předmět řízení` = subject_proceedings
-    
-    
+    output$`Dotčené ústavní zákony a mezinárodní smlouvy` = concerned_constitutional_acts
+    output$`Ostatní dotčené předpisy` = concerned_acts
+    output$`Napadený akt` = disputed_act
+
     pb$tick()
     return(output)
   } %>%

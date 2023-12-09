@@ -1,0 +1,812 @@
+% ARTICLE 2 ----
+% This is just here so I know exactly what I'm looking at in Rstudio when messing with stuff.
+% Options for packages loaded elsewhere
+\PassOptionsToPackage{unicode}{hyperref}
+\PassOptionsToPackage{hyphens}{url}
+%
+\documentclass[
+  11pt,
+]{article}
+\usepackage{lmodern}
+\usepackage{amssymb,amsmath}
+\usepackage{ifxetex,ifluatex}
+\ifnum 0\ifxetex 1\fi\ifluatex 1\fi=0 % if pdftex
+  \usepackage[T1]{fontenc}
+  \usepackage[utf8]{inputenc}
+  \usepackage{textcomp} % provide euro and other symbols
+\else % if luatex or xetex
+  \usepackage{unicode-math}
+  \defaultfontfeatures{Scale=MatchLowercase}
+  \defaultfontfeatures[\rmfamily]{Ligatures=TeX,Scale=1}
+\fi
+% Use upquote if available, for straight quotes in verbatim environments
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+\IfFileExists{microtype.sty}{% use microtype if available
+  \usepackage[]{microtype}
+  \UseMicrotypeSet[protrusion]{basicmath} % disable protrusion for tt fonts
+}{}
+\makeatletter
+\@ifundefined{KOMAClassName}{% if non-KOMA class
+  \IfFileExists{parskip.sty}{%
+    \usepackage{parskip}
+  }{% else
+    \setlength{\parindent}{0pt}
+    \setlength{\parskip}{6pt plus 2pt minus 1pt}
+    }
+}{% if KOMA class
+  \KOMAoptions{parskip=half}}
+\makeatother
+\usepackage{xcolor}
+\IfFileExists{xurl.sty}{\usepackage{xurl}}{} % add URL line breaks if available
+\urlstyle{same} % disable monospaced font for URLs
+\usepackage[margin=1in]{geometry}
+\setlength{\emergencystretch}{3em} % prevent overfull lines
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+\setcounter{secnumdepth}{5}
+
+\ifluatex
+  \usepackage{selnolig}  % disable illegal ligatures
+\fi
+\newlength{\cslhangindent}
+\setlength{\cslhangindent}{1.5em}
+\newlength{\csllabelwidth}
+\setlength{\csllabelwidth}{3em}
+\newenvironment{CSLReferences}[2] % #1 hanging-ident, #2 entry spacing
+ {% don't indent paragraphs
+  \setlength{\parindent}{0pt}
+  % turn on hanging indent if param 1 is 1
+  \ifodd #1 \everypar{\setlength{\hangindent}{\cslhangindent}}\ignorespaces\fi
+  % set entry spacing
+  \ifnum #2 > 0
+  \setlength{\parskip}{#2\baselineskip}
+  \fi
+ }%
+ {}
+\usepackage{calc}
+\newcommand{\CSLBlock}[1]{#1\hfill\break}
+\newcommand{\CSLLeftMargin}[1]{\parbox[t]{\csllabelwidth}{#1}}
+\newcommand{\CSLRightInline}[1]{\parbox[t]{\linewidth - \csllabelwidth}{#1}\break}
+\newcommand{\CSLIndent}[1]{\hspace{\cslhangindent}#1}
+
+
+\title{The Czech Constitutional Court database\thanks{Replication files
+are available on the author's Github account
+(\url{https://github.com/stepanpaulik/apex_courts_dataset/}).
+\textbf{Current version}: December 09, 2023}}
+\author{true}
+\date{December 09, 2023}
+
+% Jesus, okay, everything above this comment is default Pandoc LaTeX template. -----
+% ----------------------------------------------------------------------------------
+% I think I had assumed beamer and LaTex were somehow different templates.
+
+
+\usepackage{kantlipsum}
+
+\usepackage{abstract}
+\renewcommand{\abstractname}{}    % clear the title
+\renewcommand{\absnamepos}{empty} % originally center
+
+\renewenvironment{abstract}
+ {{%
+    \setlength{\leftmargin}{0mm}
+    \setlength{\rightmargin}{\leftmargin}%
+  }%
+  \relax}
+ {\endlist}
+
+\makeatletter
+\def\@maketitle{%
+  \newpage
+%  \null
+%  \vskip 2em%
+%  \begin{center}%
+  \let \footnote \thanks
+      {\fontsize{18}{20}\selectfont\raggedright  \setlength{\parindent}{0pt} \@title \par}
+    }
+%\fi
+\makeatother
+
+
+\title{The Czech Constitutional Court database\thanks{Replication files
+are available on the author's Github account
+(\url{https://github.com/stepanpaulik/apex_courts_dataset/}).
+\textbf{Current version}: December 09, 2023}  }
+
+\date{}
+
+\usepackage{titlesec}
+
+% 
+\titleformat*{\section}{\large\bfseries}
+\titleformat*{\subsection}{\normalsize\itshape} % \small\uppercase
+\titleformat*{\subsubsection}{\normalsize\itshape}
+\titleformat*{\paragraph}{\normalsize\itshape}
+\titleformat*{\subparagraph}{\normalsize\itshape}
+
+% add some other packages ----------
+
+% \usepackage{multicol}
+% This should regulate where figures float
+% See: https://tex.stackexchange.com/questions/2275/keeping-tables-figures-close-to-where-they-are-mentioned
+\usepackage[section]{placeins}
+
+
+
+\makeatletter
+\@ifpackageloaded{hyperref}{}{%
+\ifxetex
+  \PassOptionsToPackage{hyphens}{url}\usepackage[setpagesize=false, % page size defined by xetex
+              unicode=false, % unicode breaks when used with xetex
+              xetex]{hyperref}
+\else
+  \PassOptionsToPackage{hyphens}{url}\usepackage[draft,unicode=true]{hyperref}
+\fi
+}
+
+\@ifpackageloaded{color}{
+    \PassOptionsToPackage{usenames,dvipsnames}{color}
+}{%
+    \usepackage[usenames,dvipsnames]{color}
+}
+\makeatother
+\hypersetup{breaklinks=true,
+            bookmarks=true,
+            pdfauthor={Štěpán Paulík (Humboldt Universität zu Berlin,
+Institut für Sozialwissenschaften,
+\href{mailto:stepan.paulik.1@hu-berlin.de}{\nolinkurl{stepan.paulik.1@hu-berlin.de}})},
+             pdfkeywords = {},
+            pdftitle={The Czech Constitutional Court database},
+            colorlinks=true,
+            citecolor=blue,
+            urlcolor=blue,
+            linkcolor=magenta,
+            pdfborder={0 0 0}}
+\urlstyle{same}  % don't use monospace font for urls
+
+% Add an option for endnotes. -----
+
+
+
+% This will better treat References as a section when using natbib
+% https://tex.stackexchange.com/questions/49962/bibliography-title-fontsize-problem-with-bibtex-and-the-natbib-package
+
+% set default figure placement to htbp
+\makeatletter
+\def\fps@figure{htbp}
+\makeatother
+
+
+
+\usepackage{longtable}
+\LTcapwidth=.95\textwidth
+\linespread{1.05}
+\usepackage{hyperref}
+
+\newtheorem{hypothesis}{Hypothesis}
+
+
+% trick for moving figures to back of document
+% really wish we'd knock this shit off with moving tables/figures to back of document
+% but, alas...
+
+% 
+% Optional code chunks ------
+% SOURCE: https://stackoverflow.com/questions/50702942/does-rmarkdown-allow-captions-and-references-for-code-chunks
+
+
+
+\begin{document}
+
+% \textsf{\textbf{This is sans-serif bold text.}}
+% \textbf{\textsf{This is bold sans-serif text.}}
+
+
+% \maketitle
+
+{% \usefont{T1}{pnc}{m}{n}
+\setlength{\parindent}{0pt}
+\thispagestyle{plain}
+{%\fontsize{18}{20}\selectfont\raggedright
+\maketitle  % title \par
+
+}
+
+
+
+
+{
+   \vskip 13.5pt\relax \normalsize\fontsize{11}{12}
+   \MakeUppercase{Štěpán Paulík}, \small{Humboldt Universität zu Berlin,
+Institut für Sozialwissenschaften,
+\href{mailto:stepan.paulik.1@hu-berlin.de}{\nolinkurl{stepan.paulik.1@hu-berlin.de}}}   
+
+}
+
+}
+
+
+
+
+
+
+\vskip -8.5pt
+
+{
+\hypersetup{linkcolor=black}
+\setcounter{tocdepth}{2}
+\tableofcontents
+}
+
+ % removetitleabstract
+
+{
+\setcounter{tocdepth}{2}
+\tableofcontents
+}
+
+\setlength{\parindent}{16pt}
+\setlength{\parskip}{0pt}
+
+% We'll put doublespacing here
+% Remember to cut it out later before bib
+\hypertarget{introduction}{%
+\section{Introduction}\label{introduction}}
+
+Although it has been traditionally espoused that there has been a divide
+between the empirically oriented US legal scholarship, stemming from a
+different perception of the role of courts and judges, and the rest of
+the world (\protect\hyperlink{ref-hamannGermanFederalCourts2019}{Hamann
+2019, 416}). Therein the judges have been viewed and empirically
+researched as political
+(\protect\hyperlink{ref-carrubbaWhoControlsContent2012}{Carrubba et al.
+2012}; \protect\hyperlink{ref-clarkLocatingSupremeCourt2010}{Clark and
+Lauderdale 2010};
+\protect\hyperlink{ref-epsteinChoicesJusticesMake1997}{Epstein and
+Knight 1997};
+\protect\hyperlink{ref-lauderdaleScalingPoliticallyMeaningful2014}{Lauderdale
+and Clark 2014};
+\protect\hyperlink{ref-sunsteinAreJudgesPolitical2006}{Sunstein et al.
+2006}) or strategic
+(\protect\hyperlink{ref-cameronChapterWhatJudges2017}{Cameron and
+Kornhauser 2017};
+\protect\hyperlink{ref-clarkEstimatingEffectLeisure2018}{Clark, Engst,
+and Staton 2018};
+\protect\hyperlink{ref-epsteinWhyWhenJudges2011}{Epstein, Landes, and
+Posner 2011};
+\protect\hyperlink{ref-epsteinStrategicRevolutionJudicial2000}{Epstein
+and Knight 2000};
+\protect\hyperlink{ref-kornhauserModelingCollegialCourts1992}{Kornhauser
+1992b},
+\protect\hyperlink{ref-kornhauserModelingCollegialCourts1992a}{1992a};
+\protect\hyperlink{ref-posnerWhatJudgesJustices1993}{Posner 1993},
+\protect\hyperlink{ref-posnerHowJudgesThink2010}{2010};
+\protect\hyperlink{ref-rousseyOverburdenedJudges2018}{Roussey and
+Soubeyran 2018}) actors.
+
+In contrast to, especially in European legal systems, such as the one at
+hand - Czechia, judges have been perceived as ``proclaimers of law'' and
+the law handed down by them
+(\protect\hyperlink{ref-hamannGermanFederalCourts2019}{Hamann 2019,
+417}). Such a view had hindered empirical legal research in Europe. The
+lack of empirical legal research could also be partially blamed on lack
+of high quality data, a prerequisite for any quantitative empirical
+research. At least so the story goes until recently. The interest in
+empirical legal studies has picked up in the last years across the whole
+continent, including studies on plethora of topics within Germany
+(\protect\hyperlink{ref-arnoldScalingCourtDecisions2023}{Arnold, Engst,
+and Gschwend 2023};
+\protect\hyperlink{ref-coupetteQuantitativeRechtswissenschaft2018}{Coupette
+and Fleckner 2018};
+\protect\hyperlink{ref-engstEinflussParteinaheAuf2017}{Benjamin G. Engst
+et al. 2017};
+\protect\hyperlink{ref-wittigOccurrenceSeparateOpinions2016}{Wittig
+2016}), Spain and Portugal
+(\protect\hyperlink{ref-hanrettyDissentIberiaIdeal2012}{Hanretty 2012}),
+the UK
+(\protect\hyperlink{ref-hanrettyCourtSpecialistsJudicial2020}{Hanretty
+2020}) or the EU institutions
+(\protect\hyperlink{ref-bielenBacklogsLitigationRates2018}{Bielen et al.
+2018}; \protect\hyperlink{ref-brekkeThatOrderHow2023}{Brekke, Naurin, et
+al. 2023}; \protect\hyperlink{ref-fjelstulHowChamberSystem2023}{J.
+Fjelstul 2023};
+\protect\hyperlink{ref-fjelstulEvolutionEuropeanUnion2019}{Joshua C.
+Fjelstul 2019};
+\protect\hyperlink{ref-fjelstulTimelyAdministrationJustice2022}{Joshua
+C. Fjelstul, Gabel, and Carrubba 2022}).
+
+Publications of new high quality publicly accessible data have gone hand
+in hand with these developments. To the many released comprehensive data
+sets in the recent years belong namely the Iuropa project's CJEU
+database (\protect\hyperlink{ref-brekkeCJEUDatabasePlatform2023}{Brekke,
+Fjelstul, et al. 2023}), the German Federal courts
+(\protect\hyperlink{ref-hamannGermanFederalCourts2019}{Hamann 2019}) as
+well as the Constitutional Court
+(\protect\hyperlink{ref-engstConstitutionalCourtDatabaseForthcoming}{Benjamin
+G. Engst, Hönnige, and Gschwend Forthcoming})
+
+To the author's best knowledge, there have been solitary attempts go
+gather data in some shape or form in the Czech context
+(\protect\hyperlink{ref-harastaAnnotatedCorpusCzech2018}{Harašta et al.
+2018}; \protect\hyperlink{ref-novotnaCzechCourtDecisions2019}{Novotná
+and Harašta 2019}), mainly thanks to the Institute of Law and Technology
+based in Brno, as well as isolated attempts to conduct quantitative
+methods or research employing natural language processing and alike
+methods (\protect\hyperlink{ref-chmelZpravodajoveSenatyVliv2017}{Chmel
+2017};
+\protect\hyperlink{ref-eliasekAutomatickaKlasifikaceVyznamovych2020}{Eliášek,
+Kól, and Švaňa 2020};
+\protect\hyperlink{ref-harastaCitacniAnalyzaJudikatury2021}{Harašta et
+al. 2021};
+\protect\hyperlink{ref-vartazaryanSitOvaAnalyza2022}{Vartazaryan 2022}).
+Unfortunately, the former group does not always adhere to the principles
+of of high-quality infrastructure, namely the principle of
+foundationality, espoused by Weinshall and Epstein
+(\protect\hyperlink{ref-weinshallDevelopingHighQualityData2020}{2020}),
+p.~424, the latter group did not publish data/code at all. The output of
+the law and economics/criminology team centered around Jakub Drápal and
+Libor Dušek stands out as the only systemic effort to conduct replicable
+quantitative legal research in Czechia
+(\protect\hyperlink{ref-drapalSentencingCzechRepublic2021}{Drápal 2021},
+\protect\hyperlink{ref-drapalPunitiveNegligenceMyths2023}{2023};
+\protect\hyperlink{ref-drapalUsingLargeLanguage2023}{Drápal, Westermann,
+and Savelka 2023};
+\protect\hyperlink{ref-drapalLawAuthorityHow2023}{Drápal and Dusek
+2023}; \protect\hyperlink{ref-drapalWhatValueJudicial2023}{Drápal and
+Pina-Sánchez 2023};
+\protect\hyperlink{ref-drapalSentencingDecisionsQuantity2023}{Drápal and
+Šoltés 2023}). The data they are working with currently are still
+unpublished.
+
+Therefore, the effort to put together and to publish a high-quality
+dataset on the CCC is more than warranted. The article proceeds as
+follow. In the section X, I introduce the CCC, namely its compositions,
+its internal organization and its powers. In the section X, I introduce
+the CCC dataset. Therein, I briefly discuss its structure, describe the
+variables. The section X then discusses the adherence of the CCC dataset
+to five principles of a high-quality dataset, including its relevance
+for research, as well as to the adherence of the tidy data principles.
+The last section concludes.
+
+\hypertarget{a-brief-introduction-of-the-ccc}{%
+\section{A brief introduction of the
+CCC}\label{a-brief-introduction-of-the-ccc}}
+
+The CCC consists of fifteen justices, out of which one is the president
+of the CCC, two are vice presidents and twelve associate justices
+(following the terminology of
+\protect\hyperlink{ref-kosarConstitutionalCourtCzechia2020}{Kosař and
+Vyhnánek 2020}). These fifteen justices are appointed by the president
+of the Czech republic upon approval of the Senate. The justices enjoy 10
+years terms with the possibility of re-election. The three CCC
+functionaries are unilaterally appointed by the Czech president.
+
+Regarding the competences, the CCC is a typical Kelsenian court inspired
+mainly by the German Federal Constitutional Court. The CCC enjoys the
+power of abstract constitutional review, including constitutional
+amendments. The abstract review procedure is initiated by political
+actors (for example MPs) and usually concerns political issues.
+Moreover, an ordinary court can initiate a concrete review procedure, if
+that court reaches the conclusion that a legal norm upon which its
+decision depends is not compatible with the constitution. Individuals
+can also lodge constitutional complaints before the CCC. Lastly, the CCC
+can also resolve separation-of-powers disputes, it can \emph{ex ante}
+review international treaties, decide on impeachment of the president of
+the republic, and it has additional ancillary powers (for a complete
+overview, see
+\protect\hyperlink{ref-kosarConstitutionalCourtCzechia2020}{Kosař and
+Vyhnánek 2020}).
+
+The CCC is an example of a collegial court. From the perspective of the
+inner, the CCC can decide in four bodies: (1) individual justices, (2)
+3-member chambers (\emph{senáty}), (3) the plenum (\emph{plénum}), and
+(4) special disciplinary chambers. However, the 3-member chambers and
+the plenum play a crucial role. The plenum is composed of all justices,
+whereas the four 3-member chambers are composed of the associate
+justices. Neither the president of the CCC or her vice-presidents are
+permanents members of the 3-member chambers. Until 2016, the composition
+of the chambers was static. However, in 2016, a system of regular
+2-yearly rotations was introduced, wherein the president of the chamber
+rotates to a different every 2 years. I am of the view that such a
+institutional change opens up potential for quasi-experimental research
+similar to the Gschwend, Sternberg, and Zittlau
+(\protect\hyperlink{ref-gschwendAreJudgesPolitical2016}{2016}) study
+utilizing judge absences within the 3-member panels of the German
+federal constitutional court.
+
+In the chamber proceedings, decisions on admissibility must be
+unanimous, decisions on merits need not be, therefore, two votes are
+necessary.\footnote{Which allows enables separate opinions} In the
+plenum, the general voting quorum is a simple majority and the plenum is
+quorate when there are ten justices present. The abstract review is one
+of the exceptions that sets the quorum higher, at 9 votes more
+specifically.
+
+A judge rapporteur plays a crucial role. Each case of the CCC gets
+assigned to a judge raporteur. The assignement is regulated by a case
+allocation plan (the original term is \emph{rozvrh práce}, which is
+usually translated as a \emph{work schedule}, however, I borrow the term
+\emph{case allocation plan} from Hamann
+(\protect\hyperlink{ref-hamannGermanFederalCourts2019}{2019}), p.~673)
+She is tasked with drafting the opinion, about which the body then
+votes. The president of the CCC (in plenary cases) or the president of
+the chamber (in chamber cases) may re-assign a case to a different judge
+rapporteur if the draft opinion by the original judge rapporteur did not
+receive a majority of votes. Unfortunately, the CCC does not keep track
+of these reassignments.\footnote{I unsuccessfully attempted to retrieve
+  the information with the right to information}
+
+The CCC allows for separate opinions. They can take two forms:
+dissenting or concurring opinions. Each justice has the right to author
+a separate opinion, which then gets published with the CCC decision. It
+follows that not every anti-majority vote implies a separate opinion, it
+is up to the justices to decide whether they want to attach a separate
+opinion with their vote.
+
+It may be concluded that the CCC takes after the american model of
+selection of justices, with the president of the republic and the upper
+chamber being in the spotlight, but is also a typical example of a
+Kelsenian specialised court with concentrated constitutional review. The
+CCC stands out in how powerful its constitutional review is, having
+attracted the power to review even constitutional amendments, thus, the
+CCC is a powerful player in the Czech political system. The internal
+organization of the CCC gives a lot of room for strategic considerations
+of its justices. Not only due to the similarities with the
+constitutional adjudication powerhouses but also due to its own
+idiosyncrasies, I believe the CCC to be a worthy object of empirical
+legal research.
+
+\hypertarget{principles-guiding-the-creation-of-the-dataset}{%
+\section{Principles guiding the creation of the
+dataset}\label{principles-guiding-the-creation-of-the-dataset}}
+
+The Czech Constitutional Court database is a ``multi-user dataset''
+created in a principled manner. Epstein et al.
+(\protect\hyperlink{ref-epsteinIntroductionEmpiricalLegal2014}{2014}),
+p.~14 define a multi-user dataset as a dataset created with the purpose
+of that ``{[}r{]}ather than collect data to answer particular research
+questions {[}\ldots{]} the idea is to amass a dataset so rich in content
+that mzu ultiple users, even those with distinct projects, can draw on
+it.''
+
+Accordingly, the Czech Constitutional Court dataset upholds the
+principles of a high-quality dataset espoused by Weinshall and Epstein
+(\protect\hyperlink{ref-weinshallDevelopingHighQualityData2020}{2020}),
+p.~424, namely that the database is (1) capable of addressing real-world
+problems, (2) accessible, (3) reproducible and reliable, (4) sustainable
+and updatable, and (5) foundational. The data structure also follows the
+principles of tidy data. According to Wickham
+(\protect\hyperlink{ref-wickhamTidyData2014}{2014}), tidy data are data
+with such a tabular\footnote{i.e.~with a column and row structure}
+structure that
+
+\begin{enumerate}
+\def\labelenumi{(\arabic{enumi})}
+\tightlist
+\item
+  every column is a variable,
+\item
+  every row is an observation,
+\item
+  every cell is a single value.
+\end{enumerate}
+
+Although the dataset contains one all-encompassing ``master'' table,
+some of the variables (for example concerned laws or applicant) contain
+multiple values nested in one cell. The reason is simple: the master
+table contains observations on the case-level, whereas whenever a
+variable contains more values per case, the data structure would then
+require a variable-case level. For this purpose, the dataset is also
+split up into multiple smaller tables on a variable-case level (for
+example dissenting judge-case level or concerned acts-case level), which
+can then be joined together relational database SQL-style in the form of
+unique keys.
+
+\hypertarget{capacity-to-address-real-world-problems}{%
+\subsection{Capacity to Address Real-World
+Problems}\label{capacity-to-address-real-world-problems}}
+
+As Kosař and Vyhnánek
+(\protect\hyperlink{ref-kosarConstitutionalCourtCzechia2020}{2020})
+argue, the clerks at the CCC play an especially vital and unappreciated
+role: ``The initial idea of the legislature was to grant each Justice
+one law clerk who would take administrative burdens unrelated to
+substantive decision-making off the Justices' shoulders. Yet the reality
+is different. First, due to the growing caseload, the number of law
+clerks per Justice increased gradually; today, each Justice has three
+law clerks. Moreover, law clerks de facto prepare drafts of most CCC
+judgments and decisions, and the real administrative burden has been
+`outsourced' to secretaries of the cabinets.'' The difficulty of
+studying the role of clerks was highlighted in the Clark, Engst, and
+Staton (\protect\hyperlink{ref-clarkEstimatingEffectLeisure2018}{2018})
+study on the effects of leisure on judicial performance.
+
+The CCC dataset contains the information on all clerks that have served
+on the CCC, including their gender, education, beginning and end of
+mandates. Such an information can serve as a basis for any research on
+the role of clerks. For the purpose of showing the capability of solving
+real-world problems, I present descriptive statistics.
+
+\hypertarget{accessibility}{%
+\subsection{Accessibility}\label{accessibility}}
+
+\hypertarget{reliability-and-reproducibility}{%
+\subsection{Reliability and
+Reproducibility}\label{reliability-and-reproducibility}}
+
+\hypertarget{sustainability}{%
+\subsection{Sustainability}\label{sustainability}}
+
+\hypertarget{foundational}{%
+\subsection{Foundational}\label{foundational}}
+
+\vspace{30pt}
+
+\hypertarget{literature}{%
+\section*{Literature}\label{literature}}
+\addcontentsline{toc}{section}{Literature}
+
+\hypertarget{refs}{}
+\begin{CSLReferences}{1}{0}
+\leavevmode\vadjust pre{\hypertarget{ref-arnoldScalingCourtDecisions2023}{}}%
+Arnold, Christian, Benjamin G. Engst, and Thomas Gschwend. 2023.
+{``Scaling {Court Decisions} with {Citation Networks}.''} \emph{Journal
+of Law and Courts} 11 (1): 25--44. \url{https://doi.org/10.1086/717420}.
+
+\leavevmode\vadjust pre{\hypertarget{ref-bielenBacklogsLitigationRates2018}{}}%
+Bielen, Samantha, Ludo Peeters, Wim Marneffe, and Lode Vereeck. 2018.
+{``Backlogs and Litigation Rates: {Testing} Congestion Equilibrium
+Across {European} Judiciaries.''} \emph{International Review of Law and
+Economics} 53 (March): 9--22.
+\url{https://doi.org/10.1016/j.irle.2017.09.002}.
+
+\leavevmode\vadjust pre{\hypertarget{ref-brekkeCJEUDatabasePlatform2023}{}}%
+Brekke, Stein Arne, Joshua C. Fjelstul, Silje Synnøve Lyder Hermansen,
+and Daniel Naurin. 2023. {``The {CJEU Database Platform}: {Decisions}
+and {Decision-Makers}.''} \emph{Journal of Law and Courts}, January,
+1--22. \url{https://doi.org/10.1017/jlc.2022.3}.
+
+\leavevmode\vadjust pre{\hypertarget{ref-brekkeThatOrderHow2023}{}}%
+Brekke, Stein Arne, Daniel Naurin, Urška Šadl, and Lucía López-Zurita.
+2023. {``That's an {Order}! {How} the {Quest} for {Efficiency Is
+Transforming Judicial Cooperation} in {Europe}.''} \emph{JCMS: Journal
+of Common Market Studies} 61 (1): 58--75.
+\url{https://doi.org/10.1111/jcms.13346}.
+
+\leavevmode\vadjust pre{\hypertarget{ref-cameronChapterWhatJudges2017}{}}%
+Cameron, Charles M., and Lewis A. Kornhauser. 2017. {``Chapter 3: {What
+Do Judges Want}? {How} to {Model Judicial Preferences}.''} SSRN
+Scholarly Paper. {Rochester, NY}. June 2, 2017.
+\url{https://doi.org/10.2139/ssrn.2979419}.
+
+\leavevmode\vadjust pre{\hypertarget{ref-carrubbaWhoControlsContent2012}{}}%
+Carrubba, Cliff, Barry Friedman, Andrew D. Martin, and Georg Vanberg.
+2012. {``Who {Controls} the {Content} of {Supreme Court Opinions}?''}
+\emph{American Journal of Political Science} 56 (2): 400--412.
+\url{https://doi.org/10.1111/j.1540-5907.2011.00557.x}.
+
+\leavevmode\vadjust pre{\hypertarget{ref-chmelZpravodajoveSenatyVliv2017}{}}%
+Chmel, Jan. 2017. {``Zpravodajové a Senáty: {Vliv} Složení Senátu Na
+Rozhodování {Ústavního} Soudu {České} Republiky o Ústavních
+Stížnostech.''} \emph{Časopis Pro Právní Vědu a Praxi} 25 (4): 739.
+\url{https://doi.org/10.5817/CPVP2017-4-9}.
+
+\leavevmode\vadjust pre{\hypertarget{ref-clarkEstimatingEffectLeisure2018}{}}%
+Clark, Tom S., Benjamin G. Engst, and Jeffrey K. Staton. 2018.
+{``Estimating the {Effect} of {Leisure} on {Judicial Performance}.''}
+\emph{The Journal of Legal Studies} 47 (2): 349--90.
+\url{https://doi.org/10.1086/699150}.
+
+\leavevmode\vadjust pre{\hypertarget{ref-clarkLocatingSupremeCourt2010}{}}%
+Clark, Tom S., and Benjamin Lauderdale. 2010. {``Locating {Supreme Court
+Opinions} in {Doctrine Space}.''} \emph{American Journal of Political
+Science} 54 (4): 871--90.
+\url{https://doi.org/10.1111/j.1540-5907.2010.00470.x}.
+
+\leavevmode\vadjust pre{\hypertarget{ref-coupetteQuantitativeRechtswissenschaft2018}{}}%
+Coupette, Corinna, and Andreas M. Fleckner. 2018. {``Quantitative
+{Rechtswissenschaft}.''} \emph{JuristenZeitung (JZ)} 73 (8): 379--89.
+\url{https://doi.org/10.1628/jz-2018-0020}.
+
+\leavevmode\vadjust pre{\hypertarget{ref-drapalSentencingCzechRepublic2021}{}}%
+Drápal, Jakub. 2021. {``Sentencing in the {Czech Republic}: {An
+Empirical Investigation},''} March.
+\url{https://dspace.cuni.cz/handle/20.500.11956/148293}.
+
+\leavevmode\vadjust pre{\hypertarget{ref-drapalPunitiveNegligenceMyths2023}{}}%
+---------. 2023. {``Punitive by Negligence? {The} Myths and Reality of
+Penal Nationalism in the {Czech Republic}.''} \emph{European Journal of
+Criminology} 20 (4): 1549--67.
+\url{https://doi.org/10.1177/14773708211063753}.
+
+\leavevmode\vadjust pre{\hypertarget{ref-drapalLawAuthorityHow2023}{}}%
+Drápal, Jakub, and Libor Dusek. 2023. {``Law or {Authority}: {How Penal
+Elites Shape Sentencing Policy} by {Non-Binding Interventions}.''} SSRN
+Scholarly Paper. {Rochester, NY}. October 31, 2023.
+\url{https://doi.org/10.2139/ssrn.4619030}.
+
+\leavevmode\vadjust pre{\hypertarget{ref-drapalWhatValueJudicial2023}{}}%
+Drápal, Jakub, and Jose Pina-Sánchez. 2023. {``What Is the {Value} of
+{Judicial Experience}? {Exploring Judge Trajectories Using Longitudinal
+Data}.''} \emph{Justice Quarterly} 40 (2): 211--40.
+\url{https://doi.org/10.1080/07418825.2022.2051585}.
+
+\leavevmode\vadjust pre{\hypertarget{ref-drapalSentencingDecisionsQuantity2023}{}}%
+Drápal, Jakub, and Michal Šoltés. 2023. {``Sentencing Decisions Around
+Quantity Thresholds: Theory and Experiment.''} \emph{Journal of
+Experimental Criminology}, July.
+\url{https://doi.org/10.1007/s11292-023-09568-8}.
+
+\leavevmode\vadjust pre{\hypertarget{ref-drapalUsingLargeLanguage2023}{}}%
+Drápal, Jakub, Hannes Westermann, and Jaromir Savelka. 2023. {``Using
+{Large Language Models} to {Support Thematic Analysis} in {Empirical
+Legal Studies}.''} October 28, 2023.
+\url{https://doi.org/10.48550/arXiv.2310.18729}.
+
+\leavevmode\vadjust pre{\hypertarget{ref-eliasekAutomatickaKlasifikaceVyznamovych2020}{}}%
+Eliášek, Martin, Jakub Kól, and Miloš Švaňa. 2020. {``Automatická
+Klasifikace Významových Celků v Judikatuře.''} \emph{Revue Pro Právo a
+Technologie} 11 (21): 3--20. \url{https://doi.org/10.5817/RPT2020-1-1}.
+
+\leavevmode\vadjust pre{\hypertarget{ref-engstEinflussParteinaheAuf2017}{}}%
+Engst, Benjamin G., Thomas Gschwend, Nils Schaks, Sebastian Sternberg,
+and Caroline Wittig. 2017. {``Zum {Einfluss} Der {Parteinähe} Auf Das
+{Abstimmungsverhalten} Der {Bundesverfassungsrichter} -- Eine
+Quantitative {Untersuchung}.''} \emph{JuristenZeitung} 72 (17): 816--26.
+\url{https://www.jstor.org/stable/44867374}.
+
+\leavevmode\vadjust pre{\hypertarget{ref-engstConstitutionalCourtDatabaseForthcoming}{}}%
+Engst, Benjamin G, Christoph Hönnige, and Thomas Gschwend. Forthcoming.
+{``The {Constitutional Court Database}.''} \emph{Working Paper},
+Forthcoming, 39.
+
+\leavevmode\vadjust pre{\hypertarget{ref-epsteinChoicesJusticesMake1997}{}}%
+Epstein, Lee, and Jack Knight. 1997. \emph{The {Choices Justices Make}}.
+{SAGE}. \url{https://books.google.com?id=hSnom2h2_zUC}.
+
+\leavevmode\vadjust pre{\hypertarget{ref-epsteinStrategicRevolutionJudicial2000}{}}%
+---------. 2000. {``Toward a {Strategic Revolution} in {Judicial
+Politics}: {A Look Back}, {A Look Ahead}.''} \emph{Political Research
+Quarterly} 53 (3): 625--61.
+\url{https://doi.org/10.1177/106591290005300309}.
+
+\leavevmode\vadjust pre{\hypertarget{ref-epsteinWhyWhenJudges2011}{}}%
+Epstein, Lee, William M. Landes, and Richard A. Posner. 2011. {``Why
+({And When}) {Judges Dissent}: {A Theoretical And Empirical
+Analysis}.''} \emph{Journal of Legal Analysis} 3 (1): 101--37.
+\url{https://doi.org/10.1093/jla/3.1.101}.
+
+\leavevmode\vadjust pre{\hypertarget{ref-epsteinIntroductionEmpiricalLegal2014}{}}%
+Epstein, Lee, Andrew D. Martin, Lee Epstein, and Andrew D. Martin. 2014.
+\emph{An {Introduction} to {Empirical Legal Research}}. {Oxford, New
+York}: {Oxford University Press}.
+
+\leavevmode\vadjust pre{\hypertarget{ref-fjelstulHowChamberSystem2023}{}}%
+Fjelstul, Joshua. 2023. {``How the {Chamber System} at the {CJEU
+Undermines} the {Consistency} of the {Court}'s {Application} of {EU
+Law}.''} \emph{Journal of Law and Courts}, 717422.
+\url{https://doi.org/10.1086/717422}.
+
+\leavevmode\vadjust pre{\hypertarget{ref-fjelstulEvolutionEuropeanUnion2019}{}}%
+Fjelstul, Joshua C. 2019. {``The Evolution of {European Union} Law: {A}
+New Data Set on the {\emph{Acquis Communautaire}}.''} \emph{European
+Union Politics} 20 (4): 670--91.
+\url{https://doi.org/10.1177/1465116519842947}.
+
+\leavevmode\vadjust pre{\hypertarget{ref-fjelstulTimelyAdministrationJustice2022}{}}%
+Fjelstul, Joshua C., Matthew Gabel, and Clifford J. Carrubba. 2022.
+{``The Timely Administration of Justice: Using Computational Simulations
+to Evaluate Institutional Reforms at the {CJEU}.''} \emph{Journal of
+European Public Policy}, August, 1--22.
+\url{https://doi.org/10.1080/13501763.2022.2113115}.
+
+\leavevmode\vadjust pre{\hypertarget{ref-gschwendAreJudgesPolitical2016}{}}%
+Gschwend, Thomas, Sebastian Sternberg, and Steffen Zittlau. 2016. {``Are
+{Judges Political Animals} After {All}? {Quasi-Experimental Evidence}
+from the {German Federal Constitutional Court}.''} SSRN Scholarly Paper.
+{Rochester, NY}. February 26, 2016.
+\url{https://doi.org/10.2139/ssrn.2738512}.
+
+\leavevmode\vadjust pre{\hypertarget{ref-hamannGermanFederalCourts2019}{}}%
+Hamann, Hanjo. 2019. {``The {German Federal Courts Dataset} 1950--2019:
+{From Paper Archives} to {Linked Open Data}.''} \emph{Journal of
+Empirical Legal Studies} 16 (3): 671--88.
+\url{https://doi.org/10.1111/jels.12230}.
+
+\leavevmode\vadjust pre{\hypertarget{ref-hanrettyDissentIberiaIdeal2012}{}}%
+Hanretty, Chris. 2012. {``Dissent in {Iberia}: {The} Ideal Points of
+Justices on the {Spanish} and {Portuguese Constitutional Tribunals}.''}
+\emph{European Journal of Political Research} 51 (5): 671--92.
+\url{https://doi.org/10.1111/j.1475-6765.2012.02056.x}.
+
+\leavevmode\vadjust pre{\hypertarget{ref-hanrettyCourtSpecialistsJudicial2020}{}}%
+---------. 2020. \emph{A {Court} of {Specialists}: {Judicial Behavior}
+on the {UK Supreme Court}}. {Oxford University Press}.
+\url{https://doi.org/10.1093/oso/9780197509234.001.0001}.
+
+\leavevmode\vadjust pre{\hypertarget{ref-harastaAnnotatedCorpusCzech2018}{}}%
+Harašta, Jakub, Jaromír Šavelka, František Kasl, Adéla Kotková, Pavel
+Loutocký, Jakub Míšek, Daniela Procházková, et al. 2018. {``Annotated
+{Corpus} of {Czech Case Law} for {Reference Recognition Tasks}.''} In
+\emph{Text, {Speech}, and {Dialogue}}, edited by Petr Sojka, Aleš Horák,
+Ivan Kopeček, and Karel Pala, 11107:239--50. {Cham}: {Springer
+International Publishing}.
+\url{https://doi.org/10.1007/978-3-030-00794-2_26}.
+
+\leavevmode\vadjust pre{\hypertarget{ref-harastaCitacniAnalyzaJudikatury2021}{}}%
+Harašta, Jakub, Terezie Smejkalová, Jaromír Šavelka, and Radim Polčák.
+2021. \emph{Citační analýza judikatury}. Vydání první. Právní
+monografie. {Praha}: {Wolters Kluwer}.
+
+\leavevmode\vadjust pre{\hypertarget{ref-kornhauserModelingCollegialCourts1992a}{}}%
+Kornhauser, Lewis A. 1992a. {``Modeling {Collegial Courts}. {II}. {Legal
+Doctrine}.''} \emph{Journal of Law, Economics and Organization} 8: 441.
+\url{https://heinonline.org/HOL/Page?handle=hein.journals/jleo8&id=449&div=&collection=}.
+
+\leavevmode\vadjust pre{\hypertarget{ref-kornhauserModelingCollegialCourts1992}{}}%
+---------. 1992b. {``Modeling Collegial Courts {I}:
+{Path-dependence}.''} \emph{International Review of Law and Economics}
+12 (2): 169--85. \url{https://doi.org/10.1016/0144-8188(92)90034-O}.
+
+\leavevmode\vadjust pre{\hypertarget{ref-kosarConstitutionalCourtCzechia2020}{}}%
+Kosař, David, and Ladislav Vyhnánek. 2020. {``The {Constitutional Court}
+of {Czechia}.''} In \emph{The {Max Planck Handbooks} in {European Public
+Law}: {Volume III}: {Constitutional Adjudication}: {Institutions}},
+edited by Armin von Bogdandy, Peter Huber, and Christoph Grabenwarter,
+0. {Oxford University Press}.
+\url{https://doi.org/10.1093/oso/9780198726418.003.0004}.
+
+\leavevmode\vadjust pre{\hypertarget{ref-lauderdaleScalingPoliticallyMeaningful2014}{}}%
+Lauderdale, Benjamin E., and Tom S. Clark. 2014. {``Scaling {Politically
+Meaningful Dimensions Using Texts} and {Votes}: {SCALING POLITICALLY
+MEANINGFUL DIMENSIONS}.''} \emph{American Journal of Political Science}
+58 (3): 754--71. \url{https://doi.org/10.1111/ajps.12085}.
+
+\leavevmode\vadjust pre{\hypertarget{ref-novotnaCzechCourtDecisions2019}{}}%
+Novotná, Tereza, and Jakub Harašta. 2019. {``The {Czech Court Decisions
+Corpus} ({CzCDC}): {Availability} as the {First Step}.''} October 21,
+2019. \url{http://arxiv.org/abs/1910.09513}.
+
+\leavevmode\vadjust pre{\hypertarget{ref-posnerWhatJudgesJustices1993}{}}%
+Posner, Richard A. 1993. \emph{What {Do Judges} and {Justices
+Maximize}?: (The {Same Thing Everyone Else Does})}. {Law School,
+University of Chicago}. \url{https://books.google.com?id=ciFUHQAACAAJ}.
+
+\leavevmode\vadjust pre{\hypertarget{ref-posnerHowJudgesThink2010}{}}%
+---------. 2010. \emph{How {Judges Think}}. {Harvard University Press}.
+\url{https://books.google.com?id=ZVUC8riEVPQC}.
+
+\leavevmode\vadjust pre{\hypertarget{ref-rousseyOverburdenedJudges2018}{}}%
+Roussey, Ludivine, and Raphael Soubeyran. 2018. {``Overburdened
+Judges.''} \emph{International Review of Law and Economics} 55
+(September): 21--32. \url{https://doi.org/10.1016/j.irle.2018.02.003}.
+
+\leavevmode\vadjust pre{\hypertarget{ref-sunsteinAreJudgesPolitical2006}{}}%
+Sunstein, Cass R., David Schkade, Lisa M. Ellman, and Andres Sawicki.
+2006. \emph{Are {Judges Political}? {An Empirical Analysis} of the
+{Federal Judiciary}}. {Brookings Institution Press}.
+\url{https://www.jstor.org/stable/10.7864/j.ctt12879t7}.
+
+\leavevmode\vadjust pre{\hypertarget{ref-vartazaryanSitOvaAnalyza2022}{}}%
+Vartazaryan, Gor. 2022. {``Sít'ová Analỳza Disentujících Ústavních
+Soudců.''} \emph{Pravnik}, no. 12.
+
+\leavevmode\vadjust pre{\hypertarget{ref-weinshallDevelopingHighQualityData2020}{}}%
+Weinshall, Keren, and Lee Epstein. 2020. {``Developing {High-Quality
+Data Infrastructure} for {Legal Analytics}: {Introducing} the {Israeli
+Supreme Court Database}.''} \emph{Journal of Empirical Legal Studies} 17
+(2): 416--34. \url{https://doi.org/10.1111/jels.12250}.
+
+\leavevmode\vadjust pre{\hypertarget{ref-wickhamTidyData2014}{}}%
+Wickham, Hadley. 2014. {``Tidy {Data}.''} \emph{Journal of Statistical
+Software} 59 (10). \url{https://doi.org/10.18637/jss.v059.i10}.
+
+\leavevmode\vadjust pre{\hypertarget{ref-wittigOccurrenceSeparateOpinions2016}{}}%
+Wittig, Caroline. 2016. \emph{The {Occurrence} of {Separate Opinions} at
+the {Federal Constitutional Court}}. {Logos Verlag Berlin}.
+\url{https://doi.org/10.30819/4411}.
+
+\end{CSLReferences}
+
+\end{document}

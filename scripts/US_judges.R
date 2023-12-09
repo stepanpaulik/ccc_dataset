@@ -44,7 +44,7 @@ data_judges <- tribble(
   "Jaroslav Fenyk", "Jaroslav[a-ž]*\\s*Fenyk[a-ž]*", 1961, "M", "CUNI", "prof", "scholar", "3.5.2013", "3.5.2023",
   "Milada Tomková", "Milad[a-ž]*\\s*Tomkov[a-ž]*", 1959, "F", "CUNI", "judr", "judge", "3.5.2013", "3.5.2023",
   "Pavel Rychetský", "Pav[a-ž]*\\s*Rychetsk[a-ž]*", 1943, "M", "CUNI", "judr", "politician", c("6.8.2003", "7.8.2013"), c("6.8.2013", NA),
-  "Jan Svatoň", "Jan[a-ž]*\\s*Svatoň[a-ž]*", 1952, "M", "MUNI", "doc", "scholar", "15.2.2023", NA,
+  "Jan Svatoň", "Jan[a-ž]*\\s*Svato[a-ž]*", 1952, "M", "MUNI", "doc", "scholar", "15.2.2023", NA,
   "Josef Baxa", "Josef[a-ž]*\\s*Bax[a-ž]*", 1959, "M", "CUNI", "judr", "judge", "5.6.2023", NA,
   "Jan Wintr", "Jan[a-ž]*\\s*Wintr[a-ž]*", 1978, "M", "CUNI", "prof", "scholar", "5.6.2023", NA,
   "Daniela Zemanová", "Daniel[a-ž]*\\s*Zeman[a-ž]*", 1971, "F", "CUNI", "mgr", "judge", "5.6.2023", NA,
@@ -61,6 +61,7 @@ data_judges <- tribble(
          education = factor(education, 
                             ordered = TRUE,
                             levels = c("mgr", "judr", "phd", "doc", "prof"))) %>%
+  mutate(judge_initials = paste0(substring(word(judge_name, 1), 1, 1), ".\\s*", substring(word(judge_name, 2), 1, 1), ".")) %>%
   relocate(judge_id)
 
 write_rds(data_judges, file = "../data/US_judges.rds")

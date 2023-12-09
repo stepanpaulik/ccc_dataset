@@ -7,8 +7,7 @@ US_metadata = readr::read_rds("../data/US_metadata.rds") %>%
   select(doc_id, dissenting_opinion)
 US_texts = readr::read_rds("../data/US_texts.rds") %>%
   filter(doc_id %in% US_metadata$doc_id)
-US_judges = readr::read_rds("../data/US_judges.rds") %>%
-  mutate(initials = paste0(substring(word(judge_name, 1), 1, 1), ".\\s*", substring(word(judge_name, 2), 1, 1), "."))
+US_judges = readr::read_rds("../data/US_judges.rds")
 
 # The terms detecting paragraphs starting the dissenting opinion
 dissent_term = paste("Odlišné stanovisko",
@@ -30,7 +29,7 @@ US_dissents = US_texts %>%
   ungroup() %>%
   filter(str_detect(string = paragraph, pattern = dissent_term)) %>% # Up until here the code splits up the texts into paragraphs and filters those which contain the dissent_term strings
   mutate(dissenting_judge = pmap(., function(doc_id, paragraph, ...) US_judges %>%
-                                    filter(str_detect(string = paragraph, pattern = judge_name_lemmatized)|str_detect(string = paragraph, pattern = initials)) %>%
+                                    filter(str_detect(string = paragraph, pattern = judge_name_lemmatized)|str_detect(string = paragraph, pattern = judge_initials)) %>%
                                     select(judge_name, judge_id))) %>% # A parallel map to detect the judge names/initials in the paragraphs and to keep the doc_id as well
   group_by(doc_id) %>%
   mutate(dissenting_group = row_number()) %>% # Finally assign an identifier of whether the dissent was written together or separately
@@ -48,6 +47,15 @@ US_dissents = US_texts %>%
 
 # Save data
 readr::write_rds(US_dissents, file = "../data/US_dissents.rds")
+
+# 
+# # Attempt to figure out whether the dissent is a full dissent or only 
+# positions = US_texts %>%
+#   mutate(positions = map(text, ~str_locate_all(.x, dissent_term) %>% as.data.frame())) %>%
+#   unnest(positions) %>%
+#   mutate(dissents_context = pmap(., function(text, start, end, paragraph, ...) str_sub(text, start = start, end+150)))
+# 
+# positions$dissents_context
 
 
 

@@ -2,6 +2,7 @@ source("scripts/WR_decisions_US.R")
 source("scripts/WR_decisions_NSS.R")
 
 #US
+US_IDs_new = read_rds(file = "../data/US_IDs.rds")
 metadata = read_rds(file = "../data/US_metadata.rds")
 texts = read_rds(file = "../data/US_texts.rds")
 
@@ -9,7 +10,7 @@ US_IDs_new = get_urls(decision_date = as.character(max(US_metadata$date_decision
 c(read_rds(file = "../data/US_IDs.rds"),US_IDs_new) %>%
   write_rds(., file = "../data/US_IDs.rds")
 
-metadata_new = get_metadata(US_IDs_new, metadata_new)
+metadata_new2 = get_metadata(US_IDs_new)
 bind_rows(metadata, metadata_new) %>%
   write_rds(., file = "../data/US_metadata.rds")
 
