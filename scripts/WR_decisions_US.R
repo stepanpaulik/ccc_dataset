@@ -18,7 +18,7 @@ get_urls = function(decision_date = "1.1.1993") {
   remDr$navigate("https://nalus.usoud.cz/Search/Search.aspx")
   remDr$findElement(using = "id", value = "ctl00_MainContent_decidedFrom")$clearElement()
   remDr$findElement(using = "id", value = "ctl00_MainContent_decidedFrom")$sendKeysToElement(list(decision_date))
-
+  
   remDr$findElements("id", "ctl00_MainContent_but_search")[[1]]$clickElement()
   
   html = remDr$getPageSource()[[1]]
@@ -36,7 +36,7 @@ get_urls = function(decision_date = "1.1.1993") {
   pb = progress_bar$new(
     format = "  scraping addresses [:bar] :percent eta: :eta",
     total = numberPages, clear = FALSE, width= 60)
-
+  
   decisions_id = foreach(i = seq(numberPages), .combine = "c") %do% {
     
     html = remDr$getPageSource()[[1]]
@@ -49,7 +49,7 @@ get_urls = function(decision_date = "1.1.1993") {
     
     pb$tick()
     return(output)
-    }
+  }
   return(decisions_id)
   remDr$close()
   rD[["server"]]$stop()
@@ -69,8 +69,8 @@ get_metadata = function(decision_addresses){
   
   metadata = foreach(i = seq_along(decision_addresses), .combine = "bind_rows", .errorhandling = "remove") %do% {
     remDr$navigate(decision_addresses[i] %>% 
-      str_extract("id=[0-9]+") %>% 
-      paste0("https://nalus.usoud.cz/Search/ResultDetail.aspx?", .))
+                     str_extract("id=[0-9]+") %>% 
+                     paste0("https://nalus.usoud.cz/Search/ResultDetail.aspx?", .))
     html = remDr$getPageSource()[[1]] %>% 
       read_html()
     html_metadata = html %>% 
@@ -85,52 +85,58 @@ get_metadata = function(decision_addresses){
       html_text2()
     
     dissenting_judges = html %>%
-      html_elements(xpath = "/html/body/form/div[3]/table/tbody/tr[3]/td/div/table/tbody/tr[21]/td[2]") %>%
+      html_elements(xpath = '//*[@id="recordCardPanel"]/table/tbody/tr[21]/td[2]') %>%
       html_text2() %>%
       str_split(pattern = "\n") %>%
       map(~na_if(.," ")) %>%
       map(.x = ., function(x) paste(word(x, 2), paste(word(x, 1), sep = "\\s")))
     
     applicant = html %>%
-      html_elements(xpath = "/html/body/form/div[3]/table/tbody/tr[3]/td/div/table/tbody/tr[14]/td[2]") %>%
+      html_elements(xpath = '//*[@id="recordCardPanel"]/table/tbody/tr[14]/td[2]') %>%
       html_text2() %>%
       str_split(pattern = "\n") %>%
       map(~na_if(.," "))
     
     concerned_body = html %>%
-      html_elements(xpath = "/html/body/form/div[3]/table/tbody/tr[3]/td/div/table/tbody/tr[15]/td[2]") %>%
+      html_elements(xpath = '//*[@id="recordCardPanel"]/table/tbody/tr[15]/td[2]') %>%
       html_text2() %>%
       str_split(pattern = "\n") %>%
       map(~na_if(.," "))
     
     field_register = html %>%
-      html_elements(xpath = "/html/body/form/div[3]/table/tbody/tr[3]/td/div/table/tbody/tr[23]/td[2]") %>%
+      html_elements(xpath = '//*[@id="recordCardPanel"]/table/tbody/tr[23]/td[2]') %>%
       html_text2() %>%
       str_split(pattern = "\n") %>%
       map(~na_if(.," "))
     
     subject_proceedings = html %>%
-      html_elements(xpath = "/html/body/form/div[3]/table/tbody/tr[3]/td/div/table/tbody/tr[22]/td[2]") %>%
+      html_elements(xpath = '//*[@id="recordCardPanel"]/table/tbody/tr[22]/td[2]') %>%
       html_text2() %>%
       str_split(pattern = "\n") %>%
       map(~na_if(.," "))
     
     concerned_constitutional_acts = html %>%
-      html_elements(xpath = "/html/body/form/div[3]/table/tbody/tr[3]/td/div/table/tbody/tr[19]/td[2]/ul") %>%
+      html_elements(xpath = '//*[@id="recordCardPanel"]/table/tbody/tr[19]/td[2]/ul') %>%
       html_text2() %>%
       str_split(pattern = "\n") %>%
       map(~na_if(.," "))
     if(is_empty(concerned_constitutional_acts)) concerned_constitutional_acts = list(NA)
-
+    
     concerned_acts = html %>%
-      html_elements(xpath = "/html/body/form/div[3]/table/tbody/tr[3]/td/div/table/tbody/tr[20]/td[2]/ul") %>%
+      html_elements(xpath = '//*[@id="recordCardPanel"]/table/tbody/tr[20]/td[2]/ul') %>%
       html_text2() %>%
       str_split(pattern = "\n") %>%
       map(~na_if(.," "))
     if(is_empty(concerned_acts)) concerned_acts = list(NA)
     
     disputed_act = html %>%
-      html_elements(xpath = "/html/body/form/div[3]/table/tbody/tr[3]/td/div/table/tbody/tr[17]/td[2]") %>%
+      html_elements(xpath = '//*[@id="recordCardPanel"]/table/tbody/tr[17]/td[2]') %>%
+      html_text2() %>%
+      str_split(pattern = "\n") %>%
+      map(~na_if(.," "))
+    
+    type_verdict = html %>%
+      html_elements(xpath = '//*[@id="recordCardPanel"]/table/tbody/tr[18]/td[2]') %>%
       html_text2() %>%
       str_split(pattern = "\n") %>%
       map(~na_if(.," "))
@@ -144,7 +150,8 @@ get_metadata = function(decision_addresses){
     output$`Dotčené ústavní zákony a mezinárodní smlouvy` = concerned_constitutional_acts
     output$`Ostatní dotčené předpisy` = concerned_acts
     output$`Napadený akt` = disputed_act
-
+    output$`Typ výroku` = type_verdict
+    
     pb$tick()
     return(output)
   } %>%
@@ -173,18 +180,26 @@ get_metadata = function(decision_addresses){
       url_address = "URL adresa"
     ) %>%
     mutate(across(contains("date"), ~ as.Date(x = ., format = "%d. %m. %Y"))) %>% 
-    mutate(formation = case_when(
-      grepl(":Pl." , doc_id) ~ "Plenum",
-      grepl(":1.US.", doc_id) ~ "First Chamber",
-      grepl(":2.US.", doc_id) ~ "Second Chamber",
-      grepl(":3.US.", doc_id) ~ "Third Chamber",
-      grepl(":4.US.", doc_id) ~ "Fourth Chamber"
-    ),
-    length_proceeding = interval(date_submission, date_decision) %>% as.numeric('days'),
-    outcome = ifelse(grepl("vyhověno", type_verdict), "granted", "rejected"),
-    judge_rapporteur_name = paste0(word(judge_rapporteur_name, 2), " ", word(judge_rapporteur_name, 1)),
-    doc_id = make.unique(doc_id),
-    dissenting_opinion = map(.x = dissenting_opinion, ~na_if(.x, "NA NA"))) %>%
+    mutate(
+      formation = case_when(
+        grepl(":Pl." , doc_id) ~ "Plenum",
+        grepl(":1.US.", doc_id) ~ "First Chamber",
+        grepl(":2.US.", doc_id) ~ "Second Chamber",
+        grepl(":3.US.", doc_id) ~ "Third Chamber",
+        grepl(":4.US.", doc_id) ~ "Fourth Chamber"
+      ),
+      length_proceeding = interval(date_submission, date_decision) %>% as.numeric('days'),
+      outcome = ifelse(grepl("vyhověno", type_verdict), "granted", "rejected"),
+      judge_rapporteur_name = paste0(word(judge_rapporteur_name, 2), " ", word(judge_rapporteur_name, 1)),
+      doc_id = make.unique(doc_id),
+      dissenting_opinion = map(.x = dissenting_opinion, ~na_if(.x, "NA NA")),
+      year_decision = year(date_decision),
+      merits_admissibility = case_when(
+        str_detect(as.character(type_verdict), "vyhověno|zamítnuto") ~ "merits",
+        str_detect(as.character(type_verdict), "procesní") & !str_detect(as.character(type_verdict), "vyhověno|zamítnuto|odmítnutno") ~ "procedural",
+        .default = "admissibility")) %>%
+    relocate(merits_admissibility, .after = type_verdict) %>%
+    relocate(year_decision, .after = date_decision) %>%
     remove_rownames() %>%
     mutate(across(where(is.character), str_squish)) %>%
     mutate(across(where(is.character), ~replace(., . == "NA", NA))) %>%
@@ -192,8 +207,8 @@ get_metadata = function(decision_addresses){
     left_join(., read_rds(file = "../data/US_judges.rds") %>% select(judge_name, judge_id), by = join_by(judge_rapporteur_name == judge_name)) %>%
     rename(judge_rapporteur_id = judge_id) %>%
     relocate(judge_rapporteur_id, .after = judge_rapporteur_name)
-    
-    
+  
+  
   remDr$close()
   rD[["server"]]$stop()
   return(metadata)
@@ -203,7 +218,7 @@ get_metadata = function(decision_addresses){
 get_texts = function(metadata) {
   # Parallel
   myCluster = parallel::makeCluster(parallel::detectCores() - 2, # number of cores to use
-                                      type = "PSOCK")
+                                    type = "PSOCK")
   doParallel::registerDoParallel(myCluster)
   foreach::getDoParRegistered()
   foreach::getDoParWorkers()
@@ -230,7 +245,7 @@ get_texts = function(metadata) {
     )
     return(output)
   } %>% left_join(metadata %>%
-                   select(doc_id, url_address), .) %>%
+                    select(doc_id, url_address), .) %>%
     select(-url_address) %>%
     distinct() 
   return(texts)

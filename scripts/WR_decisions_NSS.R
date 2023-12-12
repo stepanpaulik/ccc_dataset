@@ -9,8 +9,9 @@ library(RSelenium)
 library(progress)
 
 # Parallelise
-library(doMC)
-registerDoMC(cores = parallel::detectCores() - 2)
+myCluster = parallel::makeCluster(parallel::detectCores() - 2, # number of cores to use
+                                  type = "PSOCK")
+doParallel::registerDoParallel(myCluster)
 foreach::getDoParRegistered()
 foreach::getDoParWorkers()
 

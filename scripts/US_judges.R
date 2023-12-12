@@ -1,7 +1,7 @@
 library(tidyverse)
 
 data_judges <- tribble(
-  ~judge_name, ~judge_name_lemmatized, ~yob, ~gender, ~uni, ~education, ~profession, ~start, ~end,
+  ~judge_name, ~judge_name_lemmatized, ~judge_yob, ~judge_gender, ~judge_uni, ~judge_degree, ~judge_profession, ~judge_term_start, ~judge_term_end,
   "Iva Brožová", "Iv[a-ž]*\\s*Brožov[a-ž]*", 1951, "F", "MUNI", "judr", "judge", "15.7.1993", "8.12.1999",
   "Vojtěch Cepl", "Vojtěch[a-ž]*\\s*Cepl[a-ž]*", 1938, "M", "CUNI", "prof", "scholar", "15.7.1993", "15.7.2003",
   "Vladimír Čermák", "Vladimír[a-ž]*\\s*Čermák[a-ž]*", 1929, "M", "CUNI", "prof", "scholar", "15.7.1993", "15.7.2003",
@@ -19,7 +19,7 @@ data_judges <- tribble(
   "František Duchoň", "Františ[a-ž]*\\s*Ducho[a-ž]*", 1946, "M", "CUNI", "judr", "judge", "6.6.2002", "6.6.2012",
   "Dagmar Lastovecká", "Dagmar Lastoveck[a-ž]*", 1951, "F", "MUNI", "judr", "politician", "29.8.2003", "29.8.2013",
   "Pavel Holländer", "Pav[a-ž]*\\s*Holländer[a-ž]*", 1953, "M", "KOM", "prof", "scholar", "15.7.1993", "6.8.2013",
-  "Vojen Güttler", "Vojen[a-ž]*\\s*G(ü|ű|u|ú)t(|t)ler[a-ž]*", 1934, "M", "CUNI", "judr", "politician", "15.7.1993", "6.8.2013",
+  "Vojen Güttler", "Vojen[a-ž]*\\s*G(ü|ű|u|ú)t(|t)ler[a-ž]*", 1934, "M", "CUNI", "judr", "politician", c("15.7.1993", "6.8.2003"), c("15.7.2003", "6.8.2013"),
   "Miloslav Výborný", "Miloslav[a-ž]*\\s*Výborn[a-ž]*", 1952, "M", "CUNI", "judr", "politician", "3.6.2003", "3.6.2013",
   "Jiří Mucha", "Jiří[a-ž]*\\s*Much[a-ž]*", 1946, "M", "CUNI", "judr", "lawyer", "28.1.2003", "28.1.2013",
   "Jiří Nykodým", "Jiří[a-ž]*\\s*Nykodým[a-ž]*", 1945, "M", "CUNI", "judr", "lawyer", "17.12.2003", "17.12.2013",
@@ -51,18 +51,28 @@ data_judges <- tribble(
   "Kateřina Ronovská", "Kate[a-ž]*\\s*Ronovs[a-ž]*", 1974, "F", "MUNI", "prof", "scholar", "4.8.2023", NA,
   "Veronika Křesťanová", "Veroni[a-ž]*\\s*Křesťan[a-ž]*", 1969, "F", "CUNI", "phd", "judge", "8.8.2023", NA
 ) %>%
-  unnest(c(start, end)) %>%
-  mutate(across(c(start,end), ~as_date(x = ., format = "%d.%m.%Y"))) %>%
-  nest(mandate = c(start,end)) %>%
+  unnest(c(judge_term_start, judge_term_end)) %>%
+  mutate(across(c(judge_term_start,judge_term_end), ~as_date(x = ., format = "%d.%m.%Y"))) %>%
+  mutate(judge_term_court = case_when(year(judge_term_start) < 1995 ~ "1st",
+                               year(judge_term_start) < 2010 ~ "2nd",
+                               year(judge_term_start) < 2018 ~ "3rd",
+                               year(judge_term_start) > 2019 ~ "4th"),
+         judge_term_president = case_when(judge_term_court == "1st" ~ "Václav Havel",
+                                          judge_term_court == "2nd" ~ "Václav Klaus",
+                                          judge_term_court == "3rd" ~ "Miloš Zeman",
+                                          judge_term_court == "4th" ~ "Petr Pavel")) %>%
+  nest(term = c(judge_term_start,judge_term_end, judge_term_court, judge_term_president)) %>%
   rowwise() %>%
   mutate(judge_id = paste0("J:",cur_group_id()),
-         gender = factor(gender),
-         uni = factor(uni),
-         education = factor(education, 
+         judge_gender = factor(judge_gender),
+         judge_uni = factor(judge_uni),
+         judge_degree = factor(judge_degree, 
                             ordered = TRUE,
                             levels = c("mgr", "judr", "phd", "doc", "prof"))) %>%
-  mutate(judge_initials = paste0(substring(word(judge_name, 1), 1, 1), ".\\s*", substring(word(judge_name, 2), 1, 1), ".")) %>%
-  relocate(judge_id)
+  ungroup() %>%
+  relocate(judge_id) %>%
+  mutate(judge_initials = paste0(substring(word(judge_name, 1), 1, 1), ".\\s*", substring(word(judge_name, 2), 1, 1), "."))
+  
 
 write_rds(data_judges, file = "../data/US_judges.rds")
 

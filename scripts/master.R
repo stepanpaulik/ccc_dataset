@@ -1,5 +1,5 @@
 source("scripts/WR_decisions_US.R")
-source("scripts/WR_decisions_NSS.R")
+# source("scripts/WR_decisions_NSS.R")
 
 #US
 US_IDs_new = read_rds(file = "../data/US_IDs.rds")
@@ -10,7 +10,7 @@ US_IDs_new = get_urls(decision_date = as.character(max(US_metadata$date_decision
 c(read_rds(file = "../data/US_IDs.rds"),US_IDs_new) %>%
   write_rds(., file = "../data/US_IDs.rds")
 
-metadata_new2 = get_metadata(US_IDs_new)
+metadata_new2 = get_metadata(US_IDs_new[1:50])
 bind_rows(metadata, metadata_new) %>%
   write_rds(., file = "../data/US_metadata.rds")
 
@@ -46,6 +46,8 @@ get_applied_judgments(NSS_IDs = NSS_IDs_new) %>%
 get_applied_laws(NSS_IDs = NSS_IDs_new) %>%
   bind_rows(read_rds("../data/NSS_applied_laws.rds"),.) %>%
   write_rds(., file = "../data/NSS_IDs.rds")
+
+metadata %>%
 
 
 

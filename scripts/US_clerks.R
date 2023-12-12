@@ -57,18 +57,18 @@ get_clerks = function(){
            clerk_degree = case_when(
              str_detect(clerk_name_full, "Prof.|David Kosař") ~ "prof",
              str_detect(clerk_name_full, "doc.") ~ "doc",
-             str_detect(clerk_name_full, "Ph.\\s?D.?|Dr.|Martin Kopa") ~ "phd",
+             str_detect(clerk_name_full, "Ph.\\s?D.?|Martin Kopa") ~ "phd",
              str_detect(clerk_name_full, "JUDr.") ~ "judr",
-             str_detect(clerk_name_full, "Mgr.|prom. práv.") ~ "masters",
+             str_detect(clerk_name_full, "Mgr.|prom. práv.") ~ "mgr",
              .default = NA
            ),
            clerk_abroad = ifelse(str_detect(clerk_name_full, "LL.\\s?M.|MJur|M.\\s?Jur.|M.\\s?St.|M.\\s?Phil."), 1, 0))
   return(data)
 }
 
-data = get_clerks()
-write_rds(data, "../data/US_clerks.rds")
-data = read_rds("../data/US_clerks.rds")
+data_clerks = get_clerks()
+write_rds(data_clerks, "../data/US_clerks.rds")
+
 
 
 

@@ -4,12 +4,13 @@ output:
     keep_tex: true
     toc: true
     number_section: true
-title: "The Czech Constitutional Court database"
+    fig_caption: yes
+title: "The Czech Constitutional Court dataset"
 author:
 - name: Štěpán Paulík
   affiliation: Humboldt Universität zu Berlin, Institut für Sozialwissenschaften, stepan.paulik.1@hu-berlin.de
 thanks: "Replication files are available on the author's Github account (https://github.com/stepanpaulik/apex_courts_dataset/). **Current version**: `r format(Sys.time(), '%B %d, %Y')`"
-abstract: ""
+abstract: "Building high quality datasets can enable the European empirical legal research to catch up with the US especially. While on the one hand,  institutional features make the civil law harder to research empirically, on the other, there is still plenty of room for creativity and methodological rigor. The present article introduces a dataset on the Czech Constitutional Court while aiming at bridging the gap. To this end, the dataset contains rich information on the background of the cases, background of the justices, their clerk teams as well as the complete text corpus of all decisions until the end of 2023. The dataset adheres to the principles of tidy data as well as to the principles of accessibility, reliability, foundationality, and capacity to address real-world problems."
 date: "`r format(Sys.time(), '%B %d, %Y')`"   
 geometry: margin=1in
 #sansfont: Linux Biolinum O
@@ -28,41 +29,81 @@ link-citations: true
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(echo = FALSE)
+load(file = "descriptive_statistics.RData")
+library(patchwork)
+library(tidyverse); theme_set(theme_minimal())
+load(file = "../../court_dissents/models/models_fitted_coalition_panel.RData")
 ```
 
-
-
 # Introduction
-Although it has been traditionally espoused that there has been a divide between the empirically oriented US legal scholarship, stemming from a different perception of the role of courts and judges, and the rest of the world [@hamannGermanFederalCourts2019, p. 416]. Therein the judges have been viewed and empirically researched as political [@carrubbaWhoControlsContent2012; @clarkLocatingSupremeCourt2010; @epsteinChoicesJusticesMake1997; @lauderdaleScalingPoliticallyMeaningful2014; @sunsteinAreJudgesPolitical2006] or strategic [@cameronChapterWhatJudges2017; @clarkEstimatingEffectLeisure2018; @epsteinWhyWhenJudges2011; @epsteinStrategicRevolutionJudicial2000; @kornhauserModelingCollegialCourts1992; @kornhauserModelingCollegialCourts1992a; @posnerWhatJudgesJustices1993; @posnerHowJudgesThink2010; @rousseyOverburdenedJudges2018] actors. 
+Although it has been traditionally espoused that there has been a divide between the empirically oriented US legal scholarship, stemming from a different perception of the role of courts and judges, and the rest of the world [@hamannGermanFederalCourts2019, p. 416]. Therein the judges have been viewed and empirically researched as political [@carrubbaWhoControlsContent2012; @clarkLocatingSupremeCourt2010; @epsteinChoicesJusticesMake1997; @lauderdaleScalingPoliticallyMeaningful2014; @sunsteinAreJudgesPolitical2006] or strategic [@cameronChapterWhatJudges2017; @clarkEstimatingEffectLeisure2018; @epsteinWhyWhenJudges2011; @epsteinStrategicRevolutionJudicial2000; @kornhauserModelingCollegialCourts1992; @kornhauserModelingCollegialCourts1992a; @posnerWhatJudgesJustices1993; @posnerHowJudgesThink2010; @rousseyOverburdenedJudges2018] actors.
 
 In contrast to, especially in European legal systems, such as the one at hand - Czechia, judges have been perceived as "proclaimers of law" and the law handed down by them [@hamannGermanFederalCourts2019, p. 417]. Such a view had hindered empirical legal research in Europe. The lack of empirical legal research could also be partially blamed on lack of high quality data, a prerequisite for any quantitative empirical research. At least so the story goes until recently. The interest in empirical legal studies has picked up in the last years across the whole continent, including studies on plethora of topics within Germany [@arnoldScalingCourtDecisions2023; @coupetteQuantitativeRechtswissenschaft2018; @engstEinflussParteinaheAuf2017; @wittigOccurrenceSeparateOpinions2016], Spain and Portugal [@hanrettyDissentIberiaIdeal2012], the UK [@hanrettyCourtSpecialistsJudicial2020] or the EU institutions [@bielenBacklogsLitigationRates2018; @brekkeThatOrderHow2023; @fjelstulHowChamberSystem2023; @fjelstulEvolutionEuropeanUnion2019; @fjelstulTimelyAdministrationJustice2022].
 
-Publications of new high quality publicly accessible data have gone hand in hand with these developments. To the many released comprehensive data sets in the recent years belong namely the Iuropa project's CJEU database [@brekkeCJEUDatabasePlatform2023], the German Federal courts [@hamannGermanFederalCourts2019] as well as the Constitutional Court [@engstConstitutionalCourtDatabaseForthcoming]
+Publications of new high quality publicly accessible data have gone hand in hand with these developments. To the many released comprehensive data sets in the recent years belong namely the Iuropa project's CJEU database [@brekkeCJEUDatabasePlatform2023], the German Federal courts [@hamannGermanFederalCourts2019] as well as the Constitutional Court [@engstConstitutionalCourtDatabaseForthcoming].
 
 To the author's best knowledge, there have been solitary attempts go gather data in some shape or form in the Czech context [@harastaAnnotatedCorpusCzech2018; @novotnaCzechCourtDecisions2019], mainly thanks to the Institute of Law and Technology based in Brno, as well as isolated attempts to conduct quantitative methods or research employing natural language processing and alike methods [@chmelZpravodajoveSenatyVliv2017; @eliasekAutomatickaKlasifikaceVyznamovych2020; @harastaCitacniAnalyzaJudikatury2021; @vartazaryanSitOvaAnalyza2022]. Unfortunately, the former group does not always adhere to the principles of of high-quality infrastructure, namely the principle of foundationality, espoused by @weinshallDevelopingHighQualityData2020, p. 424, the latter group did not publish data/code at all. The output of the law and economics/criminology team centered around Jakub Drápal and Libor Dušek stands out as the only systemic effort to conduct replicable quantitative legal research in Czechia [@drapalSentencingCzechRepublic2021; @drapalPunitiveNegligenceMyths2023; @drapalUsingLargeLanguage2023; @drapalLawAuthorityHow2023; @drapalWhatValueJudicial2023; @drapalSentencingDecisionsQuantity2023]. The data they are working with currently are still unpublished.
 
-Therefore, the effort to put together and to publish a high-quality dataset on the CCC is more than warranted. The article proceeds as follow. In the section X, I introduce the CCC, namely its compositions, its internal organization and its powers. In the section X, I introduce the CCC dataset. Therein, I briefly discuss its structure, describe the variables. The section X then discusses the adherence of the CCC dataset to five principles of a high-quality dataset, including its relevance for research, as well as to the adherence of the tidy data principles. The last section concludes.
+Therefore, the effort to put together and to publish a high-quality dataset on the CCC is more than warranted. The article proceeds as follow. In the section X, I introduce the CCC, namely its compositions, its internal organization and its powers. In the section X, I introduce the CCC dataset. Therein, I briefly discuss its structure, describe the variables. The section X then discusses the adherence of the CCC dataset to four principles of a high-quality dataset, including its relevance for research, as well as to the adherence of the tidy data principles. The last section concludes.
 
-# A brief introduction of the CCC
-The CCC consists of fifteen justices, out of which one is the president of the CCC, two are vice presidents and twelve associate justices [following the terminology of @kosarConstitutionalCourtCzechia2020]. These fifteen justices are appointed by the president of the Czech republic upon approval of the Senate. The justices enjoy 10 years terms with the possibility of re-election. The three CCC functionaries are unilaterally appointed by the Czech president.
+# A brief primer on the CCC
+The CCC consists of fifteen justices, out of which one is the president of the CCC, two are vice presidents and twelve associate justices [following the terminology of @kosarConstitutionalCourtCzechia2020]. These fifteen justices are appointed by the president of the Czech republic upon approval of the Senate. The justices enjoy 10 years terms with the possibility of re-election; there is no limit on the times a justice can be re-elected. The three CCC functionaries are unilaterally appointed by the Czech president.
 
 Regarding the competences, the CCC is a typical Kelsenian court inspired mainly by the German Federal Constitutional Court. The CCC enjoys the power of abstract constitutional review, including constitutional amendments. The abstract review procedure is initiated by political actors (for example MPs) and usually concerns political issues. Moreover, an ordinary court can initiate a concrete review procedure, if that court reaches the conclusion that a legal norm upon which its decision depends is not compatible with the constitution. Individuals can also lodge constitutional complaints before the CCC. Lastly, the CCC can also resolve separation-of-powers disputes, it can *ex ante* review international treaties, decide on impeachment of the president of the republic, and it has additional ancillary powers [for a complete overview, see @kosarConstitutionalCourtCzechia2020].
 
-The CCC is an example of a collegial court. From the perspective of the inner, the CCC can decide in four bodies: (1) individual justices, (2) 3-member chambers (*senáty*), (3) the plenum (*plénum*), and (4) special disciplinary chambers. However, the 3-member chambers and the plenum play a crucial role. The plenum is composed of all justices, whereas the four 3-member chambers are composed of the associate justices. Neither the president of the CCC or her vice-presidents are permanents members of the 3-member chambers. Until 2016, the composition of the chambers was static. However, in 2016, a system of regular 2-yearly rotations was introduced, wherein the president of the chamber rotates to a different every 2 years. I am of the view that such a institutional change opens up potential for quasi-experimental research similar to the @gschwendAreJudgesPolitical2016 study utilizing judge absences within the 3-member panels of the German federal constitutional court.
+The CCC is an example of a collegial court. From the perspective of the inner, the CCC can decide in four bodies: (1) individual justices, (2) 3-member chambers (*senáty*), (3) the plenum (*plénum*), and (4) special disciplinary chambers. However, the 3-member chambers and the plenum play a crucial role. The plenum is composed of all justices, whereas the four 3-member chambers are composed of the associate justices. Neither the president of the CCC or her vice-presidents are permanents members of the 3-member chambers. Until 2016, the composition of the chambers was static. However, in 2016, a system of regular 2-yearly rotations was introduced, wherein the president of the chamber rotates to a different every 2 years. I am of the view that such a institutional change opens up potential for quasi-experimental research similar to the @gschwendAreJudgesPolitical2016 study utilizing judge absences within the 3-member panels of the German federal constitutional court. In general, the plenum is responsible for the abstract review, whereas the 3-member chambers are responsible for the individual constitutional complaints.
 
 In the chamber proceedings, decisions on admissibility must be unanimous, decisions on merits need not be, therefore, two votes are necessary.^[Which  enables the attachment of separate opinions] In the plenum, the general voting quorum is a simple majority and the plenum is quorate when there are ten justices present. The abstract review is one of the exceptions that sets the quorum higher, more specifically to 9 votes.
 
-A judge rapporteur plays a crucial role. Each case of the CCC gets assigned to a judge raporteur. The assignement is regulated by a case allocation plan (the original term is *rozvrh práce*, which is usually translated as a *work schedule*, however, I borrow the term *case allocation plan* from @hamannGermanFederalCourts2019, p. 673) She is tasked with drafting the opinion, about which the body then votes. The president of the CCC (in plenary cases) or the president of the chamber (in chamber cases) may re-assign a case to a different judge rapporteur if the draft opinion by the original judge rapporteur did not receive a majority of votes. Unfortunately, the CCC does not keep track of these reassignments.^[I unsuccessfully attempted to retrieve the information with the right to information]
+A judge rapporteur plays a crucial role [@chmelZpravodajoveSenatyVliv2017; @horenovskyProcessMakingConstitutional2015 study the large influence of the judge rapporteurs at the CCC]. Each case of the CCC gets assigned to a judge raporteur. The assignement is regulated by a case allocation plan (the original term is *rozvrh práce*, which is usually translated as a *work schedule*, however, I borrow the term *case allocation plan* from @hamannGermanFederalCourts2019, p. 673) She is tasked with drafting the opinion, about which the body then votes. The president of the CCC (in plenary cases) or the president of the chamber (in chamber cases) may re-assign a case to a different judge rapporteur if the draft opinion by the original judge rapporteur did not receive a majority of votes. Unfortunately, the CCC does not keep track of these reassignments.^[I unsuccessfully attempted to retrieve the information with the right to information]
 
 The CCC allows for separate opinions. They can take two forms: dissenting or concurring opinions. Each justice has the right to author a separate opinion, which then gets published with the CCC decision. It follows that not every anti-majority vote implies a separate opinion, it is up to the justices to decide whether they want to attach a separate opinion with their vote.
 
 It may be concluded that the CCC takes after the american model of selection of justices, with the president of the republic and the upper chamber being in the spotlight, but is also a typical example of a Kelsenian specialised court with concentrated constitutional review. The CCC stands out in how powerful its constitutional review is, having attracted the power to review even constitutional amendments, thus, the CCC is a powerful player in the Czech political system. The internal organization of the CCC gives a lot of room for strategic considerations of its justices. Not only due to the similarities with the constitutional adjudication powerhouses but also due to its own idiosyncrasies, I believe the CCC to be a worthy object of empirical legal research.
 
-# Principles guiding the creation of the dataset
-The Czech Constitutional Court database is a "multi-user dataset" created in a principled manner. @epsteinIntroductionEmpiricalLegal2014, p. 14 define a multi-user dataset as a dataset created with the purpose of that "[r]ather than collect data to answer particular research questions [...] the idea is to amass a dataset so rich in content that mzu ultiple users, even those with distinct projects, can draw on it."
+# Description of the CCC dataset
+## Structure and Case inclusion
+The CCC dataset includes all publicly available CCC decisions from its foundation until the end of 2023, that is **XXX** decisions. All the data is first scraped from the official CCC website [Nalus](https://nalus.usoud.cz/Search/Search.aspx). The web scraping is followed by intense data cleaning and transformation processes.
 
-Accordingly, the Czech Constitutional Court dataset upholds the principles of a high-quality dataset espoused by @weinshallDevelopingHighQualityData2020, p. 424, namely that the database is (1) capable of addressing real-world problems, (2) accessible, (3) reproducible and reliable, (4) sustainable and updatable, and (5) foundational. The data structure also follows the principles of tidy data. According to @wickhamTidyData2014, tidy data are data with such a tabular^[i.e. data with a column and row structure] structure that
+The structure of the CCC dataset can, on a very basic level, be divided into case-level variables and justice-level variables. As I explain bellow such a structure does not imply that on the case-level, for example, every row is a case. The case-level (as well as the justice-level) variables have been split up into multiple tables for those variables that would otherwise imply more information within one cell, had the justice level structure been kept. For example, the composition of the court is a case-level variable - each case has certain composition of three or fifteen judges - however, in order to keep the one observation (case) per row structure, one would have to store multiple information in one cell (names of three or fifteen justices). Therefore, while I so flatten the date for the "master" table, for each variable there is also a separate table variable, in which the level is the variable-case-level.
+## Case-Level Variables
+The case-level variables contain information on each and every case that the CCC has decided. There are variables uniquely identifying the cases (ECLI renamed to doc_id or case_id), the dates at which they were lodged and decided (the length of the proceedings has been added). 
+
+The procedural variables concern whether the decision was a *usnesení* or *nález* (roughly speaking the difference is between a decision on merits and on admissibility), what type of procedure the decision was made in (abstract review, constitutional complaint etc.), or what type of decision it was (which kinds of admissibility etc.).
+
+```{r caseload, fig.cap = "We can see the developing caseload overtime with the colors refering to the type of the decision. We can observe that while the caseload of the CCC has grown, the proportions between the admissibility and merits decisions have not changed, despite the efforts of the CCC to administer more decisions more quickly with the decisions on admissibility (especially the ill-foundness)."}
+caseload
+```
+
+
+The background variables concern among others parties before the CCC, which are identified (a private person, a legal person etc.), the body whose decision was under review (typically which court), the type of decision being review and alike. Moreover, the data on the subject proceedings (relates to the area of constitutional law) and field register (the pertaining area of general law such as criminal-proof, civil damages, or administrative proceedings) variables are included. Such variables are especially useful for controlling for specific features of cases that may have confounding potential.
+
+Lastly, the dataset always contains the full text of the decision, which I believe makes it to stand out. A number of variables have already been mined from these texts. To name two, the compositions of the chambers have been mined using various regex variations of the justices' names and dissenting opinions as well as their relationships to each other (whether more judges signed one dissenting opinion or whether they dissented separately) have been mined from the texts.
+
+## Justice-Level Variables
+Justice-level variables contain information on the individual justices. Most of the information was collected manually from the official profile of the justices at the CCC website.
+
+A lot of information about the justices can be learned from the case-level: which justice was the judge rapporteur in any given case, which justice sat on which case, or in which case and with whom did any given justice dissent. The purely justice-level variables concern two main groups of information: biographic and about their clerk team.
+
+Regarding the former, the CCC dataset includes information on the terms of the justices, their age and gender, their *alma mater*, highest reached degree, as titles play an especially important "ceremonial" role in the Czech legal environment, their professional background before they became a judge, or information on whether the justice ran for a reelection.
+
+```{r age, fig.cap = "The density plot of the age of a justice at the start of their term is bimodal. One peak occurs roughly in the justices' early-fifties, which is quite reasonable, whereas the other occurs in their early-sixties. That is quite late given that the retirement age of ordinary judges is sixty-five and given that the term of CCC justices is 10 years long. Therefore, many justices are serving well into their seventies."}
+```
+
+
+We can, for example observe, that although the CCC has a seat in Brno, most of its justices have graduated at the Prague Charles University. One could, for example, study whether the identification with the CCC differs among the justices based on their *alma mater*, as the judges from Prague must have either relocated to a new city or commuted to their work^[Based on a personal insight, there is a number of examples of the later approach, namely of justices that never identified themselves with Brno and that would commute to the CCC only for a day or two per week.]
+
+```{r alma, fig.cap = "The alma mater among the CCC justices."}
+alma_mater
+```
+
+Secondly, the dataset also includes information on all 218 clerks that have served in the CCC's history. To this end, I believe inclusion of such an information makes the dataset quite unique and opens up a lot of avenues for research. The information on the clerks contains under which judge they deserved, what was their term, what is their gender, education, or whether they studied abroad. 
+
+# Principles guiding the CCC dataset
+The Czech Constitutional Court database is a "multi-user dataset" created in a principled manner. @epsteinIntroductionEmpiricalLegal2014, p. 14 define a multi-user dataset as a dataset created with the purpose of that "[r]ather than collect data to answer particular research questions [...] the idea is to amass a dataset so rich in content that multiple users, even those with distinct projects, can draw on it."
+
+Accordingly, the Czech Constitutional Court dataset upholds the principles of a high-quality dataset espoused by @weinshallDevelopingHighQualityData2020, p. 424, namely that the database is (1) capable of addressing real-world problems, (2) accessible, (3) reproducible and reliable, and (4) foundational.^[I decided to skip the principle of sustainability as I do not see the benefit of discussing it separately, most of its issues are answered in the other sections] The data structure also follows the principles of tidy data. According to @wickhamTidyData2014, tidy data are data with such a tabular^[i.e. data with a column and row structure] structure that
 
 (1) every column is a variable,
 (2) every row is an observation,
@@ -71,20 +112,69 @@ Accordingly, the Czech Constitutional Court dataset upholds the principles of a 
 Although the dataset contains one all-encompassing "master" table, some of the variables (for example concerned laws or applicant) contain multiple values nested in one cell. The reason is simple: the master table contains observations on the case-level, whereas whenever a variable contains more values per case, the data structure would then require a variable-case level. For this purpose, the dataset is also split up into multiple smaller tables on a variable-case level (for example dissenting judge-case level or concerned acts-case level), which can then be joined together relational database SQL-style in the form of unique keys.
 
 ## Capacity to Address Real-World Problems
-As @kosarConstitutionalCourtCzechia2020 argue, the clerks at the CCC play an especially vital and unappreciated role: "The initial idea of the legislature was to grant each Justice one law clerk who would take administrative burdens unrelated to substantive decision-making off
+In the words of @weinshallDevelopingHighQualityData2020, "By definition, data infrastructure should promote innovation, inventions, and insights. Although no product can guarantee these ends, infrastructure aimed at solving (or developing implications for) real-world problems increases the odds of success." With the dataset at hand I hope to enable data- and evidence- based research on the CCC, which has so far not been an object of thorough empirical legal research. I now present two examples that corroborate the capacity of the CCC dataset to address real-world problems and research concerns.
+
+### Clerks
+The first brief example concerns clerks of justices. @kosarConstitutionalCourtCzechia2020 argue that the clerks at the CCC play an especially vital and unappreciated role: "The initial idea of the legislature was to grant each Justice one law clerk who would take administrative burdens unrelated to substantive decision-making off
 the Justices’ shoulders. Yet the reality is different. First, due to the growing caseload, the number of law clerks per Justice increased gradually; today, each Justice has three law clerks. Moreover, law clerks de facto prepare drafts of most CCC judgments and decisions, and the real administrative burden has been ‘outsourced’ to secretaries of the cabinets." The difficulty of studying the role of clerks was highlighted in the @clarkEstimatingEffectLeisure2018 study on the effects of leisure on judicial performance.
 
-The CCC dataset contains the information on all clerks that have served on the CCC, including their gender, education, beginning and end of mandates. Such an information can serve as a basis for any research on the role of clerks. For the purpose of showing the capability of solving real-world problems, I present descriptive statistics.
+The CCC dataset contains the information on all clerks that have served on the CCC, including their gender, education, beginning and end of mandates. Such an information can serve as a basis for any research on the role of clerks. For the purpose of showing the capability of solving real-world problems, I present descriptive statistics. We can for example compare the gender distribution of clerks against that of judges. While we observe almost complete gender equality among the clerks 
+
+```{r gender1, fig.cap = paste("Comparison of proportions of genders among justices (on the left) and among their clerks (on the right). The X axis of the left bar chart signifies the terms of the CCC, which roughly correspond to decades.")}
+gender_judges + gender_clerks
+```
+
+We can further inquire whether male or female justice have different preferences regarding their clerks. Surprisingly, given the theoretical expectations, the judges at the CCC seem to prefer clerks equally whereas female judges seem to hire more male clerks.
+
+```{r gender2, fig.cap = "The different gender composition of the clerk teams facetted by the gender of the hiring justice."}
+gender_clerks_judges
+```
+
+### Coalitions in the plenum
+The research on judicial coalitions at the CCC has revealed that the third period of CCC between 2013-2023 is rather polarized and that there are two big coalitions of judges that clash against each other [@chmelCoOvlivnujeUstavni2021; @smekalMimopravniVlivyNa2021; @vartazaryanSitOvaAnalyza2022]. The articles rely primarily on network analysis of the dissenting opinions in the plenary proceedings and make inferential conclusions based on a rather superficial descriptive analysis. I predict that should the relationship from the plenum indeed exist, they should also carry over to the 3-member panel hearings. The hypothesis is that panels composed of judges from both coalitions will be more likely to show disagreement in the form of dissenting opinion; i.e. whether having a 3-member panel composed of members of both judicial coalitions increases judges' likelihood of a dissent.. If this shows to be true, it would provide further evidence to the two coalition theory of the CCC [@chmelCoOvlivnujeUstavni2021; @vartazaryanSitOvaAnalyza2022; @smekalMimopravniVlivyNa2021].
+
+I very concisely tested whether the presumable existence of the coalitions carries over to and has any effect on the dissenting behavior of judges in the panels building a very simple Bayesian binomial logistic regression. I manually annotated which justices of the 3rd term were from which coalition, thus further proving that the CCC dataset adheres to the below discussed principle of foundationality. The model predicts the likelihood of a dissenting opinion occuring in the 3-member panel proceedings depending on whether the panel is fully composed of members from the 1st or 2nd coalition and on the composition being a mix of one minority justice from one coalition and the remaining two from the other.
+
+```{r coalitions, fig.cap="The plot shows 4 posterior credible intervals at 50 % and 95 % for 4 different parameters - the full_coal refer to the parameter of having a panel fully composed of either coalition, the mixed_coal parameters show the parameter of having either the coalition 1 or 2 member as a minority in a 3-member panel."}
+mcmc_areas_coalition_panel +
+  labs(title = NULL)
+```
+
+This simplified model reveals that there does not seem to be any increase in disagreement despite the theoretical predictions drawn from the Czech legal scholarship.
+
+### Natural language processing
+The last potential usage of the CCC dataset that immediately springs into mind is the application of various natural language processing methods. For example, one could replicate the research on vagueness of language of the CCC [@sternbergNoPublicNo2019] or measure the readibility of the CCC decisions [@crossleyMovingClassicReadability2019; @fixEffectOpinionReadability2020] and link those measures to interesting research question. For example, do the better readable CCC decisions get cited by the CCC more than the less readable? Does the CCC use vague language in certain areas/for certain reasons more than for others?
+
+Practically every dataset introduction article contains a disclaimer that the goal of presenting these simplified models is not to draw any inference but rather to show the potential of using the dataset "to develop real-world implications and contribute to public and academic discourse on pressing legal-political issues". [@weinshallDevelopingHighQualityData2020, p. 427] This section has attempted to do exactly that.
 
 ## Accessibility
+The principle of accessibility demands that "in the creation of high-quality infrastructure is that members of the community should be able to access it with no barriers to entry or use." [@weinshallDevelopingHighQualityData2020, p. 427]
+
+As I have shown in the introduction with specific examples, not all research is reproducible and not all data are made available. That goes against the principle of accessibility. Weinshall and Epstein refer to studies, according to which majority of psychological research data stays under embargo or never gets released at all [@houtkoopDataSharingPsychology2018] or that only minority of papers published in journals requiring a data availability statement actually do publish their data [@federerDataSharingPLOS2018]. There is no need to prove why such a practice is wrong, why it hinders reproducibility of science.
+
+Following the principle of accessibility, the Czech Constitutional Court Dataset is freely and publicly available in full, with the handbook as well as this article attached to it. **That data are downloadable at** []^[add link later] The data are published out of my own accord, the publication is not funded by any grant or national science foundation.^[The lack of funds, I am afraid, also hinders my ability to produce a full-fledged query-able website like that of many other amazing projects]
 
 ## Reliability and Reproducibility
+@weinshallDevelopingHighQualityData2020 define the principles as follows: "Reproducibility means that users and developers alike must understand
+how to duplicate the data housed in the infrastructure. Reliability is related: it is the extent to which encoded data can be replicated, producing the same value using the same standard for the same subject at the same time, regardless of who or what is doing the replicating" The heart of the matter of reliability and reproducibility is internal consistency of the dataset, not necessarily its external validity.
 
-## Sustainability
+The data must have been reliably generated. In my case, I did not narrow down the selection of cases - all cases of the CCC that have been made publicly available from its history have been web scraped from its website, including all the available information as well as the texts of the decisions. Reproducibility also demands that anyone with sufficient skill should be able to reproduce the dataset on their own based on the provided information. All the code has been made available on Github, the code is written in a clean manner and is well commented.
+
+Bound to both principles is the issue of coding the variables. To this end, the amount of human input has been minimized. Vast majority of the information provided has either been directly (or with minimal input) collected from the CCC website or it has been automated to the maximal possible extent (including the full information on the clerks). Only the biographic information on judges has been imputed via human input using the official profiles of justices at the CCC website as well as Wikipedia as sources. The rest is product of the published code. 
+
+Therefore, the CCC dataset is highly reliable and easily reproducible, that is at least with enough time to run the whole web scraping process.
 
 ## Foundational
+The principle that a dataset be foundational requires that it should serve "as a foundation upon which researchers can build by adding content, backdating, updating, or otherwise adapting it to their own needs; it should not be the be-all, end-all." In other words, the principle promotes a generally usable data over one-off solutions to particular research questions.
+
+The CCC dataset is quite clearly foundational. The dataset includes comprehensive background data on each and every case, bibliographic data on the justices, quite unique data on the clerks, as well as a full text corpus of all the decisions.
+
+The CCC dataset can thus serve researches interested in judicial behavior, in institutional setups, or anyone wanting to leverage natural language processing on large amount of text data. I am currently working on a paper exploring the citations of CCC caselaw to each other to estimate the location of cases in the doctrine space, as well as on paper leveraging machine learning classification algorithm on the text corpus to study dissenting behavior of the CCC justices. Therefore, it has already proven foundational, notwithstanding the research question I have come up with.
 
 # Conclusion
+Building high quality datasets can enable the European empirical legal research to catch up with the US especially. While on the one hand, institutional features make the civil law harder to research empirically, on the other, there is still plenty of room for creativity and methodological rigor.
+
+The present article introduces a dataset on the Czech Constitutional Court while aiming at bridging the gap. To this end, the dataset contains rich information on the background of the cases, background of the justices, their clerk teams as well as the complete text corpus of all decisions until the end of 2023. The dataset adheres to the principles of tidy data as well as to the principles of accessibility, reliability, foundationality, and capacity to address real-world problems. The dataset, in my view, enables research on the decision-making of the judges, examples include their dissenting behavior, strategic acting, or the influence of their clerk teams, on the institutional set up of the CCC, examples include the introduction of rotations or the various ways to expedite the CCC caseload, and lastly on the texts of the decisions themselves, for example studying various linguistic features of the decisions such as readability or vagueness.
 
 \vspace{30pt}
 
