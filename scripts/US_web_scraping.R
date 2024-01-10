@@ -7,11 +7,12 @@ library(xml2)
 library(progress)
 library(lubridate)
 library(parallel)
+library(furrr)
 
 
 get_urls = function(decision_date = "1.1.1993") {
   
-  rD = rsDriver(browser="firefox", port=as.integer(sample(x = 3000:5000, 1)), verbose=F, chromever = NULL)
+  rD = rsDriver(browser="chrome", port=as.integer(sample(x = 3000:5000, 1)), verbose=T)
   remDr = rD[["client"]]
   
   message("Scraping decision addresses")
@@ -58,7 +59,7 @@ get_urls = function(decision_date = "1.1.1993") {
 }
 
 get_metadata = function(decision_addresses){
-  rD = rsDriver(browser="firefox", port=as.integer(sample(x = 3000:5000, 1)), verbose=F, chromever = NULL)
+  rD = rsDriver(browser="chrome", port=as.integer(sample(x = 3000:5000, 1)), verbose=T)
   remDr = rD[["client"]]
   
   message("Scraping metadata")
@@ -67,8 +68,8 @@ get_metadata = function(decision_addresses){
     format = "scraping metadata [:bar] :percent eta: :eta",
     total = length(decision_addresses), clear = FALSE, width= 60)
   
-  metadata = foreach(i = seq_along(decision_addresses), .combine = "bind_rows", .errorhandling = "remove") %do% {
-    remDr$navigate(decision_addresses[i] %>% 
+  metadata = foreach(decision_address = decision_addresses, .combine = "bind_rows", .errorhandling = "remove") %do% {
+    remDr$navigate(decision_address %>% 
                      str_extract("id=[0-9]+") %>% 
                      paste0("https://nalus.usoud.cz/Search/ResultDetail.aspx?", .))
     html = remDr$getPageSource()[[1]] %>% 
@@ -197,11 +198,13 @@ get_metadata = function(decision_addresses){
       merits_admissibility = case_when(
         str_detect(as.character(type_verdict), "vyhověno|zamítnuto") ~ "merits",
         str_detect(as.character(type_verdict), "procesní") & !str_detect(as.character(type_verdict), "vyhověno|zamítnuto|odmítnutno") ~ "procedural",
-        .default = "admissibility")) %>%
+        .default = "admissibility"), 
+      case_id = case_id %>%
+        str_extract(., pattern = "[A-ZĽŠČŘ]{1,2}[a-zěščřžýéáó]*.ÚS\\s\\d+/\\d+(\\s#\\d)?")) %>%
     relocate(merits_admissibility, .after = type_verdict) %>%
     relocate(year_decision, .after = date_decision) %>%
     remove_rownames() %>%
-    mutate(across(where(is.character), str_squish)) %>%
+    mutate(across(where(is.character), str_trim)) %>%
     mutate(across(where(is.character), ~replace(., . == "NA", NA))) %>%
     mutate(across(where(is.character), ~na_if(.,""))) %>%
     left_join(., read_rds(file = "../data/US_judges.rds") %>% select(judge_name, judge_id), by = join_by(judge_rapporteur_name == judge_name)) %>%
@@ -216,43 +219,19 @@ get_metadata = function(decision_addresses){
 }
 
 get_texts = function(metadata) {
-  # Parallel
-  myCluster = parallel::makeCluster(parallel::detectCores() - 2, # number of cores to use
-                                    type = "PSOCK")
-  doParallel::registerDoParallel(myCluster)
-  foreach::getDoParRegistered()
-  foreach::getDoParWorkers()
+  plan(multisession, workers = parallel::detectCores() - 2)
   
-  # PB
-  doSNOW::registerDoSNOW(myCluster)
-  pb = progress_bar$new(
-    format = "scraping texts [:bar] :percent eta: :eta",
-    total = length(metadata$url_address), 
-    width = 60)
-  progress = function() pb$tick()
-  opts = list(progress = progress)
-  
-  texts = foreach(html = metadata$url_address, .combine = "bind_rows", .packages = c("rvest", "tidyverse"), .options.snow = opts) %dopar% {
-    text = html %>% 
-      read_html() %>% 
-      html_element(xpath='//td[@class="DocContent"]/table/tr/td') %>% 
-      html_text2() %>% 
-      utf8::utf8_normalize(map_quote = TRUE) %>%
-      str_squish()
-    output = tibble(
-      "url_address" = html,
-      "text" = text
-    )
-    return(output)
-  } %>% left_join(metadata %>%
-                    select(doc_id, url_address), .) %>%
-    select(-url_address) %>%
-    distinct() 
-  return(texts)
-  message("Finished scraping texts")
-  close(pb)
-  parallel::stopCluster(myCluster)
+  texts = metadata %>%
+    select(doc_id, url_address) %>%
+    mutate(text = future_map(.x = url_address, ~read_html(.) %>% 
+                        html_element(xpath='//td[@class="DocContent"]/table/tr/td') %>% 
+                        html_text2() %>%
+                        str_trim(side = "both"), .progress = TRUE)) %>%
+    select(-url_address)
 }
+                        
+                        
+                      
 
 
 

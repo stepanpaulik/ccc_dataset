@@ -119,7 +119,7 @@ get_NSS_metadata = function (NSS_IDs) {
     judge_rapporteur = html_elements(html, xpath ="//*[@class='det-textitle' and contains(@title, 'Soudce zpravodaj')]/../*[@class='det-textval']")
     if (length(judge_rapporteur) == 0) {
       judge_rapporteur = NA
-    } else {judge_rapporteur = list(html_text(judge_rapporteur) %>% str_squish())}
+    } else {judge_rapporteur = list(html_text(judge_rapporteur) %>% str_trim())}
     
     subject_matter = html_elements(html, xpath ="//*[@class='det-textitle' and contains(@title, 'Oblast úpravy')]/../*[@class='det-textval']")
     if (length(subject_matter) == 0) {
@@ -149,7 +149,7 @@ get_NSS_metadata = function (NSS_IDs) {
     lawyer = html_elements(html, xpath ="//*[@class='det-textitle' and @title='Zástupce (zastupce)']/../*[@class='det-textval']")
     if (length(lawyer) == 0) {
       lawyer = NA
-    } else {lawyer = list(html_text(lawyer) %>% str_remove(., " hlavní subjekt.*") %>% str_squish())}
+    } else {lawyer = list(html_text(lawyer) %>% str_remove(., " hlavní subjekt.*") %>% str_trim())}
     
     administrative_authority = xml_find_first(html, xpath ="//*[@title='nazevspravnihoorganu']/../../../tbody/tr/td[1]")
     if (html_text(administrative_authority) == "") {
@@ -199,7 +199,7 @@ get_NSS_metadata = function (NSS_IDs) {
     )
     return(output)
   } %>%
-    mutate(across(where(is.character), str_squish)) %>%
+    mutate(across(where(is.character), str_trim)) %>%
     mutate(across(where(is.character), ~replace(., . == "NA", NA))) %>%
     distinct() %>% 
     mutate(across(contains("date"), ~as_date(x = ., format = "%d.%m.%Y"))) %>%
@@ -227,7 +227,7 @@ get_NSS_texts = function (NSS_IDs) {
       expr = {
         html_texts %>% 
           html_text2() %>% 
-          str_squish()
+          str_trim()
       },
       error = function(e){
         return(NA)
@@ -242,7 +242,7 @@ get_NSS_texts = function (NSS_IDs) {
     
     return(output)
   } %>%
-    mutate(across(where(is.character), str_squish)) %>%
+    mutate(across(where(is.character), str_trim)) %>%
     mutate(across(where(is.character), ~replace(., . == "NA", NA))) %>%
   return(NSS_texts)
 }
