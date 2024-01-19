@@ -4,9 +4,10 @@ source("scripts/US_supporting_functions.R")
 # source("scripts/WR_decisions_NSS.R")
 
 #US
-metadata = read_rds(file = "../data/US_metadata.rds") 
+metadata = read_rds(file = "../data/US_metadata.rds")
 texts = read_rds(file = "../data/US_texts.rds")
 judges = readr::read_rds("../data/US_judges.rds")
+clerks = readr::read_rds("../data/US_clerks.rds")
 
 US_IDs_new = get_urls(as.character(max(US_metadata$date_decision)))
 US_IDs = c(read_rds(file = "../data/US_IDs.rds"),US_IDs_new)

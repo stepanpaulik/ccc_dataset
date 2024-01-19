@@ -86,9 +86,9 @@
 \title{The Czech Constitutional Court dataset\thanks{Replication files
 are available on the author's Github account
 (\url{https://github.com/stepanpaulik/apex_courts_dataset/}).
-\textbf{Current version}: December 12, 2023}}
+\textbf{Current version}: January 10, 2024}}
 \author{true}
-\date{December 12, 2023}
+\date{January 10, 2024}
 
 % Jesus, okay, everything above this comment is default Pandoc LaTeX template. -----
 % ----------------------------------------------------------------------------------
@@ -125,7 +125,7 @@ are available on the author's Github account
 \title{The Czech Constitutional Court dataset\thanks{Replication files
 are available on the author's Github account
 (\url{https://github.com/stepanpaulik/apex_courts_dataset/}).
-\textbf{Current version}: December 12, 2023}  }
+\textbf{Current version}: January 10, 2024}  }
 
 \date{}
 
@@ -252,18 +252,20 @@ Institut für Sozialwissenschaften,
 
     \vskip 8.5pt % \small
 
-\noindent \small{Building high quality datasets can enable the European
-empirical legal research to catch up with the US especially. While on
-the one hand, institutional features make the civil law harder to
-research empirically, on the other, there is still plenty of room for
-creativity and methodological rigor. The present article introduces a
-dataset on the Czech Constitutional Court while aiming at bridging the
-gap. To this end, the dataset contains rich information on the
-background of the cases, background of the justices, their clerk teams
-as well as the complete text corpus of all decisions until the end of
-2023. The dataset adheres to the principles of tidy data as well as to
-the principles of accessibility, reliability, foundationality, and
-capacity to address real-world problems.}
+\noindent \small{Although it has been traditionally espoused that there
+has been a divide between the empirically oriented US legal scholarship,
+stemming from a different perception of the role of courts and judges,
+and the rest of the world, including the civil law systems. Apart from
+institutional features such as lack of information on the votes the lack
+of high quality data have made empirical research in civil law systems
+harder. The present article introduces a dataset on the Czech
+Constitutional Court while aiming at assisting to bridge the gap. To
+this end, the dataset contains rich information on the background of the
+cases, background of the justices, their clerk teams as well as the
+complete text corpus of all decisions until the end of 2023. The dataset
+adheres to the principles of tidy data as well as to the principles of
+accessibility, reliability, foundationality, and capacity to address
+real-world problems.}
 
 
 %    \hbox{\vrule height .2pt width 39.14pc}
@@ -299,8 +301,8 @@ Although it has been traditionally espoused that there has been a divide
 between the empirically oriented US legal scholarship, stemming from a
 different perception of the role of courts and judges, and the rest of
 the world (\protect\hyperlink{ref-hamannGermanFederalCourts2019}{Hamann
-2019, 416}). Therein the judges have been viewed and empirically
-researched as political
+2019, 416}). Therein the judges empirically researched whether and to
+what extent they behave as for example political
 (\protect\hyperlink{ref-carrubbaWhoControlsContent2012}{Carrubba et al.
 2012}; \protect\hyperlink{ref-clarkLocatingSupremeCourt2010}{Clark and
 Lauderdale 2010};
@@ -331,11 +333,11 @@ hand - Czechia, judges have been perceived as ``proclaimers of law'' and
 the law handed down by them
 (\protect\hyperlink{ref-hamannGermanFederalCourts2019}{Hamann 2019,
 417}). Such a view had hindered empirical legal research in Europe. The
-lack of empirical legal research could also be partially blamed on lack
-of high quality data, a prerequisite for any quantitative empirical
-research. At least so the story goes until recently. The interest in
-empirical legal studies has picked up in the last years across the whole
-continent, including studies on plethora of topics within Germany
+lack of empirical legal research can be partially blamed on lack of high
+quality data, a prerequisite for any quantitative empirical research. At
+least so the story goes until recently. The interest in empirical legal
+studies has picked up in the last years across the whole continent,
+including studies on plethora of topics within Germany
 (\protect\hyperlink{ref-arnoldScalingCourtDecisions2023}{Arnold, Engst,
 and Gschwend 2023};
 \protect\hyperlink{ref-coupetteQuantitativeRechtswissenschaft2018}{Coupette
@@ -365,10 +367,13 @@ Fjelstul, et al. 2023}), the German Federal courts
 (\protect\hyperlink{ref-hamannGermanFederalCourts2019}{Hamann 2019}) as
 well as the Constitutional Court
 (\protect\hyperlink{ref-engstConstitutionalCourtDatabaseForthcoming}{Benjamin
-G. Engst, Hönnige, and Gschwend Forthcoming}).
+G. Engst, Hönnige, and Gschwend Forthcoming}). The mushrooming research
+proves that there is demand for quality data in Europe as well. This
+article presents a Czech Constitutional Court (``CCC'') dataset, a
+comprehensive high-quality multi-user dataset on the CCC.
 
 To the author's best knowledge, there have been solitary attempts go
-gather data in some shape or form in the Czech context
+gather data in some shape or form in the CCC context
 (\protect\hyperlink{ref-harastaAnnotatedCorpusCzech2018}{Harašta et al.
 2018}; \protect\hyperlink{ref-novotnaCzechCourtDecisions2019}{Novotná
 and Harašta 2019}), mainly thanks to the Institute of Law and Technology
@@ -385,30 +390,18 @@ Unfortunately, the former group does not always adhere to the principles
 of of high-quality infrastructure, namely the principle of
 foundationality, espoused by Weinshall and Epstein
 (\protect\hyperlink{ref-weinshallDevelopingHighQualityData2020}{2020}),
-p.~424, the latter group did not publish data/code at all. The output of
-the law and economics/criminology team centered around Jakub Drápal and
-Libor Dušek stands out as the only systemic effort to conduct replicable
-quantitative legal research in Czechia
-(\protect\hyperlink{ref-drapalSentencingCzechRepublic2021}{Drápal 2021},
-\protect\hyperlink{ref-drapalPunitiveNegligenceMyths2023}{2023};
-\protect\hyperlink{ref-drapalUsingLargeLanguage2023}{Drápal, Westermann,
-and Savelka 2023};
-\protect\hyperlink{ref-drapalLawAuthorityHow2023}{Drápal and Dusek
-2023}; \protect\hyperlink{ref-drapalWhatValueJudicial2023}{Drápal and
-Pina-Sánchez 2023};
-\protect\hyperlink{ref-drapalSentencingDecisionsQuantity2023}{Drápal and
-Šoltés 2023}). The data they are working with currently are still
-unpublished.
+p.~424, the latter group did not publish data/code at all. Therefore,
+the effort to put together and to publish a high-quality dataset on the
+CCC is more than warranted, especially to enable empirical legal
+scholarship to flourish.
 
-Therefore, the effort to put together and to publish a high-quality
-dataset on the CCC is more than warranted. The article proceeds as
-follow. In the section X, I introduce the CCC, namely its compositions,
-its internal organization and its powers. In the section X, I introduce
-the CCC dataset. Therein, I briefly discuss its structure, describe the
-variables. The section X then discusses the adherence of the CCC dataset
-to four principles of a high-quality dataset, including its relevance
-for research, as well as to the adherence of the tidy data principles.
-The last section concludes.
+The article proceeds as follow. In the section X, I introduce the CCC,
+namely its compositions, its internal organization and its powers. In
+the section X, I introduce the CCC dataset. Therein, I briefly discuss
+its structure, describe the variables. The section X then discusses the
+adherence of the CCC dataset to four principles of a high-quality
+dataset, including its relevance for research, as well as to the
+adherence of the tidy data principles. The last section concludes.
 
 \hypertarget{a-brief-primer-on-the-ccc}{%
 \section{A brief primer on the CCC}\label{a-brief-primer-on-the-ccc}}
@@ -471,17 +464,18 @@ A judge rapporteur plays a crucial role
 \protect\hyperlink{ref-horenovskyProcessMakingConstitutional2015}{Hořeňovský
 and Chmel 2015} study the large influence of the judge rapporteurs at
 the CCC). Each case of the CCC gets assigned to a judge raporteur. The
-assignement is regulated by a case allocation plan (the original term is
-\emph{rozvrh práce}, which is usually translated as a \emph{work
-schedule}, however, I borrow the term \emph{case allocation plan} from
-Hamann (\protect\hyperlink{ref-hamannGermanFederalCourts2019}{2019}),
-p.~673) She is tasked with drafting the opinion, about which the body
-then votes. The president of the CCC (in plenary cases) or the president
-of the chamber (in chamber cases) may re-assign a case to a different
-judge rapporteur if the draft opinion by the original judge rapporteur
-did not receive a majority of votes. Unfortunately, the CCC does not
-keep track of these reassignments.\footnote{I unsuccessfully attempted
-  to retrieve the information with the right to information}
+assignement is regulated by a case allocation plan.\footnote{the
+  original term is \emph{rozvrh práce}, which is usually translated as a
+  \emph{work schedule}, however, I borrow the term \emph{case allocation
+  plan} from Hamann
+  (\protect\hyperlink{ref-hamannGermanFederalCourts2019}{2019}), p.~673}
+She is tasked with drafting the opinion, about which the body then
+votes. The president of the CCC (in plenary cases) or the president of
+the chamber (in chamber cases) may re-assign a case to a different judge
+rapporteur if the draft opinion by the original judge rapporteur did not
+receive a majority of votes. Unfortunately, the CCC does not keep track
+of these reassignments.\footnote{I unsuccessfully attempted to retrieve
+  the information with the right to information}
 
 The CCC allows for separate opinions. They can take two forms:
 dissenting or concurring opinions. Each justice has the right to author
@@ -512,17 +506,20 @@ dataset}\label{description-of-the-ccc-dataset}}
 inclusion}\label{structure-and-case-inclusion}}
 
 The CCC dataset includes all publicly available CCC decisions from its
-foundation until the end of 2023, that is \textbf{XXX} decisions. All
-the data is first scraped from the official CCC website
+foundation until the end of 2023, that is \textbf{93926} decisions, as
+well as background information on its 52 justices and their 371 clerks.
+All the data was first scraped from the official CCC website
 \href{https://nalus.usoud.cz/Search/Search.aspx}{Nalus}. The web
-scraping is followed by intense data cleaning and transformation
-processes.
+scraping is followed by intense data cleaning and data wrangling
+processes. In the last step, some information was mined from the texts
+or other metadata of the decisions (such as composition of the court in
+any given decision).
 
 The structure of the CCC dataset can, on a very basic level, be divided
 into case-level variables and justice-level variables. As I explain
 bellow such a structure does not imply that on the case-level, for
 example, every row is a case. The case-level (as well as the
-justice-level) variables have been split up into multiple tables for
+justice-level) variab les have been split up into multiple tables for
 those variables that would otherwise imply more information within one
 cell, had the justice level structure been kept. For example, the
 composition of the court is a case-level variable - each case has
@@ -956,8 +953,8 @@ of Common Market Studies} 61 (1): 58--75.
 
 \leavevmode\vadjust pre{\hypertarget{ref-cameronChapterWhatJudges2017}{}}%
 Cameron, Charles M., and Lewis A. Kornhauser. 2017. {``Chapter 3: {What
-Do Judges Want}? {How} to {Model Judicial Preferences}.''} SSRN
-Scholarly Paper. {Rochester, NY}. June 2, 2017.
+Do Judges Want}? {How} to {Model Judicial Preferences}.''} \{\{SSRN
+Scholarly Paper\}\}. {Rochester, NY}.
 \url{https://doi.org/10.2139/ssrn.2979419}.
 
 \leavevmode\vadjust pre{\hypertarget{ref-carrubbaWhoControlsContent2012}{}}%
@@ -967,14 +964,14 @@ Carrubba, Cliff, Barry Friedman, Andrew D. Martin, and Georg Vanberg.
 \url{https://doi.org/10.1111/j.1540-5907.2011.00557.x}.
 
 \leavevmode\vadjust pre{\hypertarget{ref-chmelZpravodajoveSenatyVliv2017}{}}%
-Chmel, Jan. 2017. {``Zpravodajové a Senáty: {Vliv} Složení Senátu Na
-Rozhodování {Ústavního} Soudu {České} Republiky o Ústavních
-Stížnostech.''} \emph{Časopis Pro Právní Vědu a Praxi} 25 (4): 739.
-\url{https://doi.org/10.5817/CPVP2017-4-9}.
+Chmel, Jan. 2017. {``Zpravodajov{é} a Sen{á}ty: {Vliv} Slo{ž}en{í}
+Sen{á}tu Na Rozhodov{á}n{í} {{Ú}stavn{í}ho} Soudu {{Č}esk{é}} Republiky
+o {Ú}stavn{í}ch St{í}{ž}nostech.''} \emph{{Č}asopis Pro Pr{á}vn{í}
+v{ě}du a Praxi} 25 (4): 739. \url{https://doi.org/10.5817/CPVP2017-4-9}.
 
 \leavevmode\vadjust pre{\hypertarget{ref-chmelCoOvlivnujeUstavni2021}{}}%
----------. 2021. \emph{Co Ovlivňuje {Ústavní} Soud a Jeho Soudce? /}.
-Vydání první. Teoretik ({Leges}). {Leges,}.
+---------. 2021. \emph{Co Ovliv{ň}uje {{Ú}stavn{í}} Soud a Jeho Soudce?
+/}. Vyd{á}n{í} prvn{í}. Teoretik ({Leges}). {Leges,}.
 
 \leavevmode\vadjust pre{\hypertarget{ref-clarkEstimatingEffectLeisure2018}{}}%
 Clark, Tom S., Benjamin G. Engst, and Jeffrey K. Staton. 2018.
@@ -999,50 +996,16 @@ Beyond Classic Readability Formulas: New Methods and New Models.''}
 \emph{Journal of Research in Reading} 42 (3-4): 541--61.
 \url{https://doi.org/10.1111/1467-9817.12283}.
 
-\leavevmode\vadjust pre{\hypertarget{ref-drapalSentencingCzechRepublic2021}{}}%
-Drápal, Jakub. 2021. {``Sentencing in the {Czech Republic}: {An
-Empirical Investigation},''} March.
-\url{https://dspace.cuni.cz/handle/20.500.11956/148293}.
-
-\leavevmode\vadjust pre{\hypertarget{ref-drapalPunitiveNegligenceMyths2023}{}}%
----------. 2023. {``Punitive by Negligence? {The} Myths and Reality of
-Penal Nationalism in the {Czech Republic}.''} \emph{European Journal of
-Criminology} 20 (4): 1549--67.
-\url{https://doi.org/10.1177/14773708211063753}.
-
-\leavevmode\vadjust pre{\hypertarget{ref-drapalLawAuthorityHow2023}{}}%
-Drápal, Jakub, and Libor Dusek. 2023. {``Law or {Authority}: {How Penal
-Elites Shape Sentencing Policy} by {Non-Binding Interventions}.''} SSRN
-Scholarly Paper. {Rochester, NY}. October 31, 2023.
-\url{https://doi.org/10.2139/ssrn.4619030}.
-
-\leavevmode\vadjust pre{\hypertarget{ref-drapalWhatValueJudicial2023}{}}%
-Drápal, Jakub, and Jose Pina-Sánchez. 2023. {``What Is the {Value} of
-{Judicial Experience}? {Exploring Judge Trajectories Using Longitudinal
-Data}.''} \emph{Justice Quarterly} 40 (2): 211--40.
-\url{https://doi.org/10.1080/07418825.2022.2051585}.
-
-\leavevmode\vadjust pre{\hypertarget{ref-drapalSentencingDecisionsQuantity2023}{}}%
-Drápal, Jakub, and Michal Šoltés. 2023. {``Sentencing Decisions Around
-Quantity Thresholds: Theory and Experiment.''} \emph{Journal of
-Experimental Criminology}, July.
-\url{https://doi.org/10.1007/s11292-023-09568-8}.
-
-\leavevmode\vadjust pre{\hypertarget{ref-drapalUsingLargeLanguage2023}{}}%
-Drápal, Jakub, Hannes Westermann, and Jaromir Savelka. 2023. {``Using
-{Large Language Models} to {Support Thematic Analysis} in {Empirical
-Legal Studies}.''} October 28, 2023.
-\url{https://doi.org/10.48550/arXiv.2310.18729}.
-
 \leavevmode\vadjust pre{\hypertarget{ref-eliasekAutomatickaKlasifikaceVyznamovych2020}{}}%
-Eliášek, Martin, Jakub Kól, and Miloš Švaňa. 2020. {``Automatická
-Klasifikace Významových Celků v Judikatuře.''} \emph{Revue Pro Právo a
-Technologie} 11 (21): 3--20. \url{https://doi.org/10.5817/RPT2020-1-1}.
+Eliášek, Martin, Jakub Kól, and Miloš Švaňa. 2020. {``Automatick{á}
+Klasifikace v{ý}znamov{ý}ch Celk{ů} v Judikatu{ř}e.''} \emph{Revue Pro
+Pr{á}vo a Technologie} 11 (21): 3--20.
+\url{https://doi.org/10.5817/RPT2020-1-1}.
 
 \leavevmode\vadjust pre{\hypertarget{ref-engstEinflussParteinaheAuf2017}{}}%
 Engst, Benjamin G., Thomas Gschwend, Nils Schaks, Sebastian Sternberg,
-and Caroline Wittig. 2017. {``Zum {Einfluss} Der {Parteinähe} Auf Das
-{Abstimmungsverhalten} Der {Bundesverfassungsrichter} -- Eine
+and Caroline Wittig. 2017. {``Zum {Einfluss} Der {Partein{ä}he} Auf Das
+{Abstimmungsverhalten} Der {Bundesverfassungsrichter} {\textendash} Eine
 Quantitative {Untersuchung}.''} \emph{JuristenZeitung} 72 (17): 816--26.
 \url{https://www.jstor.org/stable/44867374}.
 
@@ -1053,7 +1016,7 @@ Forthcoming, 39.
 
 \leavevmode\vadjust pre{\hypertarget{ref-epsteinChoicesJusticesMake1997}{}}%
 Epstein, Lee, and Jack Knight. 1997. \emph{The {Choices Justices Make}}.
-{SAGE}. \url{https://books.google.com?id=hSnom2h2_zUC}.
+{SAGE}.
 
 \leavevmode\vadjust pre{\hypertarget{ref-epsteinStrategicRevolutionJudicial2000}{}}%
 ---------. 2000. {``Toward a {Strategic Revolution} in {Judicial
@@ -1107,14 +1070,13 @@ European Public Policy}, August, 1--22.
 \leavevmode\vadjust pre{\hypertarget{ref-gschwendAreJudgesPolitical2016}{}}%
 Gschwend, Thomas, Sebastian Sternberg, and Steffen Zittlau. 2016. {``Are
 {Judges Political Animals} After {All}? {Quasi-Experimental Evidence}
-from the {German Federal Constitutional Court}.''} SSRN Scholarly Paper.
-{Rochester, NY}. February 26, 2016.
-\url{https://doi.org/10.2139/ssrn.2738512}.
+from the {German Federal Constitutional Court}.''} \{\{SSRN Scholarly
+Paper\}\}. {Rochester, NY}. \url{https://doi.org/10.2139/ssrn.2738512}.
 
 \leavevmode\vadjust pre{\hypertarget{ref-hamannGermanFederalCourts2019}{}}%
-Hamann, Hanjo. 2019. {``The {German Federal Courts Dataset} 1950--2019:
-{From Paper Archives} to {Linked Open Data}.''} \emph{Journal of
-Empirical Legal Studies} 16 (3): 671--88.
+Hamann, Hanjo. 2019. {``The {German Federal Courts Dataset}
+1950{\textendash}2019: {From Paper Archives} to {Linked Open Data}.''}
+\emph{Journal of Empirical Legal Studies} 16 (3): 671--88.
 \url{https://doi.org/10.1111/jels.12230}.
 
 \leavevmode\vadjust pre{\hypertarget{ref-hanrettyDissentIberiaIdeal2012}{}}%
@@ -1139,14 +1101,13 @@ International Publishing}.
 
 \leavevmode\vadjust pre{\hypertarget{ref-harastaCitacniAnalyzaJudikatury2021}{}}%
 Harašta, Jakub, Terezie Smejkalová, Jaromír Šavelka, and Radim Polčák.
-2021. \emph{Citační analýza judikatury}. Vydání první. Právní
-monografie. {Praha}: {Wolters Kluwer}.
+2021. \emph{{Cita{č}n{í} anal{ý}za judikatury}}. Vyd{á}n{í} prvn{í}.
+{Pr{á}vn{í} monografie}. {Praha}: {Wolters Kluwer}.
 
 \leavevmode\vadjust pre{\hypertarget{ref-horenovskyProcessMakingConstitutional2015}{}}%
-Hořeňovský, Jan, and Jan Chmel. 2015. {``The Process of making the
-Constitutional Court Judgements.''} \emph{Časopis pro právní vědu a
-praxi} 23 (3): 302--11.
-\url{https://www.ceeol.com/search/article-detail?id=780150}.
+Hořeňovský, Jan, and Jan Chmel. 2015. {``{The Process of making the
+Constitutional Court Judgements}.''} \emph{{Č}asopis pro pr{á}vn{í}
+v{ě}du a praxi} 23 (3): 302--11.
 
 \leavevmode\vadjust pre{\hypertarget{ref-houtkoopDataSharingPsychology2018}{}}%
 Houtkoop, Bobby Lee, Chris Chambers, Malcolm Macleod, Dorothy V. M.
@@ -1159,7 +1120,6 @@ Psychological Science} 1 (1): 70--85.
 \leavevmode\vadjust pre{\hypertarget{ref-kornhauserModelingCollegialCourts1992a}{}}%
 Kornhauser, Lewis A. 1992a. {``Modeling {Collegial Courts}. {II}. {Legal
 Doctrine}.''} \emph{Journal of Law, Economics and Organization} 8: 441.
-\url{https://heinonline.org/HOL/Page?handle=hein.journals/jleo8&id=449&div=&collection=}.
 
 \leavevmode\vadjust pre{\hypertarget{ref-kornhauserModelingCollegialCourts1992}{}}%
 ---------. 1992b. {``Modeling Collegial Courts {I}:
@@ -1182,17 +1142,16 @@ MEANINGFUL DIMENSIONS}.''} \emph{American Journal of Political Science}
 
 \leavevmode\vadjust pre{\hypertarget{ref-novotnaCzechCourtDecisions2019}{}}%
 Novotná, Tereza, and Jakub Harašta. 2019. {``The {Czech Court Decisions
-Corpus} ({CzCDC}): {Availability} as the {First Step}.''} October 21,
-2019. \url{http://arxiv.org/abs/1910.09513}.
+Corpus} ({CzCDC}): {Availability} as the {First Step}.''} {arXiv}.
+\url{https://arxiv.org/abs/1910.09513}.
 
 \leavevmode\vadjust pre{\hypertarget{ref-posnerWhatJudgesJustices1993}{}}%
 Posner, Richard A. 1993. \emph{What {Do Judges} and {Justices
 Maximize}?: (The {Same Thing Everyone Else Does})}. {Law School,
-University of Chicago}. \url{https://books.google.com?id=ciFUHQAACAAJ}.
+University of Chicago}.
 
 \leavevmode\vadjust pre{\hypertarget{ref-posnerHowJudgesThink2010}{}}%
 ---------. 2010. \emph{How {Judges Think}}. {Harvard University Press}.
-\url{https://books.google.com?id=ZVUC8riEVPQC}.
 
 \leavevmode\vadjust pre{\hypertarget{ref-rousseyOverburdenedJudges2018}{}}%
 Roussey, Ludivine, and Raphael Soubeyran. 2018. {``Overburdened
@@ -1201,15 +1160,15 @@ Judges.''} \emph{International Review of Law and Economics} 55
 
 \leavevmode\vadjust pre{\hypertarget{ref-smekalMimopravniVlivyNa2021}{}}%
 Smekal, Hubert, Jaroslav Benák, Monika Hanych, Ladislav Vyhnánek, and
-Štěpán Janků. 2021. \emph{Mimoprávní Vlivy Na Rozhodování Českého
-{Ústavního} Soudu:} {Brno}: {Masaryk University Press}.
+Štěpán Janků. 2021. \emph{Mimopr{á}vn{í} Vlivy Na Rozhodov{á}n{í}
+{Č}esk{é}ho {{Ú}stavn{í}ho} Soudu:} {Brno}: {Masaryk University Press}.
 \url{https://doi.org/10.5817/CZ.MUNI.M210-9884-2021}.
 
 \leavevmode\vadjust pre{\hypertarget{ref-sternbergNoPublicNo2019}{}}%
 Sternberg, Sebastian. 2019. {``No Public, No Power? {Analyzing} the
 Importance of Public Support for Constitutional Review with Novel Data
-and Machine Learning Methods.''} PhD thesis, {Mannheim}: {Universität
-Mannheim}. \url{https://madoc.bib.uni-mannheim.de/52329}.
+and Machine Learning Methods.''} PhD thesis, {Mannheim}: Universit{ä}t
+Mannheim.
 
 \leavevmode\vadjust pre{\hypertarget{ref-sunsteinAreJudgesPolitical2006}{}}%
 Sunstein, Cass R., David Schkade, Lisa M. Ellman, and Andres Sawicki.
@@ -1218,8 +1177,8 @@ Sunstein, Cass R., David Schkade, Lisa M. Ellman, and Andres Sawicki.
 \url{https://www.jstor.org/stable/10.7864/j.ctt12879t7}.
 
 \leavevmode\vadjust pre{\hypertarget{ref-vartazaryanSitOvaAnalyza2022}{}}%
-Vartazaryan, Gor. 2022. {``Sít'ová Analỳza Disentujících Ústavních
-Soudců.''} \emph{Pravnik}, no. 12.
+Vartazaryan, Gor. 2022. {``S{í}t'ov{á} Anal{ỳ}za Disentuj{í}c{í}ch
+{Ú}stavn{í}ch Soudc{ů}.''} \emph{Pravnik}, no. 12.
 
 \leavevmode\vadjust pre{\hypertarget{ref-weinshallDevelopingHighQualityData2020}{}}%
 Weinshall, Keren, and Lee Epstein. 2020. {``Developing {High-Quality

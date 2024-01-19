@@ -33,7 +33,7 @@ knitr::opts_chunk$set(echo = FALSE)
 load(file = "descriptive_statistics.RData")
 library(patchwork)
 library(tidyverse); theme_set(theme_minimal())
-load(file = "../../court_dissents/models/models_fitted_coalition_panel.RData")
+load(file = "../../court_dissents/OLD/models/models_fitted_coalition_panel.RData")
 ```
 
 # Introduction
@@ -64,9 +64,9 @@ It may be concluded that the CCC takes after the american model of selection of 
 
 # Description of the CCC dataset
 ## Structure and Case inclusion
-The CCC dataset includes all publicly available CCC decisions from its foundation until the end of 2023, that is **XXX** decisions. All the data is first scraped from the official CCC website [Nalus](https://nalus.usoud.cz/Search/Search.aspx). The web scraping is followed by intense data cleaning and transformation processes.
+The CCC dataset includes all publicly available CCC decisions from its foundation until the end of 2023, that is **93926** decisions, as well as background information on its 52 justices and their 218 clerks. All the data was first scraped from the official CCC website [Nalus](https://nalus.usoud.cz/Search/Search.aspx). The web scraping is followed by intense data cleaning and data wrangling processes. In the last step, some information was mined from the texts or other metadata of the decisions (such as composition of the court in any given decision).
 
-The structure of the CCC dataset can, on a very basic level, be divided into case-level variables and justice-level variables. As I explain bellow such a structure does not imply that on the case-level, for example, every row is a case. The case-level (as well as the justice-level) variables have been split up into multiple tables for those variables that would otherwise imply more information within one cell, had the justice level structure been kept. For example, the composition of the court is a case-level variable - each case has certain composition of three or fifteen judges - however, in order to keep the one observation (case) per row structure, one would have to store multiple information in one cell (names of three or fifteen justices). Therefore, while I so flatten the date for the "master" table, for each variable there is also a separate table variable, in which the level is the variable-case-level.
+The structure of the CCC dataset can, on a very basic level, be divided into case-level variables and justice-level variables. As I explain bellow such a structure does not imply that on the case-level, for example, every row is a case. The case-level (as well as the justice-level) variab les have been split up into multiple tables for those variables that would otherwise imply more information within one cell, had the justice level structure been kept. For example, the composition of the court is a case-level variable - each case has certain composition of three or fifteen judges - however, in order to keep the one observation (case) per row structure, one would have to store multiple information in one cell (names of three or fifteen justices). Therefore, while I so flatten the date for the "master" table, for each variable there is also a separate table variable, in which the level is the variable-case-level.
 ## Case-Level Variables
 The case-level variables contain information on each and every case that the CCC has decided. There are variables uniquely identifying the cases (ECLI renamed to doc_id or case_id), the dates at which they were lodged and decided (the length of the proceedings has been added). 
 
@@ -90,7 +90,6 @@ Regarding the former, the CCC dataset includes information on the terms of the j
 
 ```{r age, fig.cap = "The density plot of the age of a justice at the start of their term is bimodal. One peak occurs roughly in the justices' early-fifties, which is quite reasonable, whereas the other occurs in their early-sixties. That is quite late given that the retirement age of ordinary judges is sixty-five and given that the term of CCC justices is 10 years long. Therefore, many justices are serving well into their seventies."}
 ```
-
 
 We can, for example observe, that although the CCC has a seat in Brno, most of its justices have graduated at the Prague Charles University. One could, for example, study whether the identification with the CCC differs among the justices based on their *alma mater*, as the judges from Prague must have either relocated to a new city or commuted to their work^[Based on a personal insight, there is a number of examples of the later approach, namely of justices that never identified themselves with Brno and that would commute to the CCC only for a day or two per week.]
 

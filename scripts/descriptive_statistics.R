@@ -71,7 +71,6 @@ alma_mater = data_judges %>%
   labs(x = NULL, y = NULL)
 
 average_age = data_judges %>%
-  unnest(term) %>%
   mutate(age = year(judge_term_start) - judge_yob) %>%
   ggplot(aes(x = age)) +
   geom_density() +
@@ -79,7 +78,6 @@ average_age = data_judges %>%
 average_age 
 
 gender_judges = data_judges %>%
-  unnest(term) %>%
   ggplot(aes(x = judge_term_court, fill = judge_gender, color = judge_gender)) +
   geom_bar(position = "dodge", show.legend = FALSE) +
   scale_y_continuous(breaks = scales::pretty_breaks(n = 5)) +
