@@ -6,14 +6,14 @@ View(codebookr::euip_variables)
 
 # create a codebook
 codebookr::create_codebook(
-  file_path = "codebook.pdf",
+  file_path = "report/codebook.tex",
   datasets_input = euip_datasets,
   variables_input = euip_variables,
-  title_text = "The European Union Infringement Procedure \\\\ (EUIP) Database",
+  title_text = "The Czech Constitutional Court Dataset \\\\ The CCC Dataset",
   version_text = "1.0",
-  footer_text = "The EUIP Database Codebook \\hspace{5pt} | \\hspace{5pt} Joshua C. Fjelstul, Ph.D.",
-  author_names = "Joshua C. Fjelstul, Ph.D.",
-  theme_color = "#4D9FEB",
+  footer_text = "The Czech Constitutional Court Dataset \\hspace{5pt} | \\hspace{5pt} Štěpán Paulík",
+  author_names = "Štěpán Paulík",
+  theme_color = "#FFF0F7",
   heading_font_size = 30,
   subheading_font_size = 10,
   title_font_size = 16,
