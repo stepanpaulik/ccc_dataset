@@ -3,13 +3,13 @@ library(patchwork)
 
 
 # case-level variables ----------------------------------------------------
-data_metadata = read_rds("../data/US_metadata.rds") %>% 
+data_metadata = read_rds("../data/ccc_dataset/ccc_metadata.rds") %>% 
   mutate(presence_dissent = if_else(is.na(as.character(dissenting_opinion)), "None", "At least 1"),
          merits_admissibility = case_when(
            str_detect(as.character(type_verdict), "vyhověno|zamítnuto") ~ "merits",
            str_detect(as.character(type_verdict), "procesní") & !str_detect(as.character(type_verdict), "vyhověno|zamítnuto|odmítnutno") ~ "procedural",
            .default = "admissibility"))
-data_dissents = read_rds("../data/US_dissents.rds")
+data_dissents = read_rds("../data/ccc_dataset/ccc_separate_opinions.rds")
 
 data_metadata %>%
   filter(merits_admissibility %in% c("merits", "admissibility")) %>%
@@ -61,8 +61,8 @@ dissents_prevalence = data_metadata %>%
   
 
 # judge-level variables ---------------------------------------------------
-data_judges = read_rds(file = "../data/US_judges.rds")
-data_clerks = read_rds("../data/US_clerks.rds")
+data_judges = read_rds(file = "../data/ccc_dataset/ccc_judges.rds")
+data_clerks = read_rds("../data/ccc_dataset/ccc_clerks.rds")
 
 alma_mater = data_judges %>%
   ggplot(aes(x = judge_uni, fill = judge_uni)) +
