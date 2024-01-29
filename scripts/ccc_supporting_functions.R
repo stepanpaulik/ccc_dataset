@@ -1,7 +1,7 @@
 library(tidyverse)
 library(furrr)
 
-get_dissents = function(metadata, texts, judges){
+get_separate_opinions = function(metadata, texts, judges){
   future::plan(multisession, workers = parallel::detectCores() - 2)
   # The terms detecting paragraphs starting the dissenting opinion
   dissent_term = paste("Odlišné stanovisko",
@@ -15,9 +15,9 @@ get_dissents = function(metadata, texts, judges){
                        "Odlišné-doplňující stanovisko", "Konkurující stanovisko", "K odlišnému stanovisku", sep = "|")
   
   metadata %<>%
-    filter(!is.na(dissenting_opinion)) %>%
-    unnest(dissenting_opinion) %>%
-    select(doc_id, dissenting_opinion)
+    filter(!is.na(separate_opinion)) %>%
+    unnest(separate_opinion) %>%
+    select(doc_id, separate_opinion)
   
   data = texts %>%
     filter(doc_id %in% metadata$doc_id) %>%
@@ -37,14 +37,15 @@ get_dissents = function(metadata, texts, judges){
     ungroup() %>%
     unnest(dissenting_judge) %>%
     select(-c(paragraph, paragraph_id)) %>%
-    rename(dissenting_judge = judge_name,
+    rename(dissenting_judge_name = judge_name,
            dissenting_judge_id = judge_id) %>%
     group_by(doc_id) %>%
     arrange(desc(dissenting_group)) %>% # removes duplicates because of the "We join the dissent of...", the first occurring name is joined to the larger group
-    distinct(dissenting_judge, .keep_all = TRUE) %>%
+    distinct(dissenting_judge_name, .keep_all = TRUE) %>%
     arrange(dissenting_group) %>%
     ungroup() %>%
-    left_join(metadata, ., by = join_by(doc_id, dissenting_opinion == dissenting_judge))
+    left_join(metadata, ., by = join_by(doc_id, separate_opinion == dissenting_judge_name)) %>%
+    rename(dissenting_judge_name = separate_opinion)
   return(data)
 }
 

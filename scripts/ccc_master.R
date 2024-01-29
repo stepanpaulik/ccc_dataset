@@ -8,21 +8,23 @@ metadata = read_rds(file = "../data/ccc_dataset/ccc_metadata.rds")
 texts = read_rds(file = "../data/ccc_dataset/ccc_texts.rds")
 judges = readr::read_rds("../data/ccc_dataset/ccc_judges.rds")
 clerks = readr::read_rds("../data/ccc_dataset/ccc_clerks.rds")
+separate_opinions = readr::read_rds("../data/ccc_dataset/ccc_separate_opinions.rds")
 
 # UPDATE ------------------------------------------------------------------
-ccc_IDs_new = get_urls(as.character(max(ccc_metadata$date_decision)))
-ccc_IDs = c(read_rds(file = "../data/ccc_dataset/ccc_IDs.rds"),ccc_IDs_new)
-write_rds(ccc_IDs, file = "../data/ccc_dataset/ccc_IDs.rds")
-  
-metadata_new = get_metadata(ccc_IDs_new)
-metadata = bind_rows(metadata, metadata_new)
-metadata = metadata %>%
-  get_compositions(metadata = ., texts = texts, judges = judges)
-readr::write_rds(metadata, file = "../data/ccc_dataset/ccc_metadata.rds")
-
-texts_new = get_texts(metadata = metadata_new)
-texts = bind_rows(texts, texts_new)
-readr::write_rds(texts_new, file = "../data/ccc_dataset/ccc_texts.rds")
+# ccc_IDs_new = get_urls(as.character(max(ccc_metadata$date_decision)))
+# ccc_IDs = c(read_rds(file = "../data/ccc_dataset/ccc_IDs.rds"),ccc_IDs_new)
+# write_rds(ccc_IDs, file = "../data/ccc_dataset/ccc_IDs.rds")
+#   
+# metadata_new = get_metadata(ccc_IDs_new)
+# metadata = bind_rows(metadata, metadata_new) %>%
+#   mutate(doc_id = make.unique(doc_id))
+# metadata = get_compositions(metadata = metadata, texts = texts, judges = judges)
+# readr::write_rds(metadata, file = "../data/ccc_dataset/ccc_metadata.rds")
+# 
+# texts_new = get_texts(metadata = metadata %>% 
+#                         filter(!doc_id %in% texts$doc_id))
+# texts = bind_rows(texts, texts_new)
+# readr::write_rds(texts_new, file = "../data/ccc_dataset/ccc_texts.rds")
 
 
 # ADDITIONAL DATA ---------------------------------------------------------
@@ -63,7 +65,7 @@ parties = bind_rows(
     rename(party = concerned_body)
 ) %>%
   drop_na() %>%
-  mutate(party_kind = case_when(
+  mutate(party_nature = case_when(
     str_detect(string = party, pattern = "PREZIDENT REPUBLIKY") ~ "president_republic",
     str_detect(string = party, pattern = "STĚŽOVATEL - FO") ~ "natural_person",
     str_detect(string = party, pattern = "STĚŽOVATEL - PO") ~ "legal_person",
@@ -78,6 +80,7 @@ parties = bind_rows(
     str_detect(string = party, pattern = "POSLANECKÁ SNĚMOVNA PARLAMENTU ČR") ~ "parliament_chamber_of_deputies",
     str_detect(string = party, pattern = "POLICIE") ~ "police",
     str_detect(string = party, pattern = "STÁTNÍ ZASTUPITELSTVÍ") ~ "state_prosecution",
+    str_detect(string = party, pattern = "VEŘEJNÝ OCHRÁNCE PRÁV") ~ "ombudsperson",
     .default = NA
   )) %>%
   write_rds(file = "../data/ccc_dataset/ccc_parties.rds")
@@ -89,18 +92,18 @@ subject_matter = bind_rows(
     mutate(source = "subject_proceedings") %>%
     rename(subject_matter = subject_proceedings),
   metadata %>%
-    select(doc_id, field_register) %>%
-    unnest(field_register) %>% 
-    mutate(source = "field_register") %>%
-    rename(subject_matter = field_register)
+    select(doc_id, subject_register) %>%
+    unnest(subject_register) %>% 
+    mutate(source = "subject_register") %>%
+    rename(subject_matter = subject_register)
 ) %>%
   drop_na() %>%
   write_rds(file = "../data/ccc_dataset/ccc_subject_matter.rds")
 
-disputed_act = metadata %>%
+disputed_acts = metadata %>%
   select(doc_id, disputed_act) %>%
   unnest(disputed_act) %>%
-  mutate(type_disputed_act = case_when(
+  mutate(disputed_act_type = case_when(
     str_detect(string = disputed_act, pattern = "obecně závazná vyhláška") ~ "municipal_statute",
     str_detect(string = disputed_act, pattern = "zákon") ~ "statute",
     str_detect(string = disputed_act, pattern = "vyhláška") ~ "regulation",
@@ -122,15 +125,20 @@ compositions = metadata %>%
   unnest(composition) %>%
   write_rds(file = "../data/ccc_dataset/ccc_compositions.rds")
 
-verdict = metadata %>%
+verdicts = metadata %>%
   select(doc_id, type_verdict) %>%
   unnest(type_verdict) %>%
-  mutate(verdict_kind = case_when(
+  mutate(verdict_ground = case_when(
     str_detect(string = type_verdict, pattern = "odmítnuto") ~ "admissibility",
     str_detect(string = type_verdict, pattern = "vyhověno|zamítnuto") ~ "merits",
     str_detect(string = type_verdict, pattern = "procesní") ~ "procedural",
     .default = "other"
   )) %>%
+  rename(verdict_type = type_verdict) %>%
   write_rds(file = "../data/ccc_dataset/ccc_verdicts.rds")
 
 
+# # CSV ---------------------------------------------------------------------
+write_csv2(metadata, file = "../data/ccc_dataset/csvs/ccc_metadata.csv")
+write_csv2(judges, file = "../data/ccc_dataset/csvs/ccc_judges.csv")
+write_csv2(clerks, file = "../data/ccc_dataset/csvs/ccc_judges.csv")

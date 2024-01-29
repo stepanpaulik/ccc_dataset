@@ -25,16 +25,17 @@ get_clerks = function(){
     mutate(clerk_term_start = str_extract(string = clerk_name, pattern = "\\d+. \\d+. \\d{4}") %>% as_date(format = "%d. %m. %Y"),
            clerk_term_end = NA,
            clerk_name = str_remove(string = clerk_name, pattern = "\\s\\(\\d+. \\d+. \\d{4}\\)"),
-           judge_name = str_extract(judge_name, pattern = "[A-ZĽŠČŘ]{1}[a-zěščřžýéáó]+\\s[A-ZĽŠČŘ]{1}[a-ž]+"),
+           judge_name = str_extract(judge_name, pattern = "[A-ZĽŠČŘŽČ]{1}[a-žěščřžýáíéúůň]+(\\s[A-ZĽŠČŘŽČ]{1}[a-žěščřžýáíéúůň]+)?\\s[A-ZĽŠČŘŽČ]{1}[a-žěščřžýáíéúůň]+"),
            clerk_name_full = clerk_name,
-           clerk_name = str_extract(clerk_name_full, pattern = "[A-ZĽŠČŘ]{1}[a-ž]+\\s[A-ZĽŠČŘ]{1}[a-ž]+")) %>%
-    regex_left_join(., read_rds("../data/ccc_judges.rds") %>% select(judge_name, judge_name_lemmatized), by = c('judge_name' = 'judge_name_lemmatized')) %>%
+           clerk_name = str_extract(clerk_name_full, pattern = "[A-ZĽŠČŘŽČ]{1}[a-žěščřžýáíéúůň]+\\s[A-ZĽŠČŘŽČ]{1}[a-žěščřžýáíéúůň]+")) %>%
+    regex_left_join(., read_rds("../data/ccc_dataset/ccc_judges.rds") %>% select(judge_name, judge_name_lemmatized) %>% distinct(), by = c('judge_name' = 'judge_name_lemmatized')) %>%
     select(-c(judge_name.x, judge_name_lemmatized)) %>%
     rename(judge_name = judge_name.y) %>%
-    relocate(judge_name)
+    relocate(judge_name) %>%
+    drop_na(clerk_name)
   
   data_p2 = foreach(item = html %>% html_elements(xpath = '//*[@id="c687"]/p') %>% html_text2(), .combine = "bind_rows") %do%{
-    judge_name = str_extract_all(item, '\\([A-ZĽŠČŘ]{1}[a-ž]+\\s[A-ZĽŠČŘ]{1}[a-ž]+\\)') %>% map(.x = ., ~str_remove(.x, "\\(") %>% str_remove("\\)"))
+    judge_name = str_extract_all(item, '\\([A-ZĽŠČŘŽČ]{1}[a-žěščřžýáíéúůň]+\\s[A-ZĽŠČŘŽČ]{1}[a-žěščřžýáíéúůň]+\\)') %>% map(.x = ., ~str_remove(.x, "\\(") %>% str_remove("\\)"))
     clerk_name = sub("\\d+.\\s*\\d+.\\s*\\d{4} (–|-).*", "", item) %>% str_squish()
     start = str_extract_all(item, "\\d+.\\s*\\d+.\\s*\\d{4} (–|-)") %>% map(.x = ., ~str_remove(.x, " (–|-)") %>% str_remove_all(" "))
     end = str_extract_all(item, "(–|-)\\s\\d+.\\s*\\d+.\\s*\\d{4}") %>% map(.x = ., ~str_remove(.x, "(–|-) ") %>% str_remove_all(" "))
@@ -46,7 +47,7 @@ get_clerks = function(){
     )
   } %>%
     mutate(clerk_name_full = clerk_name,
-           clerk_name = str_extract(clerk_name_full, pattern = "[A-ZĽŠČŘ]{1}[a-ž]+\\s([A-ZĽŠČŘ].\\s)?[A-ZĽŠČŘ]{1}[a-ž]+")) %>% 
+           clerk_name = str_extract(clerk_name_full, pattern = "[A-ZĽŠČŘŽČ]{1}[a-žěščřžýáíéúůň]+\\s([A-ZĽŠČŘŽČ].\\s)?[A-ZĽŠČŘŽČ]{1}[a-žěščřžýáíéúůň]+")) %>% 
     slice(-1) %>%
     unnest(cols = c(judge_name, clerk_term_start, clerk_term_end)) %>%
     mutate(across(c(clerk_term_start,clerk_term_end), ~as_date(x = ., format = "%d.%m.%Y")))
@@ -62,7 +63,11 @@ get_clerks = function(){
              str_detect(clerk_name_full, "Mgr.|prom. práv.") ~ "mgr",
              .default = NA
            ),
-           clerk_abroad = ifelse(str_detect(clerk_name_full, "LL.\\s?M.|MJur|M.\\s?Jur.|M.\\s?St.|M.\\s?Phil."), 1, 0))
+           clerk_abroad = ifelse(str_detect(clerk_name_full, "LL.\\s?M.|MJur|M.\\s?Jur.|M.\\s?St.|M.\\s?Phil."), 1, 0)) %>%
+    left_join(., readr::read_rds("../data/ccc_dataset/ccc_judges.rds") %>% select(judge_name, judge_id) %>% distinct()) %>%
+    relocate(judge_id) %>%
+    mutate(clerk_term_end = case_when(is.na(clerk_term_end) ~ clerk_term_start %m+% years(10),
+                                      .default = clerk_term_end))
   return(data)
 }
 

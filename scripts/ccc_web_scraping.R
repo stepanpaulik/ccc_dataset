@@ -176,7 +176,7 @@ get_metadata = function(decision_addresses){
       concerned_acts = "Ostatní dotčené předpisy",
       dissenting_opinion = "Odlišné stanovisko",
       subject_proceedings = "Předmět řízení",
-      field_register = "Věcný rejstřík",
+      subject_register = "Věcný rejstřík",
       note = "Poznámka",
       url_address = "URL adresa"
     ) %>%
@@ -192,16 +192,18 @@ get_metadata = function(decision_addresses){
       length_proceeding = interval(date_submission, date_decision) %>% as.numeric('days'),
       outcome = ifelse(grepl("vyhověno", type_verdict), "granted", "rejected"),
       judge_rapporteur_name = paste0(word(judge_rapporteur_name, 2), " ", word(judge_rapporteur_name, 1)),
-      doc_id = make.unique(doc_id),
       dissenting_opinion = map(.x = dissenting_opinion, ~na_if(.x, "NA NA")),
       year_decision = year(date_decision),
-      merits_admissibility = case_when(
+      grounds = case_when(
         str_detect(as.character(type_verdict), "vyhověno|zamítnuto") ~ "merits",
         str_detect(as.character(type_verdict), "procesní") & !str_detect(as.character(type_verdict), "vyhověno|zamítnuto|odmítnutno") ~ "procedural",
         .default = "admissibility"), 
       case_id = case_id %>%
-        str_extract(., pattern = "[A-ZĽŠČŘ]{1,2}[a-zěščřžýéáó]*.ÚS\\s\\d+/\\d+(\\s#\\d)?")) %>%
-    relocate(merits_admissibility, .after = type_verdict) %>%
+        str_extract(., pattern = "[A-ZĽŠČŘ]{1,2}[a-zěščřžýéáó]*.ÚS\\s\\d+/\\d+(\\s#\\d)?"),
+      case_nr = str_extract(string = case_id, pattern = "#\\d+") %>% str_extract("\\d+"),
+      case_id = str_remove(string = case_id, pattern = "\\s#\\d+")) %>%
+        relocate(case_nr, .after = case_id) %>%
+    relocate(grounds, .after = type_verdict) %>%
     relocate(year_decision, .after = date_decision) %>%
     remove_rownames() %>%
     mutate(across(where(is.character), str_trim)) %>%
