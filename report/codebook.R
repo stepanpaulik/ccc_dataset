@@ -6,7 +6,7 @@ ccc_variables = xlsx::read.xlsx("report/codebook.xlsx", 2)
 
 # create a codebook
 codebookr::create_codebook(
-  file_path = "report/codebook.tex",
+  file_path = "report/ccc_dataset_codebook.tex",
   datasets_input = ccc_datasets,
   variables_input = ccc_variables,
   title_text = "The Czech Constitutional Court Dataset \\\\ The CCC Dataset",
