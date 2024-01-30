@@ -68,11 +68,15 @@ get_clerks = function(){
     relocate(judge_id) %>%
     mutate(clerk_term_end = case_when(is.na(clerk_term_end) ~ clerk_term_start %m+% years(10),
                                       .default = clerk_term_end))
+  data = data %>%
+    left_join(., data %>% select(clerk_name) %>% distinct() %>% rowwise() %>%
+                mutate(clerk_id = paste0("C:",cur_group_id()))) %>%
+    relocate(clerk_id, .before = clerk_name)
   return(data)
 }
 
 data_clerks = get_clerks()
-write_rds(data_clerks, "../data/ccc_dataset/ccc_clerks.rds")
+write_rds(data_clerks, "../data/ccc_dataset/rds/ccc_clerks.rds")
 
 
 

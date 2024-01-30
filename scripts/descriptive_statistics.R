@@ -3,9 +3,9 @@ library(patchwork)
 
 
 # case-level variables ----------------------------------------------------
-data_metadata = read_rds("../data/ccc_dataset/ccc_metadata.rds") %>% 
+data_metadata = read_rds("../data/ccc_dataset/rds/ccc_metadata.rds") %>% 
   mutate(presence_dissent = if_else(is.na(as.character(separate_opinion)), "None", "At least 1"))
-data_dissents = read_rds("../data/ccc_dataset/ccc_separate_opinions.rds")
+data_dissents = read_rds("../data/ccc_dataset/rds/ccc_separate_opinions.rds")
 
 data_metadata %>%
   filter(grounds %in% c("merits", "admissibility")) %>%
@@ -28,8 +28,8 @@ caseload = data_metadata %>%
 caseload
 
 # judge-level variables ---------------------------------------------------
-data_judges = read_rds(file = "../data/ccc_dataset/ccc_judges.rds")
-data_clerks = read_rds("../data/ccc_dataset/ccc_clerks.rds")
+data_judges = read_rds(file = "../data/ccc_dataset/rds/ccc_judges.rds")
+data_clerks = read_rds("../data/ccc_dataset/rds/ccc_clerks.rds")
 
 alma_mater = data_judges %>%
   ggplot(aes(x = judge_uni, fill = judge_uni)) +

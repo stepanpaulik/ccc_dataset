@@ -85,9 +85,9 @@
 
 \title{The Czech Constitutional Court Dataset\thanks{Replication files
 are available on the author's Github account (ANONYMIZED).
-\textbf{Current version}: January 29, 2024}}
+\textbf{Current version}: January 30, 2024}}
 \author{true}
-\date{January 29, 2024}
+\date{January 30, 2024}
 
 % Jesus, okay, everything above this comment is default Pandoc LaTeX template. -----
 % ----------------------------------------------------------------------------------
@@ -123,7 +123,7 @@ are available on the author's Github account (ANONYMIZED).
 
 \title{The Czech Constitutional Court Dataset\thanks{Replication files
 are available on the author's Github account (ANONYMIZED).
-\textbf{Current version}: January 29, 2024}  }
+\textbf{Current version}: January 30, 2024}  }
 
 \date{}
 
@@ -270,20 +270,22 @@ are available on the author's Github account (ANONYMIZED).
 
     \vskip 8.5pt % \small
 
-\noindent \small{Although it has been traditionally espoused that there
-has been a divide between the empirically oriented US legal scholarship,
-stemming from a different perception of the role of courts and judges,
-and the rest of the world, including the civil law systems. Apart from
-institutional features such as lack of information on the votes the lack
-of high quality data have made empirical research in civil law systems
-harder. The present article introduces a dataset on the Czech
-Constitutional Court while aiming at assisting to bridge the gap. To
-this end, the dataset contains rich information on the background of the
-cases, background of the justices, their clerk teams as well as the
-complete text corpus of all decisions until the end of 2023. The dataset
-adheres to the principles of tidy data as well as to the principles of
-accessibility, reliability, foundationality, and capacity to address
-real-world problems.}
+\noindent \small{The article at hand presents a Czech Constitutional
+Court (``CCC'') dataset, a comprehensive high-quality multi-user dataset
+on the CCC. The dataset encompasses all decisions of the CCC starting
+from its founding in 1993 until the end of 2023, including plenty of
+metadata - such as information on the judge rapporteur, subject matter,
+or concerned legal acts, a complete text corpus, as well additional
+background information on judges or clerks. The lack of high-quality
+datasets has until recently arguably hindered empirical legal research
+in the European context. While that has in the last couple of years
+significantly changed for the better, the Central and Eastern European
+region still remains rather untouched by this development. Therefore,
+the dataset at hand is one of the first, if not the first dataset in the
+CEE region. To this end, it can kickstart and assist similar efforts
+elsewhere in the region. The CCC dataset unlocks potential for
+methodologically rigorous research in a region that has been gaining on
+attention and importance in the European context.}
 
 
 %    \hbox{\vrule height .2pt width 39.14pc}
@@ -294,18 +296,9 @@ real-world problems.}
 
 \vskip -8.5pt
 
-{
-\hypersetup{linkcolor=black}
-\setcounter{tocdepth}{2}
-\tableofcontents
-}
 
  % removetitleabstract
 
-{
-\setcounter{tocdepth}{2}
-\tableofcontents
-}
 
 \setlength{\parindent}{16pt}
 \setlength{\parskip}{0pt}
@@ -320,31 +313,30 @@ between the empirically oriented US legal scholarship, stemming from a
 different perception of the role of courts and judges, and the rest of
 the world (\protect\hyperlink{ref-hamannGermanFederalCourts2019}{Hamann
 2019, 416}). Therein the judges empirically researched whether and to
-what extent they behave as for example political
-(\protect\hyperlink{ref-carrubbaWhoControlsContent2012}{Carrubba et al.
-2012}; \protect\hyperlink{ref-clarkLocatingSupremeCourt2010}{Clark and
+what extent they behave as for example political or strategic
+actors.(\protect\hyperlink{ref-carrubbaWhoControlsContent2012}{Carrubba
+et al. 2012};
+\protect\hyperlink{ref-clarkLocatingSupremeCourt2010}{Clark and
 Lauderdale 2010};
 \protect\hyperlink{ref-epsteinChoicesJusticesMake1997}{Epstein and
-Knight 1997};
+Knight 1997},
+\protect\hyperlink{ref-epsteinStrategicRevolutionJudicial2000}{2000};
 \protect\hyperlink{ref-lauderdaleScalingPoliticallyMeaningful2014}{Lauderdale
 and Clark 2014};
 \protect\hyperlink{ref-sunsteinAreJudgesPolitical2006}{Sunstein et al.
-2006}) or strategic
-(\protect\hyperlink{ref-cameronChapterWhatJudges2017}{Cameron and
+2006}; \protect\hyperlink{ref-cameronChapterWhatJudges2017}{Cameron and
 Kornhauser 2017};
 \protect\hyperlink{ref-clarkEstimatingEffectLeisure2018}{Clark, Engst,
 and Staton 2018};
 \protect\hyperlink{ref-epsteinWhyWhenJudges2011}{Epstein, Landes, and
 Posner 2011};
-\protect\hyperlink{ref-epsteinStrategicRevolutionJudicial2000}{Epstein
-and Knight 2000};
 \protect\hyperlink{ref-kornhauserModelingCollegialCourts1992}{Kornhauser
 1992b},
 \protect\hyperlink{ref-kornhauserModelingCollegialCourts1992a}{1992a};
 \protect\hyperlink{ref-posnerWhatJudgesJustices1993}{Posner 1993},
 \protect\hyperlink{ref-posnerHowJudgesThink2010}{2010};
 \protect\hyperlink{ref-rousseyOverburdenedJudges2018}{Roussey and
-Soubeyran 2018}) actors.
+Soubeyran 2018}).
 
 In contrast to, especially in European legal systems, such as the one at
 hand - Czechia, judges have been perceived as ``proclaimers of law'' and
@@ -385,12 +377,38 @@ Fjelstul, et al. 2023}), the German Federal courts
 well as the German Federal Constitutional Court
 (\protect\hyperlink{ref-engstConstitutionalCourtDatabaseForthcoming}{Benjamin
 G. Engst, Hönnige, and Gschwend Forthcoming}). The mushrooming research
-proves that there is demand for quality data in Europe as well. This
-article presents a Czech Constitutional Court (``CCC'') dataset, a
-comprehensive high-quality multi-user dataset on the CCC.
+proves that there is demand for quality data in Europe as well. The
+article at hand presents a Czech Constitutional Court (``CCC'') dataset,
+a comprehensive high-quality multi-user dataset on the CCC.
 
-To the author's best knowledge, there have been solitary attempts go
-gather data in some shape or form in the CCC context
+The CCC dataset is foundational in that it encompasses plethora of data
+that other researches can base their research efforts on, it has the
+capacity address research questions and it adheres to the tidy data
+principles. The dataset encompasses all decisions of the CCC starting
+from its founding in 1993 until the end of 2023, including plenty of
+metadata - such as information on the judge rapporteur, subject matter,
+or concerned legal acts, a complete text corpus, as well additional
+background information on judges or clerks.
+
+To the my best knowledge, the CCC dataset is one of the first, if not
+the first, comperehensive dataset coming out of the Central and Eastern
+European (``CEE'') region. The CEE region has gotten to the spotlight of
+the European legal research, for example, thanks to the various rule of
+law crises, in which the regional constitutional courts and their
+interplay with the CJEU have played an important role
+(\protect\hyperlink{ref-kelemenEuropeanUnionAuthoritarian2020}{R. Daniel
+Kelemen 2020};
+\protect\hyperlink{ref-kelemenUsesAbusesConstitutional2019}{R. Daniel
+Kelemen and Pech 2019};
+\protect\hyperlink{ref-sadurskiPolandConstitutionalBreakdown2019}{Sadurski
+2019} and many other articles). Despite that the CEE scholarship has so
+far produced very little in terms of methodologically rigorous empirical
+legal research output concerning the role of the judiciary,
+constitutional courts or judicial politics. The lack of high-quality
+datasets is undoubtedly a piece of this puzzle.
+
+When we zero in on Czechia, there have been solitary attempts go gather
+data in some shape or form in the CCC context
 (\protect\hyperlink{ref-harastaAnnotatedCorpusCzech2018}{Harašta et al.
 2018}; \protect\hyperlink{ref-novotnaCzechCourtDecisions2019}{Novotná
 and Harašta 2019}), mainly thanks to the Institute of Law and Technology
@@ -406,19 +424,18 @@ Unfortunately, the former group does not always adhere to the principles
 of of high-quality infrastructure, namely the principle of
 foundationality, espoused by Weinshall and Epstein
 (\protect\hyperlink{ref-weinshallDevelopingHighQualityData2020}{2020}),
-p.~424, the latter group did not publish data/code at all. Therefore,
-the effort to put together and to publish a high-quality dataset on the
-CCC is more than warranted, especially to enable empirical legal
-scholarship to flourish.
+p.~424, the latter group did not publish data/code at all.
 
-This article presents a novel Czech Constitutional Court dataset. The
-dataset is foundational in that it encompasses plethora of data that
-other researches can base their research efforts on, it has the capacity
-address research questions and it adheres to the tidy data principles.
-The dataset encompasses all decisions of the CCC starting from its
-founding in 1993 until the end of 2023, including plenty of metadata and
-a complete text corpus, as well additional background information on
-judges or clerks.
+Therefore, the effort to put together and to publish a high-quality
+dataset on the CCC is more than warranted, especially to enable
+empirical legal scholarship to flourish. As the article explains later,
+the dataset at hand can serve as an foundation for wide variety of
+research inquiries, for example, research into the role of gender or the
+role of law clerks. Moreover, the dataset offers a blueprint for future
+efforts to build akin datasets. In building the dataset, I attempted to
+name the variables and to structure the data in a transparent,
+replicable and comparable way so that any efforts from different courts
+can mimic my approach without steep costs and efforts.
 
 The article proceeds as follow. In the section 2, I introduce the CCC,
 namely its compositions, its internal organization and its powers to
@@ -430,7 +447,7 @@ including its relevance for research, as well as to the adherence of the
 tidy data principles. The last section concludes.
 
 \hypertarget{a-brief-primer-on-the-ccc}{%
-\section{A brief primer on the CCC}\label{a-brief-primer-on-the-ccc}}
+\section{A Brief Primer on the CCC}\label{a-brief-primer-on-the-ccc}}
 
 The CCC consists of fifteen justices, out of which one is the president
 of the CCC, two are vice presidents and twelve associate justices
@@ -500,15 +517,30 @@ votes. The president of the CCC (in plenary cases) or the president of
 the chamber (in chamber cases) may re-assign a case to a different judge
 rapporteur if the draft opinion by the original judge rapporteur did not
 receive a majority of votes. Unfortunately, the CCC does not keep track
-of these reassignments.\footnote{I unsuccessfully attempted to retrieve
-  the information with the right to information}
+of these reassignments.\footnote{More specifically, some decisions
+  mention the reassignement. However, not all do, therefore an attempt
+  to retrieve the information from the texts was highly unreliable.
+  According to my internal insight, the CCC should always pass a short
+  procedural decision when a reassignement takes place. I unsuccessfully
+  attempted to retrieve the information with the right to information as
+  the procedural decision is not available in electronic form and
+  retrieving the full information would thus entail manually going
+  through all paper files.}
 
 The CCC allows for separate opinions. They can take two forms:
 dissenting or concurring opinions. Each justice has the right to author
 a separate opinion, which then gets published with the CCC decision. It
 follows that not every anti-majority vote implies a separate opinion, it
 is up to the justices to decide whether they want to attach a separate
-opinion with their vote.
+opinion with their vote. Vice-versa, not every separate opinion implies
+an anti-majority vote, as the justices can attach a concurring opinion.
+In contrast to dissenting opinion, when a judge attaches a concurring
+opinion, they voted with the majority but disagree with its
+argumentation.\footnote{Which makes it difficult to, for example,
+  conduct the same point-estimation with data on dissenting behavior of
+  justices as Hanretty
+  (\protect\hyperlink{ref-hanrettyDissentIberiaIdeal2012}{2012}) has
+  done on the Portugese and Spanish Constitutional Courts.}
 
 It may be concluded that the CCC takes after the american model of
 selection of justices, with the president of the republic and the upper
@@ -525,11 +557,11 @@ legal research.
 
 \hypertarget{description-of-the-ccc-dataset}{%
 \section{Description of the CCC
-dataset}\label{description-of-the-ccc-dataset}}
+Dataset}\label{description-of-the-ccc-dataset}}
 
 \hypertarget{structure-and-case-inclusion}{%
 \subsection{Structure and Case
-inclusion}\label{structure-and-case-inclusion}}
+Inclusion}\label{structure-and-case-inclusion}}
 
 The CCC dataset includes all publicly available CCC decisions from its
 foundation until the end of 2023, that is 93826 decisions, as well as
@@ -640,13 +672,18 @@ seventies.}
 
 We can, for example observe, that although the CCC has a seat in Brno,
 most of its justices have graduated at the Prague Charles University.
-One could, for example, study whether the identification with the CCC
-differs among the justices based on their \emph{alma mater}, as the
+One could, for example, study whether the norm-identification with the
+norms surrounding their role of a CCC justice as presented by Wittig
+(\protect\hyperlink{ref-wittigOccurrenceSeparateOpinions2016}{2016})
+varies among the justices based on their \emph{alma mater}, as the
 judges from Prague must have either relocated to a new city or commuted
 to their work\footnote{Based on a personal insight, there is a number of
   examples of the later approach, namely of justices that never
   identified themselves with Brno and that would commute to the CCC only
-  for a day or two per week.}
+  for a day or two per week.}, whereas the graduates from Brno's Masaryk
+University have been socialized into the CCC during their studies, as
+many of the CCC justices have historically kept their teaching or
+research duties at MUNI, and do not have to commute.
 
 \begin{figure}
 \centering
@@ -662,8 +699,8 @@ judge they deserved, what was their term, what is their gender,
 education, or whether they studied abroad.
 
 \hypertarget{principles-guiding-the-ccc-dataset}{%
-\section{Principles guiding the CCC
-dataset}\label{principles-guiding-the-ccc-dataset}}
+\section{Principles Guiding the CCC
+Dataset}\label{principles-guiding-the-ccc-dataset}}
 
 The Czech Constitutional Court Dataset is a ``multi-user dataset''
 created in a principled manner. Epstein et al.
@@ -775,8 +812,14 @@ teams of female justices is on the left and their male counterparts are
 on the right.}
 \end{figure}
 
-Such a finding offers a potential for more in-depth inquiry into the
-background, hiring and role of clerks.
+The data at hand have a potential to shed light on the understudied role
+of law clerks, whether its their influence on the final decision as ``an
+information source''
+(\protect\hyperlink{ref-kromphardtUSSupremeCourt2015}{Kromphardt 2015})
+or the influence of their background (such as gender) on their behavior
+(\protect\hyperlink{ref-badasGenderAmbitionPotential2023}{Badas and
+Stauffer 2023}). Such a research is far and few between even in the US
+context and it's practically non-existent in the European context.
 
 \hypertarget{dissenting-behavior-of-justices}{%
 \subsubsection{Dissenting behavior of
@@ -822,7 +865,7 @@ categorical variable of whether the panel was composed of members of one
 coalitoin or whether the panel was mixed.
 
 \begin{table}
-
+\centering
 \caption{\label{tab:coalitions}Results from the Logit Model}
 \centering
 \begin{tabular}[t]{lc}
@@ -864,8 +907,13 @@ Skalicky, and Dascalu 2019};
 \protect\hyperlink{ref-fixEffectOpinionReadability2020}{Fix and
 Fairbanks 2020}) and link those measures to interesting research
 question. For example, do the better readable CCC decisions get cited by
-the CCC more than the less readable? Does the CCC use vague language in
-certain areas/for certain reasons more than for others?
+the CCC more than the less readable
+(\protect\hyperlink{ref-fixEffectOpinionReadability2020}{Fix and
+Fairbanks 2020};
+\protect\hyperlink{ref-crossleyMovingClassicReadability2019}{Crossley,
+Skalicky, and Dascalu 2019})? Does the CCC use vague language in certain
+areas/for certain reasons more than for others
+(\protect\hyperlink{ref-sternbergNoPublicNo2019}{Sternberg 2019})?
 
 Practically every dataset introduction article contains a disclaimer
 that the goal of presenting these simplified models is not to draw any
@@ -967,27 +1015,26 @@ have come up with.
 \hypertarget{conclusion}{%
 \section{Conclusion}\label{conclusion}}
 
-Building high quality datasets can enable the European empirical legal
-research to catch up with the US especially. While on the one hand,
-institutional features make the civil law harder to research
-empirically, on the other, there is still plenty of room for creativity
-and methodological rigor.
-
-The present article introduces a dataset on the Czech Constitutional
+The present article introduced a dataset on the Czech Constitutional
 Court while aiming at bridging the gap. To this end, the dataset
 contains rich information on the background of the cases, background of
 the justices, their clerk teams as well as the complete text corpus of
 all decisions until the end of 2023. The dataset adheres to the
 principles of tidy data as well as to the principles of accessibility,
 reliability, foundationality, and capacity to address real-world
-problems. The dataset, in my view, enables research on the
-decision-making of the judges, examples include their dissenting
-behavior, strategic acting, or the influence of their clerk teams, on
-the institutional set up of the CCC, examples include the introduction
-of rotations or the various ways to expedite the CCC caseload, and
-lastly on the texts of the decisions themselves, for example studying
-various linguistic features of the decisions such as readability or
-vagueness.
+problems.
+
+The dataset, in my view, enables empirical research in the CEE region
+that has been lacking in the past on methodologically rigorous empirical
+research. The datasets unlocks research on the decision-making of judges
+and judicial politics, such as their dissenting behavior, strategic
+acting, or the influence of their clerk teams, on the institutional set
+up of the CCC, such as the introduction of rotations or the various ways
+to expedite the CCC caseload, and lastly on the texts of the decisions
+themselves, for example studying various linguistic features of the
+decisions such as readability or vagueness. Therefore, the present
+article makes a valuable contribution to the (European) empirical legal
+research scholarship.
 
 \vspace{30pt}
 
@@ -1001,6 +1048,11 @@ vagueness.
 Arnold, Christian, Benjamin G. Engst, and Thomas Gschwend. 2023.
 {``Scaling {Court Decisions} with {Citation Networks}.''} \emph{Journal
 of Law and Courts} 11 (1): 25--44. \url{https://doi.org/10.1086/717420}.
+
+\leavevmode\vadjust pre{\hypertarget{ref-badasGenderAmbitionPotential2023}{}}%
+Badas, Alex, and Katelyn E. Stauffer. 2023. {``Gender and {Ambition
+Among Potential Law Clerks}.''} \emph{Journal of Law and Courts} 11 (1):
+116--40. \url{https://doi.org/10.1017/jlc.2022.8}.
 
 \leavevmode\vadjust pre{\hypertarget{ref-bielenBacklogsLitigationRates2018}{}}%
 Bielen, Samantha, Ludo Peeters, Wim Marneffe, and Lode Vereeck. 2018.
@@ -1189,6 +1241,18 @@ Bishop, Thomas E. Nichols, and Eric-Jan Wagenmakers. 2018. {``Data
 Psychological Science} 1 (1): 70--85.
 \url{https://doi.org/10.1177/2515245917751886}.
 
+\leavevmode\vadjust pre{\hypertarget{ref-kelemenUsesAbusesConstitutional2019}{}}%
+Kelemen, R Daniel, and Laurent Pech. 2019. {``The {Uses} and {Abuses} of
+{Constitutional Pluralism}: {Undermining} the {Rule} of {Law} in the
+{Name} of {Constitutional Identity} in {Hungary} and {Poland}.''}
+\emph{Cambridge Yearbook of European Legal Studies} 21 (December):
+59--74. \url{https://doi.org/10.1017/cel.2019.11}.
+
+\leavevmode\vadjust pre{\hypertarget{ref-kelemenEuropeanUnionAuthoritarian2020}{}}%
+Kelemen, R. Daniel. 2020. {``The {European Union}'s Authoritarian
+Equilibrium.''} \emph{Journal of European Public Policy} 27 (3):
+481--99. \url{https://doi.org/10.1080/13501763.2020.1712455}.
+
 \leavevmode\vadjust pre{\hypertarget{ref-kornhauserModelingCollegialCourts1992a}{}}%
 Kornhauser, Lewis A. 1992a. {``Modeling {Collegial Courts}. {II}. {Legal
 Doctrine}.''} \emph{Journal of Law, Economics and Organization} 8: 441.
@@ -1206,6 +1270,11 @@ Law}: {Volume III}: {Constitutional Adjudication}: {Institutions}},
 edited by Armin von Bogdandy, Peter Huber, and Christoph Grabenwarter,
 0. {Oxford University Press}.
 \url{https://doi.org/10.1093/oso/9780198726418.003.0004}.
+
+\leavevmode\vadjust pre{\hypertarget{ref-kromphardtUSSupremeCourt2015}{}}%
+Kromphardt, Christopher D. 2015. {``{US Supreme Court Law Clerks} as
+{Information Sources}.''} \emph{Journal of Law and Courts} 3 (2):
+277--304. \url{https://doi.org/10.1086/682136}.
 
 \leavevmode\vadjust pre{\hypertarget{ref-lauderdaleScalingPoliticallyMeaningful2014}{}}%
 Lauderdale, Benjamin E., and Tom S. Clark. 2014. {``Scaling {Politically
@@ -1231,6 +1300,10 @@ University of Chicago}. \url{https://books.google.com?id=ciFUHQAACAAJ}.
 Roussey, Ludivine, and Raphael Soubeyran. 2018. {``Overburdened
 Judges.''} \emph{International Review of Law and Economics} 55
 (September): 21--32. \url{https://doi.org/10.1016/j.irle.2018.02.003}.
+
+\leavevmode\vadjust pre{\hypertarget{ref-sadurskiPolandConstitutionalBreakdown2019}{}}%
+Sadurski, Wojciech. 2019. \emph{Poland's {Constitutional Breakdown}}.
+{Oxford, New York}: {Oxford University Press}.
 
 \leavevmode\vadjust pre{\hypertarget{ref-smekalMimopravniVlivyNa2021}{}}%
 Smekal, Hubert, Jaroslav Benák, Monika Hanych, Ladislav Vyhnánek, and

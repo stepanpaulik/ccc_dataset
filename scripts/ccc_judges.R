@@ -77,4 +77,4 @@ data_judges <- tribble(
   relocate(judge_id) %>%
   mutate(judge_initials = paste0(substring(word(judge_name, 1), 1, 1), ".\\s*", substring(word(judge_name, 2), 1, 1), "."))
 
-write_rds(data_judges, file = "../data/ccc_dataset/ccc_judges.rds")
+write_rds(data_judges, file = "../data/ccc_dataset/rds/ccc_judges.rds")
