@@ -1,16 +1,5 @@
 # Apex Courts Dataset by Štěpán Paulík
 
-<details>
-<summary>Content of the Repository</summary>
+The article at hand introduces a comprehensive foundational dataset on the Czech Constitutional Court spanning from its inception in 1993 to 2023. The dataset includes metadata on all decisions, full text corpus, and additional background data on judges and law clerks, filling a gap in high-quality datasets for empirical legal research in the Central and Eastern European region. As one of the first datasets in the CEE region, it has the potential to catalyze similar research efforts and contribute to methodologically rigorous empirical legal research in a region of increasing European significance.
 
-|      | Content |
-|-----:|-----------|
-|     1| Metadata  |
-|     2| Text Corpus    |
-|     3| Various data wrangling scripts     |
-
-</details>
-
-Welcome to the repository for my PhD project. Here, you can follow the progression of its development. The project concerns quantative analyses of judicial behavior. The data contained herein contain information on the Czech apex courts, they're preserved in tidy format and as a MySQL database. The repository includes numerous data manipulation scripts, quantative text analysis scripts or some basic modelling scripts.
-
-You can find all the data on my [Google Drive](https://drive.google.com/drive/u/0/folders/1JRuu0mJyU1NvKX_4H4x3gpQC8JggnNfg). The data are updated on a weekly basis on Sunday evening.
+You can find all the data on [the Zenodo Repository]([https://drive.google.com/drive/u/0/folders/1JRuu0mJyU1NvKX_4H4x3gpQC8JggnNfg](https://zenodo.org/records/10591110)https://zenodo.org/records/10591110). The attached codebook explains all the variables and datasets includuded in the CCC dataset.
