@@ -18,7 +18,7 @@ data_judges <- tribble(
   "Eliška Wagnerová", "Elišk[a-žěščřžýáíéúůň]*\\s*W(a|á)gner[a-žěščřžýáíéúůň]*", 1948, "F", "CUNI", "phd", "scholar", "20.3.2002", "20.3.2012",
   "František Duchoň", "Františ[a-žěščřžýáíéúůň]*\\s*Ducho[a-žěščřžýáíéúůň]*", 1946, "M", "CUNI", "judr", "judge", "6.6.2002", "6.6.2012",
   "Dagmar Lastovecká", "Dagmar Lastoveck[a-žěščřžýáíéúůň]*", 1951, "F", "MUNI", "judr", "politician", "29.8.2003", "29.8.2013",
-  "Pavel Holländer", "Pav[a-žěščřžýáíéúůň]*\\s*Holländer[a-žěščřžýáíéúůň]*", 1953, "M", "KOM", "prof", "scholar", c("15.7.1993", "6.8.2003"), c("15.7.2003", "6.8.2013"),
+  "Pavel Holländer", "Pav[a-žěščřžýáíéúůň]*\\s*Holl[a-žěščřžýáíéúůňä]nder[a-žěščřžýáíéúůň]*", 1953, "M", "KOM", "prof", "scholar", c("15.7.1993", "6.8.2003"), c("15.7.2003", "6.8.2013"),
   "Vojen Güttler", "Vojen[a-žěščřžýáíéúůň]*\\s*G(ü|ű|u|ú)t(|t)ler[a-žěščřžýáíéúůň]*", 1934, "M", "CUNI", "judr", c("politician", "judge"), c("15.7.1993", "6.8.2003"), c("15.7.2003", "6.8.2013"),
   "Miloslav Výborný", "Miloslav[a-žěščřžýáíéúůň]*\\s*Výborn[a-žěščřžýáíéúůň]*", 1952, "M", "CUNI", "judr", "politician", "3.6.2003", "3.6.2013",
   "Jiří Mucha", "Jiří[a-žěščřžýáíéúůň]*\\s*Much[a-žěščřžýáíéúůň]*", 1946, "M", "CUNI", "judr", "lawyer", "28.1.2003", "28.1.2013",
@@ -51,7 +51,7 @@ data_judges <- tribble(
   "Kateřina Ronovská", "Kate[a-žěščřžýáíéúůň]*\\s*Ronovs[a-žěščřžýáíéúůň]*", 1974, "F", "MUNI", "prof", "scholar", "4.8.2023", NA,
   "Veronika Křesťanová", "Veroni[a-žěščřžýáíéúůň]*\\s*Křesťan[a-žěščřžýáíéúůň]*", 1969, "F", "CUNI", "phd", "judge", "8.8.2023", NA,
   "Lucie Dolanská Bányaiová", "Luci[a-žěščřžýáíéúůň]* (Dola)*[a-žěščřžýáíéúůň]* Bányai[a-žěščřžýáíéúůň]*", 1974, "F", "CUNI", "phd", "lawyer", "19.12.2023", NA,
-  "Zdeněk Kühn", "Zde[a-žěščřžýáíéúůň]* K[a-žěščřžýáíéúůň]*", 1973, "M", "CUNI", "prof", "judge", "19.12.2023", NA
+  "Zdeněk Kühn", "Zde[a-žěščřžýáíéúůň]* K[a-žěščřžýáíéúůň]hn[a-žěščřžýáíéúůň]*", 1973, "M", "CUNI", "prof", "judge", "19.12.2023", NA
 ) %>%
   rowwise() %>%
   mutate(judge_id = paste0("J:",cur_group_id())) %>%
@@ -61,7 +61,7 @@ data_judges <- tribble(
   mutate(judge_term_court = case_when(year(judge_term_start) < 1995 ~ "1st",
                                year(judge_term_start) < 2010 ~ "2nd",
                                year(judge_term_start) < 2018 ~ "3rd",
-                               year(judge_term_start) > 2021 ~ "4th"),
+                               year(judge_term_start) > 2019 ~ "4th"),
          judge_term_president = case_when(judge_term_court == "1st" ~ "Václav Havel",
                                           judge_term_court == "2nd" ~ "Václav Klaus",
                                           judge_term_court == "3rd" ~ "Miloš Zeman",

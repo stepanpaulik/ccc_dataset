@@ -1,4 +1,5 @@
 library(tidyverse)
+source("scripts/ccc_web_scraping.R")
 source("scripts/ccc_supporting_functions.R")
 
 # LOAD CURRENT DATA -------------------------------------------------------
@@ -6,8 +7,44 @@ metadata = read_rds(file = "../data/ccc_dataset/rds/ccc_metadata.rds")
 texts = read_rds(file = "../data/ccc_dataset/rds/ccc_texts.rds")
 judges = readr::read_rds("../data/ccc_dataset/rds/ccc_judges.rds")
 clerks = readr::read_rds("../data/ccc_dataset/rds/ccc_clerks.rds")
-separate_opinions = readr::read_rds("../data/ccc_dataset/rds/ccc_separate_opinions.rds")
+# separate_opinions = readr::read_rds("../data/ccc_dataset/rds/ccc_separate_opinions.rds")
 
+
+# UPDATE CURRENT DATA -----------------------------------------------------
+ccc_IDs_new = get_urls(as.character(max(ccc_metadata$date_decision)))
+ccc_IDs = c(read_rds(file = "../data/ccc_dataset/rds/ccc_IDs.rds"),ccc_IDs_new)
+write_rds(ccc_IDs, file = "../data/ccc_dataset/rds/ccc_IDs.rds")
+
+metadata_new = get_metadata(ccc_IDs_new)
+metadata = bind_rows(metadata, metadata_new) %>%
+  mutate(doc_id = make.unique(doc_id))
+
+metadata = get_compositions(metadata = metadata, texts = texts, judges = judges)
+
+metadata = get_citations(metadata = metadata, texts = texts)
+
+# Unnest the compositions list-column
+compositions = metadata %>%
+  select(doc_id, composition) %>%
+  unnest(composition)
+
+# Correction for the nalus error where some chamber decisions are wrongly tagged as plenary decisions
+# metadata = metadata |>
+#   left_join(compositions |>
+#               group_by(doc_id) |>
+#               count()) |>
+#   mutate(formation = case_when(formation == "Plenum" & n == 3 ~ "Chamber",
+#                                .default = formation)) |>
+#   select(-n)
+
+# Update texts
+texts_new = get_texts(metadata = metadata %>%
+                        filter(!doc_id %in% texts$doc_id))
+texts = bind_rows(texts, texts_new)
+
+# WRITE UPDATED DATA ------------------------------------------------------
+readr::write_rds(metadata, file = "../data/ccc_dataset/rds/ccc_metadata.rds")
+readr::write_rds(texts, file = "../data/ccc_dataset/rds/ccc_texts.rds")
 
 # ADDITIONAL DATA ---------------------------------------------------------
 separate_opinions = get_separate_opinions(metadata, texts, judges)
@@ -98,10 +135,6 @@ disputed_acts = metadata %>%
   )) %>%
   drop_na()
 
-compositions = metadata %>%
-  select(doc_id, composition) %>%
-  unnest(composition)
-
 
 verdicts = metadata %>%
   select(doc_id, type_verdict) %>%
@@ -126,11 +159,13 @@ write_rds(verdicts, file = "../data/ccc_dataset/rds/ccc_verdicts.rds")
 
 # # CSV ---------------------------------------------------------------------
 rds2csv = function(file) {
-  data = readr::read_rds(file)
-  outfile = str_replace(string = file, pattern = ".rds", replacement = ".csv") %>%
+  data = readr::read_rds(file) %>%
+    dplyr::mutate(across(where(is.list), as.character))
+  outfile = str_replace(string = file, pattern = "\\.rds", replacement = ".csv") %>%
     str_replace("../data/ccc_dataset/rds/", replacement = "../data/ccc_dataset/csv/")
   write_csv(data, file=outfile)
 }
 
 list.files(path = "../data/ccc_dataset/rds", pattern = ".rds", full.names = TRUE) %>%
   map(rds2csv)
+

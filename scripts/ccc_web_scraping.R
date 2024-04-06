@@ -228,7 +228,8 @@ get_texts = function(metadata) {
     mutate(text = future_map(.x = url_address, ~read_html(.) %>% 
                         html_element(xpath='//td[@class="DocContent"]/table/tr/td') %>% 
                         html_text2() %>%
-                        str_trim(side = "both"), .progress = TRUE)) %>%
+                        str_trim(side = "both"), .progress = TRUE) %>% 
+             unlist()) %>%
     select(-url_address)
 }
                         
