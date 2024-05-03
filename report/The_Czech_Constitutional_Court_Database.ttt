@@ -1,0 +1,112 @@
+\begin{table}
+\centering
+\caption{\label{tab:skim}Overview of the tables of the CCC database as well as summary statistics.}
+\centering
+\begin{tabular}[t]{l|l|r|r}
+\hline
+table & obeservation & n\_observations & n\_variables\\
+\hline
+ccc\_metadata & decision & 93826 & 30\\
+\hline
+ccc\_texts & text & 93826 & 2\\
+\hline
+ccc\_compositions & justice-decision & 219827 & 3\\
+\hline
+ccc\_references & reference-decision & 543641 & 3\\
+\hline
+ccc\_metadata & separate opinion-decision & 1154 & 4\\
+\hline
+ccc\_subject\_matter & subject matter-decision & 351943 & 3\\
+\hline
+ccc\_parties & party-decision & 237144 & 4\\
+\hline
+ccc\_verdicts & verdict-decision & 103142 & 3\\
+\hline
+ccc\_judges & judge & 55 & 14\\
+\hline
+ccc\_clerks & clerk & 376 & 10\\
+\hline
+\end{tabular}
+\end{table}
+\efloatseparator
+ 
+\begin{table}
+\centering
+\caption{\label{tab:graduates}A table showing the representation of women among CCC justices, their clerks, and law graduates in Czechia.}
+\centering
+\begin{tabular}[t]{l|r}
+\hline
+ & \% of Women\\
+\hline
+Graduates & 58.6\\
+\hline
+Clerks & 47.5\\
+\hline
+Judges & 26.0\\
+\hline
+\end{tabular}
+\end{table}
+\efloatseparator
+ 
+\begin{table}
+\centering
+\caption{\label{tab:coalitions}The total number as well as the percentage of the 3-member chamber decisions containing a separate opinion (SO) depending on whether the composition was made up of justices either from both coalitions (mixed) or from either coalition (full)}
+\centering
+\begin{tabular}[t]{l|r|r|l}
+\hline
+Composition & \# with SO & Total & \% with SO\\
+\hline
+Mixed & 65 & 985 & 6.60\%\\
+\hline
+Full & 11 & 599 & 1.84\%\\
+\hline
+\end{tabular}
+\end{table}
+\efloatseparator
+ 
+\begin{table}
+\centering
+\caption{\label{tab:check-composition-tab}A table showing the absolute number of decisions as well as the proportion of incorrectly extracted compositions from the texts of the CCC decisions. The numbers clearly show that while the first term is rather inaccurate, the consistency with whitch the CCC includes information in its decisions greatly increased over time to the point that the 3rd term is practically completely accurate.}
+\centering
+\begin{tabular}[t]{l|l|r|r|l}
+\hline
+Formation & Term & Incorrect & Correct & Proportion of Incorrect\\
+\hline
+Panel & 1st & 9514 & 8385 & 53.15\%\\
+\hline
+Plenum & 1st & 273 & 146 & 65.16\%\\
+\hline
+Panel & 2nd & 4979 & 33810 & 12.84\%\\
+\hline
+Plenum & 2nd & 19 & 600 & 3.07\%\\
+\hline
+Panel & 3rd & 573 & 35092 & 1.61\%\\
+\hline
+Plenum & 3rd & 1 & 432 & 0.23\%\\
+\hline
+\end{tabular}
+\end{table}
+\efloatseparator
+ 
+\begin{table}
+\centering
+\caption{\label{tab:check-separate-opinions-tab}A table showing the number of correctly and incorrectly extracted information about the dissenting group from the texts of the CCC decisions. The numbers clearly show that while the first term is rather inaccurate, the consistency with whitch the CCC includes information in its decisions greatly increased over time to the point that the 3rd term is practically completely accurate.}
+\centering
+\begin{tabular}[t]{l|l|r|r|l}
+\hline
+Formation & Term & Incorrect & Correct & Proportion of Incorrect\\
+\hline
+Panel & 1st & 22 & 4 & 15.38\%\\
+\hline
+Plenum & 1st & 108 & 60 & 35.71\%\\
+\hline
+Panel & 2nd & 92 & 1 & 1.08\%\\
+\hline
+Plenum & 2nd & 369 & 9 & 2.38\%\\
+\hline
+Panel & 3rd & 125 & 0 & 0.00\%\\
+\hline
+Plenum & 3rd & 360 & 4 & 1.10\%\\
+\hline
+\end{tabular}
+\end{table}

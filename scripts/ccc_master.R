@@ -7,7 +7,13 @@ metadata = read_rds(file = "../data/ccc_dataset/rds/ccc_metadata.rds")
 texts = read_rds(file = "../data/ccc_dataset/rds/ccc_texts.rds")
 judges = readr::read_rds("../data/ccc_dataset/rds/ccc_judges.rds")
 clerks = readr::read_rds("../data/ccc_dataset/rds/ccc_clerks.rds")
-# separate_opinions = readr::read_rds("../data/ccc_dataset/rds/ccc_separate_opinions.rds")
+compositions = readr::read_rds("../data/ccc_dataset/rds/ccc_compositions.rds")
+separate_opinions = readr::read_rds("../data/ccc_dataset/rds/ccc_separate_opinions.rds")
+references = readr::read_rds("../data/ccc_dataset/rds/ccc_references.rds")
+parties = readr::read_rds("../data/ccc_dataset/rds/ccc_parties.rds")
+subject_matter = readr::read_rds("../data/ccc_dataset/rds/ccc_subject_matter.rds")
+disputed_acts = readr::read_rds("../data/ccc_dataset/rds/ccc_disputed_acts.rds")
+verdicts = readr::read_rds("../data/ccc_dataset/rds/ccc_verdicts.rds")
 
 
 # UPDATE CURRENT DATA -----------------------------------------------------
@@ -89,7 +95,7 @@ parties = bind_rows(
     str_detect(string = party, pattern = "STĚŽOVATEL - PO") ~ "legal_person",
     str_detect(string = party, pattern = "OBEC") ~ "municipality",
     str_detect(string = party, pattern = "SOUD") ~ "court",
-    str_detect(string = party, pattern = "ÚŘAD|STÁTNÍ ORGÁN|JINÝ ORGÁN VEŘEJNÉ MOCI") ~ "state_authority",
+    str_detect(string = party, pattern = "ÚŘAD|STÁTNÍ ORGÁN|JINÝ ORGÁN VEŘEJNÉ MOCI|INSPEKCE|ČESKÁ SPRÁVA SOCIÁLNÍHO ZABEZPEČENÍ|ÚSTAV|FOND|RADA PRO ROZHLASOVÉ A TELEVIZNÍ VYSÍLÁNÍ|PROFESNÍ KOMORA") ~ "state_authority",
     str_detect(string = party, pattern = "VLÁDA") ~ "government",
     str_detect(string = party, pattern = "KRAJ") ~ "region",
     str_detect(string = party, pattern = "MINISTERSTVO") ~ "ministry",
@@ -99,9 +105,16 @@ parties = bind_rows(
     str_detect(string = party, pattern = "POLICIE") ~ "police",
     str_detect(string = party, pattern = "STÁTNÍ ZASTUPITELSTVÍ") ~ "state_prosecution",
     str_detect(string = party, pattern = "VEŘEJNÝ OCHRÁNCE PRÁV") ~ "ombudsperson",
+    str_detect(string = party, pattern = "VOLEBNÍ STRANA") ~ "political party",
+    str_detect(string = party, pattern = "ARMÁDA|BEZPEČNOSTNÍ INFORMAČNÍ SLUŽBA") ~ "defense",
+    str_detect(string = party, pattern = "POSLANEC|SENÁTOR") ~ "MP",
+    str_detect(string = party, pattern = "POJIŠŤOVNA") ~ "public insurance company",
+    str_detect(string = party, pattern = "BANKA") ~ "central bank",
+    str_detect(string = party, pattern = "SENÁT ÚS ") ~ "CCC chamber",
+    str_detect(string = party, pattern = "VĚZEŇSKÁ SLUŽBA") ~ "prison service",
     .default = NA
   ))
-  
+
 subject_matter = bind_rows(
   metadata %>%
     select(doc_id, subject_proceedings) %>%
@@ -168,4 +181,3 @@ rds2csv = function(file) {
 
 list.files(path = "../data/ccc_dataset/rds", pattern = ".rds", full.names = TRUE) %>%
   map(rds2csv)
-

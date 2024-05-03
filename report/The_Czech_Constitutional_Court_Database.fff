@@ -1,0 +1,33 @@
+\begin{figure}
+\centering
+\includegraphics{The_Czech_Constitutional_Court_Database_files/figure-latex/database-diagram-1.pdf}
+\caption{\label{fig:database-diagram}A diagram of the CCC database schema. The main master table is the ccc\_metadata table, to which all the variable-decision level tables are linked via the doc\_id unique identifier. The ccc\_judges table is directly connected to the ccc\_metadata via the judge\_rapporteur\_id variable and indirectly linked via the ccc\_composition table.}
+\end{figure}
+\efloatseparator
+ 
+\begin{figure}
+\centering
+\includegraphics{The_Czech_Constitutional_Court_Database_files/figure-latex/gender-distribution-1.pdf}
+\caption{\label{fig:gender-distribution}Comparison of proportions of genders among justices (on the left) and among their clerks (on the right). The X axis of the left bar chart signifies the terms of the CCC, which roughly correspond to decades.}
+\end{figure}
+\efloatseparator
+ 
+\begin{figure}
+\centering
+\includegraphics{The_Czech_Constitutional_Court_Database_files/figure-latex/gender-clerks-judges-1.pdf}
+\caption{\label{fig:gender-clerks-judges}The gender composition of the clerk teams facetted by the gender of the hiring justice. The gender composition of the clerk teams of female justices is on the left and their male counterparts are on the right.}
+\end{figure}
+\efloatseparator
+ 
+\begin{figure}
+\centering
+\includegraphics{The_Czech_Constitutional_Court_Database_files/figure-latex/check-composition-panel-1.pdf}
+\caption{\label{fig:check-composition-panel}The number of justices retrieved from the text of each decision in the 3-member chamber decisions faceted by the term.}
+\end{figure}
+\efloatseparator
+ 
+\begin{figure}
+\centering
+\includegraphics{The_Czech_Constitutional_Court_Database_files/figure-latex/check-composition-plenum-1.pdf}
+\caption{\label{fig:check-composition-plenum}The number of justices retrieved from the text of each decision in the plenary decisions faceted by the term.}
+\end{figure}

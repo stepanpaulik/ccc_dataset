@@ -4,3 +4,4 @@ rmarkdown::render("report/The_Czech_Constitutional_Court_Database.Rmd", output_f
                                           latex_engine = "xelatex",
                                           toc = TRUE, number_sections = TRUE))
 
+

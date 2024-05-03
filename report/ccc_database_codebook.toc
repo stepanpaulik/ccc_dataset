@@ -1,0 +1,13 @@
+\babel@toc {english}{}\relax 
+\thispagestyle {empty}
+\contentsline {section}{ccc\_metadata}{2}{section*.1}%
+\contentsline {section}{ccc\_texts}{6}{section*.2}%
+\contentsline {section}{ccc\_judges}{7}{section*.3}%
+\contentsline {section}{ccc\_clerks}{9}{section*.4}%
+\contentsline {section}{ccc\_compositions}{11}{section*.5}%
+\contentsline {section}{ccc\_separate\_opinions}{12}{section*.6}%
+\contentsline {section}{ccc\_parties}{13}{section*.7}%
+\contentsline {section}{ccc\_references}{15}{section*.8}%
+\contentsline {section}{ccc\_subject\_matter}{16}{section*.9}%
+\contentsline {section}{ccc\_disputed\_acts}{17}{section*.10}%
+\contentsline {section}{ccc\_verdicts}{18}{section*.11}%
