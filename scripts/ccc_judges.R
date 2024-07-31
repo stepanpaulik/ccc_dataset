@@ -1,6 +1,6 @@
 library(tidyverse)
 
-data_judges <- tribble(
+data_judges = tribble(
   ~judge_name, ~judge_name_lemmatized, ~judge_yob, ~judge_gender, ~judge_uni, ~judge_degree, ~judge_profession, ~judge_term_start, ~judge_term_end,
   "Iva Brožová", "Iv[a-žěščřžýáíéúůň]*\\s*Brožov[a-žěščřžýáíéúůň]*", 1951, "F", "MUNI", "judr", "judge", "15.7.1993", "8.12.1999",
   "Vojtěch Cepl", "Vojtěch[a-žěščřžýáíéúůň]*\\s*Cepl[a-žěščřžýáíéúůň]*", 1938, "M", "CUNI", "prof", "scholar", "15.7.1993", "15.7.2003",
@@ -52,12 +52,12 @@ data_judges <- tribble(
   "Veronika Křesťanová", "Veroni[a-žěščřžýáíéúůň]*\\s*Křesťan[a-žěščřžýáíéúůň]*", 1969, "F", "CUNI", "phd", "judge", "8.8.2023", NA,
   "Lucie Dolanská Bányaiová", "Luci[a-žěščřžýáíéúůň]* (Dola)*[a-žěščřžýáíéúůň]* Bányai[a-žěščřžýáíéúůň]*", 1974, "F", "CUNI", "phd", "lawyer", "19.12.2023", NA,
   "Zdeněk Kühn", "Zde[a-žěščřžýáíéúůň]* K[a-žěščřžýáíéúůň]hn[a-žěščřžýáíéúůň]*", 1973, "M", "CUNI", "prof", "judge", "19.12.2023", NA
-) %>%
-  rowwise() %>%
-  mutate(judge_id = paste0("J:",cur_group_id())) %>%
-  ungroup() %>%
-  unnest(c(judge_term_start, judge_term_end, judge_profession)) %>%
-  mutate(across(c(judge_term_start,judge_term_end), ~as_date(x = ., format = "%d.%m.%Y"))) %>%
+) |>
+  rowwise() |>
+  mutate(judge_id = paste0("J:",cur_group_id())) |>
+  ungroup() |>
+  unnest(c(judge_term_start, judge_term_end, judge_profession)) |>
+  mutate(across(c(judge_term_start,judge_term_end), ~as_date(x = ., format = "%d.%m.%Y"))) |>
   mutate(judge_term_court = case_when(year(judge_term_start) < 1995 ~ "1st",
                                year(judge_term_start) < 2010 ~ "2nd",
                                year(judge_term_start) < 2018 ~ "3rd",
@@ -73,8 +73,8 @@ data_judges <- tribble(
                             levels = c("mgr", "judr", "phd", "doc", "prof")),
          judge_reelection = if_else(judge_name %in% c("Pavel Rychetský", "Jiří Nykodým", "Ivana Janů", "Jan Musil", "Pavel Holländer", "Vojen Güttler", "Miloslav Výborný"), true = 1, false = 0),
          judge_term_end = case_when(is.na(judge_term_end) ~ judge_term_start %m+% years(10),
-                                    .default = judge_term_end)) %>%
-  relocate(judge_id) %>%
+                                    .default = judge_term_end)) |>
+  relocate(judge_id) |>
   mutate(judge_initials = paste0(substring(word(judge_name, 1), 1, 1), ".\\s*", substring(word(judge_name, 2), 1, 1), "."))
 
-write_rds(data_judges, file = "../data/ccc_dataset/rds/ccc_judges.rds")
+if(write == TRUE) write_rds(data_judges, file = "../data/ccc_dataset/rds/ccc_judges.rds")

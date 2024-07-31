@@ -180,7 +180,7 @@ get_metadata = function(decision_addresses){
       note = "Poznámka",
       url_address = "URL adresa"
     ) %>%
-    mutate(across(contains("date"), ~ as.Date(x = ., format = "%d. %m. %Y"))) %>% 
+    mutate(across(contains("date"), ~as.Date(x = ., format = "%d. %m. %Y"))) %>% 
     mutate(
       formation = case_when(
         grepl(":Pl." , doc_id) ~ "Plenum",
@@ -199,7 +199,7 @@ get_metadata = function(decision_addresses){
         str_detect(as.character(type_verdict), "procesní") & !str_detect(as.character(type_verdict), "vyhověno|zamítnuto|odmítnutno") ~ "procedural",
         .default = "admissibility"), 
       case_id = case_id %>%
-        str_extract(., pattern = "[A-ZĽŠČŘ]{1,2}[a-zěščřžýéáó]*.ÚS\\s\\d+/\\d+(\\s#\\d)?"),
+        str_extract(pattern = "[A-ZĽŠČŘ]{1,3}[a-zěščřžýéáó]*\\.ÚS(-st\\.)?\\s\\d+/\\d+(\\s#\\d)?"),
       case_nr = str_extract(string = case_id, pattern = "#\\d+") %>% str_extract("\\d+"),
       case_id = str_remove(string = case_id, pattern = "\\s#\\d+")) %>%
         relocate(case_nr, .after = case_id) %>%
@@ -209,7 +209,7 @@ get_metadata = function(decision_addresses){
     mutate(across(where(is.character), str_trim)) %>%
     mutate(across(where(is.character), ~replace(., . == "NA", NA))) %>%
     mutate(across(where(is.character), ~na_if(.,""))) %>%
-    left_join(., read_rds(file = "../data/US_judges.rds") %>% select(judge_name, judge_id), by = join_by(judge_rapporteur_name == judge_name)) %>%
+    left_join(read_rds(file = "../data/US_judges.rds") %>% select(judge_name, judge_id), by = join_by(judge_rapporteur_name == judge_name)) %>%
     rename(judge_rapporteur_id = judge_id) %>%
     relocate(judge_rapporteur_id, .after = judge_rapporteur_name)
   

@@ -145,7 +145,7 @@ left=10pt,right=10pt,top=8pt,bottom=8pt}
 	\begin{tikzpicture}[remember picture,overlay, shift={(current page.south west)}]
 		% \fill[themecolor] (0, 10.75in) rectangle ++ (8.5in, 0.25in); % header
 		\fill[black!5] (0, 0) rectangle ++ (8.5in, 0.5in); % footer
-		\draw (0.25in, 0.25in) node[anchor = west] {\fontsize{9}{9}\selectfont \color{black!40} The Czech Constitutional Court Database \hspace{5pt} | \hspace{5pt} ANONYMIZED}; % footer content
+		\draw (0.25in, 0.25in) node[anchor = west] {\fontsize{9}{9}\selectfont \color{black!40} The Czech Constitutional Court Database \hspace{5pt} | \hspace{5pt} Štěpán Paulík}; % footer content
 		\draw (8.25in, 0.25in) node[anchor = east] {\fontsize{9}{9}\selectfont \color{black!40} \thepage}; % page number
 	\end{tikzpicture}
 }
@@ -183,7 +183,7 @@ left=10pt,right=10pt,top=8pt,bottom=8pt}
 % cover
 %--------------------------------------------------%
 
-\cover{The Czech Constitutional Court Database \\ The CCC Database}{1.0}{ANONYMIZED}{16}
+\cover{The Czech Constitutional Court Database \\ The CCC Database}{1.0}{Štěpán Paulík}{16}
 
 \newpage
 
@@ -326,7 +326,7 @@ This dataset includes judge-level information on all clerks that have served und
 % dataset
 %--------------------------------------------------%
 
-\headerpage{ccc\_compositions}{decision-level composition data}{30}{10}
+\headerpage{ccc\_compositions}{sitting-judge-level composition data}{30}{10}
 
 \subheading{Description}
 
@@ -343,7 +343,7 @@ This dataset contains information on which judges sat at which case. Each observ
 % dataset
 %--------------------------------------------------%
 
-\headerpage{ccc\_separate\_opinions}{decision-judge-level separate-opinion data}{30}{10}
+\headerpage{ccc\_separate\_opinions}{separate-opinon-level separate-opinion data}{30}{10}
 
 \subheading{Description}
 
@@ -361,11 +361,11 @@ This dataset contains information on which judges attached a separate opinion to
 % dataset
 %--------------------------------------------------%
 
-\headerpage{ccc\_parties}{decision-party level parties data}{30}{10}
+\headerpage{ccc\_parties}{party-level parties data}{30}{10}
 
 \subheading{Description}
 
-This dataset contains the information on parties, both the applicant and the involved party, as well as additional information on the type of the party. Each observation is a decision-party composite.
+This dataset contains the information on parties, both the applicant and the involved party, as well as additional information on the type of the party.
 
 \subheading{Variables}
 
@@ -379,7 +379,7 @@ This dataset contains the information on parties, both the applicant and the inv
 % dataset
 %--------------------------------------------------%
 
-\headerpage{ccc\_references}{decision-reference-level references acts data}{30}{10}
+\headerpage{ccc\_references}{reference-level references acts data}{30}{10}
 
 \subheading{Description}
 
@@ -396,11 +396,11 @@ This dataset contains the information on concerned legal acts, that is both ordi
 % dataset
 %--------------------------------------------------%
 
-\headerpage{ccc\_subject\_matter}{decision-subject-matter level data}{30}{10}
+\headerpage{ccc\_subject\_matter}{subject-matter-level data}{30}{10}
 
 \subheading{Description}
 
-This dataset contains information on the subject matter of cases. Each observation is a decision and one subject matter composite. The data was created by merging two information from the CCC database, namely on the subject proceedings and the concerned area of constitutional law.
+This dataset contains information on the subject matter of cases. Each observation one subject matter in any given decision. The data was created by merging two information from the CCC database, namely on the subject proceedings and the concerned area of constitutional law.
 
 \subheading{Variables}
 
@@ -413,11 +413,11 @@ This dataset contains information on the subject matter of cases. Each observati
 % dataset
 %--------------------------------------------------%
 
-\headerpage{ccc\_disputed\_acts}{decision-disputed-acts-level data}{30}{10}
+\headerpage{ccc\_disputed\_acts}{disputed-acts-level data}{30}{10}
 
 \subheading{Description}
 
-This dataset includes the disputed acts in any given decision. Each observation is a decision-disputed act composite. The data was obtained from the CCC database. Additionaly, information on the type of the disputed act was automatically added.
+This dataset includes the disputed acts in any given decision. Each observation is one disputed act in any given decision. The data was obtained from the CCC database. Additionaly, information on the type of the disputed act was automatically added.
 
 \subheading{Variables}
 
@@ -430,11 +430,11 @@ This dataset includes the disputed acts in any given decision. Each observation 
 % dataset
 %--------------------------------------------------%
 
-\headerpage{ccc\_verdicts}{decision-verdict-level data}{30}{10}
+\headerpage{ccc\_verdicts}{verdict-level data}{30}{10}
 
 \subheading{Description}
 
-This dataset includes information on the type of verdict the CCC reached in any given decision, i.e., whether the case was granted, rejected, rejected on inadmissibility, or whether it was a procedural verdict. Each observation is a decision-verdict composita. Each decision may contain more than one verdicts.
+This dataset includes information on the type of verdict the CCC reached in any given decision, i.e., whether the case was granted, rejected, rejected on inadmissibility, or whether it was a procedural verdict. Each decision may contain more than one verdicts. Each observation is one verdict in any given decisions.
 
 \subheading{Variables}
 

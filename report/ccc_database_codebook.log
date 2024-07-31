@@ -1,4 +1,4 @@
-This is LuaHBTeX, Version 1.16.0 (TeX Live 2023)  (format=lualatex 2023.6.21)  11 APR 2024 16:23
+This is LuaHBTeX, Version 1.16.0 (TeX Live 2023)  (format=lualatex 2023.6.21)  5 JUL 2024 16:25
  restricted system commands enabled.
  file:line:error style messages enabled.
 **ccc_database_codebook.tex
@@ -1097,7 +1097,7 @@ Here is how much of LuaTeX's memory you used:
  671 words of node memory still in use:
    3 hlist, 1 vlist, 1 rule, 2 glue, 3 kern, 1 glyph, 9 attribute, 98 glue_spec,
  5 attribute_list, 2 write nodes
-   avail lists: 1:2,2:6913,3:3387,4:494,5:336,6:35,7:4720,8:1,9:745,10:21,11:304
+   avail lists: 1:2,2:6913,3:3387,4:494,5:336,6:35,7:4726,8:1,9:745,10:21,11:304
 
  46335 multiletter control sequences out of 65536+600000
  63 fonts using 7573399 bytes
@@ -1105,7 +1105,7 @@ Here is how much of LuaTeX's memory you used:
 </usr/local/texlive/2023/texmf-dist/fonts/opentype/google/roboto/RobotoMono-Ligh
 t.otf></Users/stepanpaulik/Library/Fonts/Roboto-Medium.ttf></Users/stepanpaulik/
 Library/Fonts/Roboto-Light.ttf>
-Output written on ccc_database_codebook.pdf (19 pages, 69672 bytes).
+Output written on ccc_database_codebook.pdf (19 pages, 69705 bytes).
 
 PDF statistics: 168 PDF objects out of 1000 (max. 8388607)
  136 compressed objects within 2 object streams
