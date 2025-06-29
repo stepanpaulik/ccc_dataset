@@ -12,7 +12,7 @@ library(furrr)
 
 get_urls = function(decision_date = "1.1.1993") {
   
-  rD = rsDriver(browser="chrome", port=as.integer(sample(x = 3000:5000, 1)), verbose=T)
+  rD = rsDriver(browser="firefox", port=as.integer(sample(x = 3000:5000, 1)), verbose=T, phantomver = NULL)
   remDr = rD[["client"]]
   
   message("Scraping decision addresses")
@@ -59,7 +59,7 @@ get_urls = function(decision_date = "1.1.1993") {
 }
 
 get_metadata = function(decision_addresses){
-  rD = rsDriver(browser="chrome", port=as.integer(sample(x = 3000:5000, 1)), verbose=T)
+  rD = rsDriver(browser="firefox", port=as.integer(sample(x = 3000:5000, 1)), verbose=T, phantomver = NULL)
   remDr = rD[["client"]]
   
   message("Scraping metadata")
@@ -209,9 +209,11 @@ get_metadata = function(decision_addresses){
     mutate(across(where(is.character), str_trim)) %>%
     mutate(across(where(is.character), ~replace(., . == "NA", NA))) %>%
     mutate(across(where(is.character), ~na_if(.,""))) %>%
-    left_join(read_rds(file = "../data/US_judges.rds") %>% select(judge_name, judge_id), by = join_by(judge_rapporteur_name == judge_name)) %>%
+    left_join(readr::read_rds("../data/ccc_database/rds/ccc_judges.rds") %>% select(judge_name, judge_id), by = join_by(judge_rapporteur_name == judge_name)) %>%
     rename(judge_rapporteur_id = judge_id) %>%
-    relocate(judge_rapporteur_id, .after = judge_rapporteur_name)
+    relocate(judge_rapporteur_id, .after = judge_rapporteur_name) |>
+    distinct() |>
+    mutate(doc_id = make.unique(doc_id))
   
   
   remDr$close()

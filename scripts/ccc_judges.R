@@ -33,17 +33,17 @@ data_judges = tribble(
   "Pavel Šámal", "Pav[a-žěščřžýáíéúůň]*\\s*Šámal[a-žěščřžýáíéúůň]*", 1953, "M", "CUNI", "prof", "judge", "20.2.2020", NA,
   "Josef Fiala", "Josef[a-žěščřžýáíéúůň]*\\s*Fial[a-žěščřžýáíéúůň]*", 1953, "M", "MUNI", "prof", "scholar", "17.12.2015", NA,
   "Jaromír Jirsa", "Jaromír[a-žěščřžýáíéúůň]*\\s*Jirs[a-žěščřžýáíéúůň]*", 1966, "M", "CUNI", "judr", "judge", "7.10.2015", NA,
-  "David Uhlíř", "David[a-žěščřžýáíéúůň]*\\s*Uhlíř[a-žěščřžýáíéúůň]*", 1954, "M", "CUNI", "judr", "lawyer", "10.12.2014", NA,
-  "Tomáš Lichovník", "Tomáš[a-žěščřžýáíéúůň]*\\s*Lichovník[a-žěščřžýáíéúůň]*", 1964, "M", "MUNI", "judr", "judge", "19.6.2014", NA,
-  "Vojtěch Šimíček", "Vojtěch[a-žěščřžýáíéúůň]*\\s*Šimíč[a-žěščřžýáíéúůň]*", 1969, "M", "MUNI", "doc", "judge", "12.6.2014", NA,
-  "Jiří Zemánek", "Jiří[a-žěščřžýáíéúůň]*\\s*Zemán[a-žěščřžýáíéúůň]*", 1950, "M", "CUNI", "judr", "scholar", "20.1.2014", NA,
+  "David Uhlíř", "David[a-žěščřžýáíéúůň]*\\s*Uhlíř[a-žěščřžýáíéúůň]*", 1954, "M", "CUNI", "judr", "lawyer", "10.12.2014", "10.12.2024",
+  "Tomáš Lichovník", "Tomáš[a-žěščřžýáíéúůň]*\\s*Lichovník[a-žěščřžýáíéúůň]*", 1964, "M", "MUNI", "judr", "judge", "19.6.2014", "19.6.2024",
+  "Vojtěch Šimíček", "Vojtěch[a-žěščřžýáíéúůň]*\\s*Šimíč[a-žěščřžýáíéúůň]*", 1969, "M", "MUNI", "doc", "judge", "12.6.2014", "12.6.2024",
+  "Jiří Zemánek", "Jiří[a-žěščřžýáíéúůň]*\\s*Zemán[a-žěščřžýáíéúůň]*", 1950, "M", "CUNI", "prof", "scholar", "20.1.2014", "20.1.2024",
   "Radovan Suchánek", "Radovan[a-žěščřžýáíéúůň]*\\s*Suchán[a-žěščřžýáíéúůň]*", 1972, "M", "CUNI", "phd", "scholar", "26.11.2013", "26.11.2023",
   "Ludvík David", "Ludvík[a-žěščřžýáíéúůň]*\\s*David[a-žěščřžýáíéúůň]*", 1951, "M", "MUNI", "judr", "judge", "7.8.2013", "7.8.2023",
   "Vladimír Sládeček", "Vladimír[a-žěščřžýáíéúůň]*\\s*Sládeč[a-žěščřžýáíéúůň]*", 1954, "M", "CUNI", "prof", "scholar", "4.6.2013", "4.6.2023",
   "Jan Filip", "Jan[a-žěščřžýáíéúůň]*\\s* Filip[a-žěščřžýáíéúůň]*", 1950, "M", "MUNI", "prof", "scholar", "3.5.2013", "3.5.2023",
   "Jaroslav Fenyk", "Jaroslav[a-žěščřžýáíéúůň]*\\s*Fenyk[a-žěščřžýáíéúůň]*", 1961, "M", "CUNI", "prof", "scholar", "3.5.2013", "3.5.2023",
   "Milada Tomková", "Milad[a-žěščřžýáíéúůň]*\\s*Tomkov[a-žěščřžýáíéúůň]*", 1959, "F", "CUNI", "judr", "judge", "3.5.2013", "3.5.2023",
-  "Pavel Rychetský", "Pav[a-žěščřžýáíéúůň]*\\s*Rychetsk[a-žěščřžýáíéúůň]*", 1943, "M", "CUNI", "judr", c("politician","judge"), c("6.8.2003", "7.8.2013"), c("6.8.2013", NA),
+  "Pavel Rychetský", "Pav[a-žěščřžýáíéúůň]*\\s*Rychetsk[a-žěščřžýáíéúůň]*", 1943, "M", "CUNI", "judr", c("politician","judge"), c("6.8.2003", "7.8.2013"), c("6.8.2013", "7.8.2023"),
   "Jan Svatoň", "Jan[a-žěščřžýáíéúůň]*\\s*Svato[a-žěščřžýáíéúůň]*", 1952, "M", "MUNI", "doc", "scholar", "15.2.2023", NA,
   "Josef Baxa", "Josef[a-žěščřžýáíéúůň]*\\s*Bax[a-žěščřžýáíéúůň]*", 1959, "M", "CUNI", "judr", "judge", "5.6.2023", NA,
   "Jan Wintr", "Jan[a-žěščřžýáíéúůň]*\\s*Wintr[a-žěščřžýáíéúůň]*", 1978, "M", "CUNI", "prof", "scholar", "5.6.2023", NA,
@@ -51,7 +51,11 @@ data_judges = tribble(
   "Kateřina Ronovská", "Kate[a-žěščřžýáíéúůň]*\\s*Ronovs[a-žěščřžýáíéúůň]*", 1974, "F", "MUNI", "prof", "scholar", "4.8.2023", NA,
   "Veronika Křesťanová", "Veroni[a-žěščřžýáíéúůň]*\\s*Křesťan[a-žěščřžýáíéúůň]*", 1969, "F", "CUNI", "phd", "judge", "8.8.2023", NA,
   "Lucie Dolanská Bányaiová", "Luci[a-žěščřžýáíéúůň]* (Dola)*[a-žěščřžýáíéúůň]* Bányai[a-žěščřžýáíéúůň]*", 1974, "F", "CUNI", "phd", "lawyer", "19.12.2023", NA,
-  "Zdeněk Kühn", "Zde[a-žěščřžýáíéúůň]* K[a-žěščřžýáíéúůň]hn[a-žěščřžýáíéúůň]*", 1973, "M", "CUNI", "prof", "judge", "19.12.2023", NA
+  "Zdeněk Kühn", "Zde[a-žěščřžýáíéúůň]* K[a-žěščřžýáíéúůň]hn[a-žěščřžýáíéúůň]*", 1973, "M", "CUNI", "prof", "judge", "19.12.2023", NA,
+  "Milan Hulmák", "Milan[a-žěščřžýáíéúůň]*\\s*Hulmák[a-žěščřžýáíéúůň]*", 1975, "M", "UPOL", "doc", "lawyer", "1.2.2024", NA,
+  "Tomáš Langášek", "Tomáš[a-žěščřžýáíéúůň]*\\s*Langáš[a-žěščřžýáíéúůň]*", 1974, "M", "CUNI", "judr", "judge", "25.6.2024", NA,
+  "Jiří Přibáň", "Jiří[a-žěščřžýáíéúůň]*\\s*Přibáň[a-žěščřžýáíéúůň]*", 1967, "M", "CUNI", "prof", "scholar", "25.6.2024", NA,
+  "Dita Řepková", "Dit[a-žěščřžýáíéúůň]*\\s*Řepkov[a-žěščřžýáíéúůň]*", 1975, "F", "MUNI", "phd", "judge", "12.12.2024", NA
 ) |>
   rowwise() |>
   mutate(judge_id = paste0("J:",cur_group_id())) |>
@@ -60,8 +64,8 @@ data_judges = tribble(
   mutate(across(c(judge_term_start,judge_term_end), ~as_date(x = ., format = "%d.%m.%Y"))) |>
   mutate(judge_term_court = case_when(year(judge_term_start) < 1995 ~ "1st",
                                year(judge_term_start) < 2010 ~ "2nd",
-                               year(judge_term_start) < 2018 ~ "3rd",
-                               year(judge_term_start) > 2019 ~ "4th"),
+                               year(judge_term_start) < 2021 ~ "3rd",
+                               year(judge_term_start) > 2022 ~ "4th"),
          judge_term_president = case_when(judge_term_court == "1st" ~ "Václav Havel",
                                           judge_term_court == "2nd" ~ "Václav Klaus",
                                           judge_term_court == "3rd" ~ "Miloš Zeman",
@@ -77,4 +81,4 @@ data_judges = tribble(
   relocate(judge_id) |>
   mutate(judge_initials = paste0(substring(word(judge_name, 1), 1, 1), ".\\s*", substring(word(judge_name, 2), 1, 1), "."))
 
-if(write == TRUE) write_rds(data_judges, file = "../data/ccc_dataset/rds/ccc_judges.rds")
+if(write == TRUE) write_rds(data_judges, file = "../data/ccc_database/rds/ccc_judges.rds")

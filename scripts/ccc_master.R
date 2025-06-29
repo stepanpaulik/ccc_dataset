@@ -3,13 +3,13 @@ source("scripts/ccc_web_scraping.R")
 source("scripts/ccc_supporting_functions.R")
 
 update = FALSE
-write = FALSE
+write = TRUE
 
 # This is the master file that runs the web scraping process, including automatic update of the DB.
 
 if(update == FALSE & write == FALSE){
   # LOAD CURRENT DATA -------------------------------------------------------
-  metadata = read_rds(file = "../data/ccc_database/rds/metadata.rds")
+  metadata = read_rds(file = "../data/ccc_database/rds/ccc_metadata.rds")
   texts = read_rds(file = "../data/ccc_database/rds/ccc_texts.rds")
   judges = readr::read_rds("../data/ccc_database/rds/ccc_judges.rds")
   clerks = readr::read_rds("../data/ccc_database/rds/ccc_clerks.rds")
@@ -48,10 +48,17 @@ if(update == TRUE){
   texts = bind_rows(texts, texts_new)
   
 } else{
-  ccc_IDs_new = get_urls() # Call with the default "day 0" date
+  source("scripts/ccc_judges.R")
+  ccc_IDs = read_rds("../data/ccc_database/rds/ccc_IDs.rds")
+  # source("scripts/ccc_clerks.R")
+  ccc_IDs = get_urls() # Call with the default "day 0" date
   write_rds(ccc_IDs, file = "../data/ccc_database/rds/ccc_IDs.rds")
   
   metadata = get_metadata(ccc_IDs)
+  # write_rds(texts, file = "../data/ccc_database/rds/ccc_texts.rds")
+  
+  # Update texts
+  texts = get_texts(metadata = metadata)
   
   metadata = get_compositions(metadata = metadata, texts = texts, judges = judges)
   
@@ -62,13 +69,12 @@ if(update == TRUE){
     select(doc_id, composition) |>
     unnest(composition)
   
-  # Update texts
-  texts = get_texts(metadata = metadata)
+  
 }
 
 # ADDITIONAL DATA ---------------------------------------------------------
 # This creates the auxiliary tables with additional data wrangling steps
-separate_opinions = get_separate_opinions(metadata, texts, judges)
+separate_opinions = get_dissenting_opinions(metadata, texts, judges)
 
 references = bind_rows(
   metadata |>
@@ -90,6 +96,9 @@ references = bind_rows(
 ) |>
   drop_na()
 
+duplicates = metadata |> group_by(doc_id) |> filter(n() > 1)
+data = metadata |>
+  distinct()
 
 parties = bind_rows(
   metadata |>

@@ -1,7 +1,7 @@
 library(tidyverse)
 library(furrr)
 
-get_separate_opinions = function(metadata, texts, judges){
+get_dissenting_opinions = function(metadata, texts, judges){
   future::plan(multisession, workers = parallel::detectCores() - 2)
   # The terms detecting paragraphs starting the dissenting opinion
   dissent_term_vec = c("Odlišné stanovisko",
@@ -38,10 +38,10 @@ get_separate_opinions = function(metadata, texts, judges){
                        "K odlišnému stanovisku",
                        "K tomuto odlišnému stanovisku", sep = "|")
   
-  metadata %<>%
-    filter(!is.na(separate_opinion)) |>
-    unnest(separate_opinion) |>
-    select(doc_id, separate_opinion)
+  metadata = metadata |>
+    filter(!is.na(dissenting_opinion)) |>
+    unnest(dissenting_opinion) |>
+    select(doc_id, dissenting_opinion)
   
   data = texts |>
     filter(doc_id %in% metadata$doc_id) |>
@@ -56,8 +56,8 @@ get_separate_opinions = function(metadata, texts, judges){
   
   # Up until here the code splits up the texts into paragraphs and filters those which contain the dissent_term strings
   
-  data = data |>
-    mutate(dissenting_judge = pmap(function(doc_id, paragraph, ...) judges |>
+  data = data %>%
+    mutate(dissenting_judge = pmap(., function(doc_id, paragraph, ...) judges |>
                                      filter(str_detect(string = paragraph, pattern = judge_name_lemmatized)|str_detect(string = paragraph, pattern = judge_initials)) |>
                                      select(judge_name) |>
                                      distinct())) |> # A parallel map to detect the judge names/initials in the paragraphs and to keep the doc_id as well
@@ -77,17 +77,18 @@ get_separate_opinions = function(metadata, texts, judges){
   
   # Finally join back with the metadata and judges tables
   data = data |>
-    right_join(metadata, by = join_by(doc_id, separate_opinion == dissenting_judge_name)) |>
-    left_join(judges |> select(judge_name, judge_id) |> distinct(), by = join_by(separate_opinion == judge_name)) |>
-    rename(dissenting_judge_name = separate_opinion,
+    right_join(metadata, by = join_by(doc_id, dissenting_judge_name == dissenting_opinion)) |>
+    left_join(judges |> select(judge_name, judge_id) |> distinct(), by = join_by(dissenting_judge_name == judge_name)) |>
+    rename(
+      # dissenting_judge_name = dissenting_opinion,
            dissenting_judge_id = judge_id) |>
     relocate(dissenting_judge_id, .after = dissenting_judge_name)
   return(data)
 }
 
 get_compositions = function(metadata, texts, judges){ 
-  data = left_join(metadata, texts, by = join_by(doc_id)) |>
-    mutate(composition = pmap(function(doc_id, text, ...) {
+  data = left_join(metadata, texts, by = join_by(doc_id)) %>%
+    mutate(composition = pmap(., function(doc_id, text, ...) {
       text = text |>
         str_split("\\n\\n") |>
         unlist()
